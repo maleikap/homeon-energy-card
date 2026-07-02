@@ -1,7 +1,7 @@
 class HomeOnEnergyCard extends HTMLElement {
   setConfig(config) {
     this.config = config || {};
-    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg";
+    this.logo = this.config.logo || "/local/homeon/homeon_logo.svg";
 
     this.labels = {
       mode: "Tryb EMS",
