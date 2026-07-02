@@ -82,7 +82,24 @@ class HomeOnEnergyCard extends HTMLElement {
       learnAvgBuy: "EMS średnia cena zakupu",
       learnAvgSell: "EMS średnia cena sprzedaży",
       learnBestSellSeen: "EMS najlepsza zauważona cena sprzedaży",
-      learnMostMode: "EMS najczęstszy tryb"
+      learnMostMode: "EMS najczęstszy tryb",
+      planPhase: "Plan faza dnia",
+      planRecommendedSoc: "Plan zalecany SOC",
+      planNextAction: "Plan następna akcja",
+      planNextActionTime: "Plan godzina następnej akcji",
+      planNextActionReason: "Plan powód następnej akcji",
+      planChargeWindow: "Plan okno taniego ładowania",
+      planSellWindow: "Plan okno najlepszej sprzedaży",
+      planHoldReason: "Plan powód trzymania energii",
+      planNightKwh: "Plan prognoza zużycia nocnego",
+      planDayKwh: "Plan prognoza zużycia 24h",
+      planCheapestBuy: "Plan najtańsza cena zakupu",
+      planBestSell: "Plan najlepsza cena sprzedaży",
+      planOverview: "Plan 24h podsumowanie",
+      learnPeakHour: "EMS godzina największego zużycia",
+      learnPeakLoad: "EMS największe godzinowe zużycie",
+      learnLowHour: "EMS godzina najniższego zużycia",
+      learnLowLoad: "EMS najniższe godzinowe zużycie"
     };
 
     this.candidates = {
@@ -326,7 +343,24 @@ class HomeOnEnergyCard extends HTMLElement {
       learnAvgBuy: "EMS średnia cena zakupu",
       learnAvgSell: "EMS średnia cena sprzedaży",
       learnBestSellSeen: "EMS najlepsza zauważona cena sprzedaży",
-      learnMostMode: "EMS najczęstszy tryb"
+      learnMostMode: "EMS najczęstszy tryb",
+      planPhase: "Plan faza dnia",
+      planRecommendedSoc: "Plan zalecany SOC",
+      planNextAction: "Plan następna akcja",
+      planNextActionTime: "Plan godzina następnej akcji",
+      planNextActionReason: "Plan powód następnej akcji",
+      planChargeWindow: "Plan okno taniego ładowania",
+      planSellWindow: "Plan okno najlepszej sprzedaży",
+      planHoldReason: "Plan powód trzymania energii",
+      planNightKwh: "Plan prognoza zużycia nocnego",
+      planDayKwh: "Plan prognoza zużycia 24h",
+      planCheapestBuy: "Plan najtańsza cena zakupu",
+      planBestSell: "Plan najlepsza cena sprzedaży",
+      planOverview: "Plan 24h podsumowanie",
+      learnPeakHour: "EMS godzina największego zużycia",
+      learnPeakLoad: "EMS największe godzinowe zużycie",
+      learnLowHour: "EMS godzina najniższego zużycia",
+      learnLowLoad: "EMS najniższe godzinowe zużycie"
     };
 
     for (const [key, label] of Object.entries(learning)) {
@@ -1394,6 +1428,32 @@ class HomeOnEnergyCard extends HTMLElement {
               </div>
             </div>
 
+            <div class="panel" style="margin-top:14px;">
+              <div class="section-title">
+                <span>Plan następnych 24h</span>
+                <ha-icon icon="mdi:calendar-clock"></ha-icon>
+              </div>
+
+              <div class="metrics">
+                ${this.metric("Następna akcja", this.esc(this.st("planNextAction")), this.esc(this.st("planNextActionTime")), "mdi:calendar-arrow-right")}
+                ${this.metric("Zalecany SOC", this.fmt("planRecommendedSoc", 1), this.esc(this.st("planPhase")), "mdi:battery-check")}
+                ${this.metric("Tanie ładowanie", this.esc(this.st("planChargeWindow")), "najlepsze okno zakupu", "mdi:battery-clock")}
+                ${this.metric("Najlepsza sprzedaż", this.esc(this.st("planSellWindow")), "najlepsze okno sprzedaży", "mdi:cash-clock")}
+                ${this.metric("Zużycie nocne", this.fmt("planNightKwh", 2), "prognoza z profilu domu", "mdi:weather-night")}
+                ${this.metric("Zużycie 24h", this.fmt("planDayKwh", 2), "prognoza z profilu godzinowego", "mdi:calendar-today")}
+              </div>
+
+              <div class="action-box" style="margin-top:13px;">
+                <b>Powód planu</b><br>
+                ${this.esc(this.st("planNextActionReason"))}
+              </div>
+
+              <div class="action-box" style="margin-top:10px;">
+                <b>Podsumowanie 24h</b><br>
+                ${this.esc(this.st("planOverview"))}
+              </div>
+            </div>
+
             <div class="footer-grid">
               <div class="panel">
                 <div class="section-title">
@@ -1439,5 +1499,5 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "homeon-energy-card",
   name: "HomeOn Energy Card",
-  description: "Profesjonalny panel HomeOn Energy Manager."
+  description: "Panel HomeOn Energy Manager z planerem 24h."
 });
