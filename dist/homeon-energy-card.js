@@ -33,6 +33,25 @@ class HomeOnEnergyCard extends HTMLElement {
       sellDelta: "Różnica do najlepszej ceny",
       enabled: "Włączony",
       dryRun: "Tryb testowy dry-run",
+      inverterControlAction: "Akcja falownika",
+      inverterControlResult: "Wynik sterowania falownikiem",
+      learnSamples: "EMS próbki nauki",
+      learnHours: "EMS czas nauki",
+      learnConfidence: "EMS pewność nauki",
+      learnAvgLoad: "EMS średnie zużycie domu",
+      learnAvgDayLoad: "EMS średnie zużycie dzień",
+      learnAvgNightLoad: "EMS średnie zużycie noc",
+      learnDailyKwh: "EMS szacowane zużycie dobowe",
+      learnNightKwh: "EMS szacowane zużycie nocne",
+      learnEnergyLoad: "EMS energia domu",
+      learnEnergyPv: "EMS energia PV",
+      learnEnergyImport: "EMS energia import",
+      learnEnergyExport: "EMS energia eksport",
+      learnAvgBuy: "EMS średnia cena zakupu",
+      learnAvgSell: "EMS średnia cena sprzedaży",
+      learnBestSellSeen: "EMS najlepsza zauważona cena sprzedaży",
+      learnMostMode: "EMS najczęstszy tryb",
+      learnLastUpdate: "EMS ostatnia nauka",
     };
 
     this.candidates = {
@@ -664,6 +683,35 @@ class HomeOnEnergyCard extends HTMLElement {
           to { left: -35px; }
         }
 
+        .learning-panel {
+          margin-top: 14px;
+        }
+
+        .learning-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 10px;
+          margin-top: 10px;
+        }
+
+        .wide-tile {
+          grid-column: span 2;
+        }
+
+        .confidence-bar {
+          height: 12px;
+          background: rgba(255,255,255,0.13);
+          border-radius: 999px;
+          overflow: hidden;
+          margin-top: 8px;
+        }
+
+        .confidence-fill {
+          height: 100%;
+          width: ${Math.max(0, Math.min(100, this.num("learnConfidence", 0)))}%;
+          background: linear-gradient(90deg, var(--yellow), var(--green));
+        }
+
         .bottom {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
@@ -690,6 +738,35 @@ class HomeOnEnergyCard extends HTMLElement {
             width: 120px;
             max-width: 120px;
           }
+
+        .learning-panel {
+          margin-top: 14px;
+        }
+
+        .learning-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 10px;
+          margin-top: 10px;
+        }
+
+        .wide-tile {
+          grid-column: span 2;
+        }
+
+        .confidence-bar {
+          height: 12px;
+          background: rgba(255,255,255,0.13);
+          border-radius: 999px;
+          overflow: hidden;
+          margin-top: 8px;
+        }
+
+        .confidence-fill {
+          height: 100%;
+          width: ${Math.max(0, Math.min(100, this.num("learnConfidence", 0)))}%;
+          background: linear-gradient(90deg, var(--yellow), var(--green));
+        }
 
           .bottom {
             grid-template-columns: 1fr 1fr;
@@ -812,6 +889,34 @@ class HomeOnEnergyCard extends HTMLElement {
                 <div class="tile"><div class="tile-title">Pozostało dziś</div><div class="tile-value">${this.fmt("pvToday", 1)}</div></div>
                 <div class="tile"><div class="tile-title">Jutro</div><div class="tile-value">${this.fmt("pvTomorrow", 1)}</div></div>
               </div>
+            </div>
+          </div>
+
+          <div class="panel learning-panel">
+            <div class="panel-title">Czego nauczył się EMS</div>
+            <div class="learning-grid">
+              <div class="tile"><div class="tile-title">Pewność nauki</div><div class="tile-value">${this.fmt("learnConfidence", 0)}</div><div class="confidence-bar"><div class="confidence-fill"></div></div></div>
+              <div class="tile"><div class="tile-title">Czas nauki</div><div class="tile-value">${this.fmt("learnHours", 1)}</div></div>
+              <div class="tile"><div class="tile-title">Próbki</div><div class="tile-value">${this.fmt("learnSamples", 0)}</div></div>
+              <div class="tile"><div class="tile-title">Najczęstszy tryb</div><div class="tile-value">${this.esc(this.st("learnMostMode"))}</div></div>
+
+              <div class="tile"><div class="tile-title">Średnie zużycie domu</div><div class="tile-value">${this.fmt("learnAvgLoad")}</div></div>
+              <div class="tile"><div class="tile-title">Zużycie dzień</div><div class="tile-value">${this.fmt("learnAvgDayLoad")}</div></div>
+              <div class="tile"><div class="tile-title">Zużycie noc</div><div class="tile-value">${this.fmt("learnAvgNightLoad")}</div></div>
+              <div class="tile"><div class="tile-title">Prognoza nocy</div><div class="tile-value">${this.fmt("learnNightKwh", 2)}</div></div>
+
+              <div class="tile"><div class="tile-title">Energia domu</div><div class="tile-value">${this.fmt("learnEnergyLoad", 2)}</div></div>
+              <div class="tile"><div class="tile-title">Energia PV</div><div class="tile-value">${this.fmt("learnEnergyPv", 2)}</div></div>
+              <div class="tile"><div class="tile-title">Import</div><div class="tile-value">${this.fmt("learnEnergyImport", 2)}</div></div>
+              <div class="tile"><div class="tile-title">Eksport</div><div class="tile-value">${this.fmt("learnEnergyExport", 2)}</div></div>
+
+              <div class="tile"><div class="tile-title">Śr. cena zakupu</div><div class="tile-value">${this.fmt("learnAvgBuy", 3)}</div></div>
+              <div class="tile"><div class="tile-title">Śr. cena sprzedaży</div><div class="tile-value">${this.fmt("learnAvgSell", 3)}</div></div>
+              <div class="tile"><div class="tile-title">Najlepsza cena widziana</div><div class="tile-value">${this.fmt("learnBestSellSeen", 3)}</div></div>
+              <div class="tile"><div class="tile-title">Ostatnia nauka</div><div class="tile-value" style="font-size:14px">${this.esc(this.st("learnLastUpdate"))}</div></div>
+
+              <div class="tile wide-tile"><div class="tile-title">Akcja falownika</div><div class="tile-value" style="font-size:15px">${this.esc(this.st("inverterControlAction"))}</div></div>
+              <div class="tile wide-tile"><div class="tile-title">Wynik sterowania</div><div class="tile-value" style="font-size:15px">${this.esc(this.st("inverterControlResult"))}</div></div>
             </div>
           </div>
 
