@@ -96,6 +96,14 @@ class HomeOnEnergyCard extends HTMLElement {
       planCheapestBuy: "Plan najtańsza cena zakupu",
       planBestSell: "Plan najlepsza cena sprzedaży",
       planOverview: "Plan 24h podsumowanie",
+      planWeatherTomorrow: "Plan pogoda jutro",
+      planPvTomorrow: "Plan prognoza PV jutro",
+      planEnergyBalanceTomorrow: "Plan bilans energii jutro",
+      planEnergyToKeep: "Plan energia do zostawienia",
+      planSafeToSell: "Plan bezpieczna energia do sprzedaży",
+      planSafeExportLimit: "Plan bezpieczny limit eksportu",
+      planWeatherStrategy: "Plan strategia pogoda",
+      planReasonableBuyWindow: "Plan okno normalnego zakupu",
       learnPeakHour: "EMS godzina największego zużycia",
       learnPeakLoad: "EMS największe godzinowe zużycie",
       learnLowHour: "EMS godzina najniższego zużycia",
@@ -357,6 +365,14 @@ class HomeOnEnergyCard extends HTMLElement {
       planCheapestBuy: "Plan najtańsza cena zakupu",
       planBestSell: "Plan najlepsza cena sprzedaży",
       planOverview: "Plan 24h podsumowanie",
+      planWeatherTomorrow: "Plan pogoda jutro",
+      planPvTomorrow: "Plan prognoza PV jutro",
+      planEnergyBalanceTomorrow: "Plan bilans energii jutro",
+      planEnergyToKeep: "Plan energia do zostawienia",
+      planSafeToSell: "Plan bezpieczna energia do sprzedaży",
+      planSafeExportLimit: "Plan bezpieczny limit eksportu",
+      planWeatherStrategy: "Plan strategia pogoda",
+      planReasonableBuyWindow: "Plan okno normalnego zakupu",
       learnPeakHour: "EMS godzina największego zużycia",
       learnPeakLoad: "EMS największe godzinowe zużycie",
       learnLowHour: "EMS godzina najniższego zużycia",
@@ -489,6 +505,7 @@ class HomeOnEnergyCard extends HTMLElement {
       NEGATIVE_IMPORT: ["Ładowanie z taniej energii", "charge"],
       CHEAP_CHARGE: ["Tanie ładowanie", "charge"],
       WAIT_BETTER_SELL_PRICE: ["Czeka na lepszą cenę", "wait"],
+      WEATHER_HOLD_RESERVE: ["Rezerwa pod pogodę", "wait"],
       SELL_BATTERY_HIGH_PRICE: ["Sprzedaż baterii", "sell"],
       PV_CHARGE: ["Ładowanie z PV", "charge"],
       EXPENSIVE_SELF_USE: ["Droga energia — autokonsumpcja", "self"],
@@ -1439,6 +1456,10 @@ class HomeOnEnergyCard extends HTMLElement {
                 ${this.metric("Zalecany SOC", this.fmt("planRecommendedSoc", 1), this.esc(this.st("planPhase")), "mdi:battery-check")}
                 ${this.metric("Tanie ładowanie", this.esc(this.st("planChargeWindow")), "najlepsze okno zakupu", "mdi:battery-clock")}
                 ${this.metric("Najlepsza sprzedaż", this.esc(this.st("planSellWindow")), "najlepsze okno sprzedaży", "mdi:cash-clock")}
+                ${this.metric("Pogoda jutro", this.esc(this.st("planWeatherTomorrow")), "PV: " + this.fmt("planPvTomorrow", 2), "mdi:weather-partly-cloudy")}
+                ${this.metric("Bezpieczna sprzedaż", this.fmt("planSafeToSell", 2), "limit: " + this.fmt("planSafeExportLimit", 0), "mdi:cash-check")}
+                ${this.metric("Zostawić energię", this.fmt("planEnergyToKeep", 2), this.esc(this.st("planReasonableBuyWindow")), "mdi:battery-lock")}
+                ${this.metric("Bilans jutro", this.fmt("planEnergyBalanceTomorrow", 2), "PV minus zużycie", "mdi:scale-balance")}
                 ${this.metric("Zużycie nocne", this.fmt("planNightKwh", 2), "prognoza z profilu domu", "mdi:weather-night")}
                 ${this.metric("Zużycie 24h", this.fmt("planDayKwh", 2), "prognoza z profilu godzinowego", "mdi:calendar-today")}
               </div>
@@ -1451,6 +1472,11 @@ class HomeOnEnergyCard extends HTMLElement {
               <div class="action-box" style="margin-top:10px;">
                 <b>Podsumowanie 24h</b><br>
                 ${this.esc(this.st("planOverview"))}
+              </div>
+
+              <div class="action-box" style="margin-top:10px;">
+                <b>Strategia pogoda / PV</b><br>
+                ${this.esc(this.st("planWeatherStrategy"))}
               </div>
             </div>
 
@@ -1499,5 +1525,5 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "homeon-energy-card",
   name: "HomeOn Energy Card",
-  description: "Panel HomeOn Energy Manager z planerem 24h."
+  description: "Panel HomeOn Energy Manager z prognozą PV i sprzedażą bezpiecznej nadwyżki."
 });
