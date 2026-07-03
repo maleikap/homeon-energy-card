@@ -2,7 +2,7 @@ class HomeOnEnergyCard extends HTMLElement {
   setConfig(config) {
     this.config = config || {};
     this.title = this.config.title || "HomeOn Energy Dashboard";
-    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=024";
+    this.logo = this.config.logo || "/local/community/homeon-energy-card/homeon_logo.svg?v=025";
     this.render();
   }
 
@@ -158,31 +158,167 @@ class HomeOnEnergyCard extends HTMLElement {
     };
   }
 
+  entityCandidates() {
+    return {
+      mode: [
+        "sensor.homeon_tryb_ems",
+        "sensor.homeon_energy_manager_tryb_ems",
+        "sensor.homeon_energy_manager_homeon_tryb_ems"
+      ],
+      reason: [
+        "sensor.homeon_decyzja_ems",
+        "sensor.homeon_energy_manager_decyzja_ems",
+        "sensor.homeon_energy_manager_homeon_decyzja_ems"
+      ],
+
+      soc: [
+        "sensor.homeon_soc_magazynu",
+        "sensor.homeon_energy_manager_soc_magazynu",
+        "sensor.homeon_energy_manager_homeon_soc_magazynu"
+      ],
+      pvPower: [
+        "sensor.homeon_moc_pv",
+        "sensor.homeon_energy_manager_moc_pv",
+        "sensor.homeon_energy_manager_homeon_moc_pv"
+      ],
+      loadPower: [
+        "sensor.homeon_moc_domu",
+        "sensor.homeon_energy_manager_moc_domu",
+        "sensor.homeon_energy_manager_homeon_moc_domu"
+      ],
+      gridPower: [
+        "sensor.homeon_moc_sieci",
+        "sensor.homeon_energy_manager_moc_sieci",
+        "sensor.homeon_energy_manager_homeon_moc_sieci"
+      ],
+      gridStatus: [
+        "sensor.homeon_status_sieci",
+        "sensor.homeon_energy_manager_status_sieci",
+        "sensor.homeon_energy_manager_homeon_status_sieci"
+      ],
+      gridImport: [
+        "sensor.homeon_import_z_sieci",
+        "sensor.homeon_energy_manager_import_z_sieci",
+        "sensor.homeon_energy_manager_homeon_import_z_sieci"
+      ],
+      gridExport: [
+        "sensor.homeon_eksport_do_sieci",
+        "sensor.homeon_energy_manager_eksport_do_sieci",
+        "sensor.homeon_energy_manager_homeon_eksport_do_sieci"
+      ],
+
+      batteryPower: [
+        "sensor.homeon_moc_baterii",
+        "sensor.homeon_energy_manager_moc_baterii",
+        "sensor.homeon_energy_manager_homeon_moc_baterii"
+      ],
+      batteryStatus: [
+        "sensor.homeon_status_baterii",
+        "sensor.homeon_energy_manager_status_baterii",
+        "sensor.homeon_energy_manager_homeon_status_baterii"
+      ],
+      batteryCharge: [
+        "sensor.homeon_ladowanie_baterii",
+        "sensor.homeon_energy_manager_ladowanie_baterii",
+        "sensor.homeon_energy_manager_homeon_ladowanie_baterii"
+      ],
+      batteryDischarge: [
+        "sensor.homeon_rozladowanie_baterii",
+        "sensor.homeon_energy_manager_rozladowanie_baterii",
+        "sensor.homeon_energy_manager_homeon_rozladowanie_baterii"
+      ],
+
+      inverterSelf: [
+        "sensor.homeon_pobor_wlasny_falownika",
+        "sensor.homeon_energy_manager_pobor_wlasny_falownika",
+        "sensor.homeon_energy_manager_homeon_pobor_wlasny_falownika"
+      ],
+
+      chargeTarget: [
+        "sensor.homeon_cel_ladowania",
+        "sensor.homeon_energy_manager_cel_ladowania",
+        "sensor.homeon_energy_manager_homeon_cel_ladowania"
+      ],
+      dischargeTarget: [
+        "sensor.homeon_cel_rozladowania",
+        "sensor.homeon_energy_manager_cel_rozladowania",
+        "sensor.homeon_energy_manager_homeon_cel_rozladowania"
+      ],
+      morningTarget: [
+        "sensor.homeon_cel_poranny",
+        "sensor.homeon_energy_manager_cel_poranny",
+        "sensor.homeon_energy_manager_homeon_cel_poranny"
+      ],
+      nightReserve: [
+        "sensor.homeon_rezerwa_nocna",
+        "sensor.homeon_energy_manager_rezerwa_nocna",
+        "sensor.homeon_energy_manager_homeon_rezerwa_nocna"
+      ],
+      availableSell: [
+        "sensor.homeon_energia_dostepna_do_sprzedazy",
+        "sensor.homeon_energy_manager_energia_dostepna_do_sprzedazy",
+        "sensor.homeon_energy_manager_homeon_energia_dostepna_do_sprzedazy"
+      ],
+      freeSpace: [
+        "sensor.homeon_wolne_miejsce_w_magazynie",
+        "sensor.homeon_energy_manager_wolne_miejsce_w_magazynie",
+        "sensor.homeon_energy_manager_homeon_wolne_miejsce_w_magazynie"
+      ]
+    };
+  }
+
   findEntity(key) {
     const hass = this._hass;
     if (!hass) return null;
 
     const def = this.defs()[key] || {};
+
     const configured = this.config.entities && this.config.entities[key];
     if (configured && hass.states[configured]) return configured;
 
     const direct = this.config[key];
     if (direct && hass.states[direct]) return direct;
 
-    const domain = def.domain || null;
+    const exactCandidates = (this.entityCandidates()[key] || []).concat(def.candidates || []);
+    for (const entityId of exactCandidates) {
+      if (hass.states[entityId]) return entityId;
+    }
+
     const findList = def.find || [];
+    const domain = def.domain || null;
 
     for (const pattern of findList) {
       const tokens = this.norm(pattern).split(" ").filter(Boolean);
+
       for (const [entityId, stateObj] of Object.entries(hass.states)) {
         if (domain && !entityId.startsWith(domain + ".")) continue;
 
         const friendly = this.norm(stateObj.attributes && stateObj.attributes.friendly_name);
         const entityNorm = this.norm(entityId);
 
-        if (tokens.every((t) => friendly.includes(t)) || tokens.every((t) => entityNorm.includes(t))) {
-          return entityId;
-        }
+        const isHomeOn = entityNorm.includes("homeon") || friendly.includes("homeon");
+        if (!isHomeOn) continue;
+
+        const friendlyOk = tokens.every((t) => friendly.includes(t));
+        const entityOk = tokens.every((t) => entityNorm.includes(t));
+
+        if (friendlyOk || entityOk) return entityId;
+      }
+    }
+
+    for (const pattern of findList) {
+      const tokens = this.norm(pattern).split(" ").filter(Boolean);
+
+      for (const [entityId, stateObj] of Object.entries(hass.states)) {
+        if (domain && !entityId.startsWith(domain + ".")) continue;
+
+        const friendly = this.norm(stateObj.attributes && stateObj.attributes.friendly_name);
+        const entityNorm = this.norm(entityId);
+
+        const friendlyOk = tokens.every((t) => friendly.includes(t));
+        const entityOk = tokens.every((t) => entityNorm.includes(t));
+
+        if (friendlyOk || entityOk) return entityId;
       }
     }
 
@@ -296,6 +432,7 @@ class HomeOnEnergyCard extends HTMLElement {
 
 
 
+
   powerFlow() {
     const pv = Math.max(0, this.num("pvPower", 0));
     const load = Math.max(0, this.num("loadPower", 0));
@@ -308,105 +445,87 @@ class HomeOnEnergyCard extends HTMLElement {
     const gridFlow = Math.max(gridImport, gridExport);
     const batteryFlow = Math.max(batteryCharge, batteryDischarge);
 
+    const gridMode = gridImport > gridExport ? "IMPORT" : gridExport > 25 ? "EKSPORT" : "ZERO";
+    const batteryMode = batteryDischarge > batteryCharge ? "ROZŁADOWANIE" : batteryCharge > 25 ? "ŁADOWANIE" : "POSTÓJ";
+
     const pvOn = pv > 25 ? " on" : "";
     const gridOn = gridFlow > 25 ? " on" : "";
     const batteryOn = batteryFlow > 25 ? " on" : "";
 
-    const gridExportMode = gridExport > gridImport;
-    const batteryDischargeMode = batteryDischarge > batteryCharge;
-
-    const gridReverse = gridExportMode ? " reverse" : "";
-    const batteryReverse = batteryDischargeMode ? " reverse" : "";
-
-    const gridText = gridImport > gridExport ? "import z sieci" : gridExport > 25 ? "eksport do sieci" : "zero";
-    const batteryText = batteryDischarge > batteryCharge ? "oddaje do domu" : batteryCharge > 25 ? "ładuje się" : "postój";
+    const gridReverse = gridExport > gridImport ? " reverse" : "";
+    const batteryReverse = batteryDischarge > batteryCharge ? " reverse" : "";
 
     return `
-      <section class="pf-card">
-        <div class="pf-head">
+      <section class="hf-card">
+        <div class="hf-head">
           <div>
             <h3>Przepływ energii</h3>
-            <p>PV zawsze u góry, dom w środku, sieć po lewej, bateria po prawej. Kropki pokazują realny kierunek przepływu.</p>
+            <p>PV → Dom. Sieć po lewej, bateria po prawej. Animacja pokazuje kierunek przepływu.</p>
           </div>
-          <div class="pf-mode">${this.esc(this.value("mode"))}</div>
+          <div class="hf-mode">${this.esc(this.value("mode"))}</div>
         </div>
 
-        <div class="pf-board">
-          <div class="pf-bg"></div>
-
-          <div class="pf-node pf-pv">
-            <div class="pf-orb pf-solar"><ha-icon icon="mdi:solar-power"></ha-icon></div>
-            <strong>PV</strong>
-            <b>${this.fmtW(pv)}</b>
+        <div class="hf-board">
+          <div class="hf-top">
+            <div class="hf-node hf-pv-node">
+              <div class="hf-orb hf-solar"><ha-icon icon="mdi:solar-power"></ha-icon></div>
+              <strong>PV</strong>
+              <b>${this.fmtW(pv)}</b>
+            </div>
           </div>
 
-          <div class="pf-node pf-home">
-            <div class="pf-orb pf-house"><ha-icon icon="mdi:home-lightning-bolt"></ha-icon></div>
-            <strong>Dom</strong>
-            <b>${this.fmtW(load)}</b>
-            <small>zużycie teraz</small>
+          <div class="hf-vertical hf-pv-flow${pvOn}">
+            <div class="hf-lane hf-lane-v">
+              <i></i><i></i><i></i>
+              <em>${this.fmtW(pv)}</em>
+            </div>
           </div>
 
-          <div class="pf-node pf-grid">
-            <div class="pf-orb pf-grid-icon"><ha-icon icon="mdi:transmission-tower"></ha-icon></div>
-            <strong>Sieć</strong>
-            <b>${this.fmtW(gridFlow)}</b>
-            <small>${this.esc(gridText)}</small>
+          <div class="hf-mid">
+            <div class="hf-node">
+              <div class="hf-orb hf-grid-orb"><ha-icon icon="mdi:transmission-tower"></ha-icon></div>
+              <strong>Sieć</strong>
+              <b>${this.fmtW(gridFlow)}</b>
+              <small>${this.esc(gridMode)}</small>
+            </div>
+
+            <div class="hf-lane hf-lane-h hf-grid-flow${gridOn}${gridReverse}">
+              <i></i><i></i><i></i>
+              <em>${this.fmtW(gridFlow)}</em>
+            </div>
+
+            <div class="hf-node hf-home-node">
+              <div class="hf-orb hf-home-orb"><ha-icon icon="mdi:home-lightning-bolt"></ha-icon></div>
+              <strong>Dom</strong>
+              <b>${this.fmtW(load)}</b>
+              <small>zużycie teraz</small>
+            </div>
+
+            <div class="hf-lane hf-lane-h hf-battery-flow${batteryOn}${batteryReverse}">
+              <i></i><i></i><i></i>
+              <em>${this.fmtW(batteryFlow)}</em>
+            </div>
+
+            <div class="hf-node">
+              <div class="hf-orb hf-batt-orb"><ha-icon icon="mdi:battery"></ha-icon></div>
+              <strong>Bateria</strong>
+              <b>${this.esc(this.value("soc"))}</b>
+              <small>${this.esc(batteryMode)}</small>
+            </div>
           </div>
 
-          <div class="pf-node pf-battery">
-            <div class="pf-orb pf-batt"><ha-icon icon="mdi:battery"></ha-icon></div>
-            <strong>Bateria</strong>
-            <b>${this.esc(this.value("soc"))}</b>
-            <small>${this.esc(batteryText)}</small>
-          </div>
-
-          <div class="pf-line pf-line-pv${pvOn}">
-            <span></span>
-            <i class="d1"></i><i class="d2"></i><i class="d3"></i>
-            <em>${this.fmtW(pv)}</em>
-          </div>
-
-          <div class="pf-line pf-line-grid${gridOn}${gridReverse}">
-            <span></span>
-            <i class="d1"></i><i class="d2"></i><i class="d3"></i>
-            <em>${this.fmtW(gridFlow)}</em>
-          </div>
-
-          <div class="pf-line pf-line-battery${batteryOn}${batteryReverse}">
-            <span></span>
-            <i class="d1"></i><i class="d2"></i><i class="d3"></i>
-            <em>${this.fmtW(batteryFlow)}</em>
-          </div>
-
-          <div class="pf-center-label">
+          <div class="hf-inverter">
             <ha-icon icon="mdi:inverter"></ha-icon>
             <span>Falownik</span>
             <b>${this.fmtW(inverterSelf)}</b>
           </div>
         </div>
 
-        <div class="pf-summary">
-          <div>
-            <ha-icon icon="mdi:solar-power"></ha-icon>
-            <span>PV</span>
-            <b>${this.fmtW(pv)}</b>
-          </div>
-          <div>
-            <ha-icon icon="mdi:home-lightning-bolt"></ha-icon>
-            <span>Dom</span>
-            <b>${this.fmtW(load)}</b>
-          </div>
-          <div>
-            <ha-icon icon="mdi:battery-plus"></ha-icon>
-            <span>Cel ładowania</span>
-            <b>${this.esc(this.value("chargeTarget"))}</b>
-          </div>
-          <div>
-            <ha-icon icon="mdi:cash-check"></ha-icon>
-            <span>Do sprzedaży</span>
-            <b>${this.esc(this.value("availableSell"))}</b>
-          </div>
+        <div class="hf-summary">
+          <div><ha-icon icon="mdi:solar-power"></ha-icon><span>PV</span><b>${this.fmtW(pv)}</b></div>
+          <div><ha-icon icon="mdi:home-lightning-bolt"></ha-icon><span>Dom</span><b>${this.fmtW(load)}</b></div>
+          <div><ha-icon icon="mdi:battery-plus"></ha-icon><span>Cel ładowania</span><b>${this.esc(this.value("chargeTarget"))}</b></div>
+          <div><ha-icon icon="mdi:cash-check"></ha-icon><span>Do sprzedaży</span><b>${this.esc(this.value("availableSell"))}</b></div>
         </div>
       </section>
     `;
@@ -455,7 +574,7 @@ class HomeOnEnergyCard extends HTMLElement {
       <div class="hero ${cls}">
         <div class="hero-left">
           <div class="brand">
-            <img src="${this.esc(this.logo)}" onerror="this.style.display='none'">
+            <img src="${this.esc(this.logo)}" onerror="this.onerror=null;this.src='/hacsfiles/homeon-energy-card/homeon_logo.svg?v=025'">
             <div>
               <div class="brand-title">${this.esc(this.title)}</div>
               <div class="brand-sub">EMS · bateria · falownik · rynek energii</div>
@@ -1955,6 +2074,386 @@ class HomeOnEnergyCard extends HTMLElement {
             }
           }
 
+
+          .brand img {
+            width: 170px !important;
+            height: 92px !important;
+            min-width: 170px !important;
+            min-height: 92px !important;
+            border-radius: 20px !important;
+            object-fit: contain !important;
+            background: transparent !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+          }
+
+          .brand-title {
+            font-size: 34px !important;
+            font-weight: 900 !important;
+            letter-spacing: -.04em !important;
+          }
+
+          .hf-card {
+            border: 1px solid var(--homeon-border);
+            border-radius: 24px;
+            padding: 18px;
+            background:
+              radial-gradient(circle at 50% 18%, rgba(250,204,21,.10), transparent 24%),
+              radial-gradient(circle at 18% 62%, rgba(167,139,250,.09), transparent 22%),
+              radial-gradient(circle at 82% 62%, rgba(34,197,94,.09), transparent 22%),
+              linear-gradient(145deg, rgba(127,127,127,.045), rgba(127,127,127,.015));
+          }
+
+          .hf-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+          }
+
+          .hf-head h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: -.02em;
+          }
+
+          .hf-head p {
+            margin: 4px 0 0;
+            color: var(--homeon-muted);
+            font-size: 12px;
+            line-height: 1.35;
+          }
+
+          .hf-mode {
+            border: 1px solid var(--homeon-border);
+            border-radius: 999px;
+            padding: 7px 12px;
+            background: var(--homeon-bg);
+            font-size: 12px;
+            font-weight: 850;
+            white-space: nowrap;
+          }
+
+          .hf-board {
+            border: 1px solid var(--homeon-border);
+            border-radius: 26px;
+            background:
+              radial-gradient(circle at 50% 48%, rgba(56,189,248,.10), transparent 20%),
+              radial-gradient(circle at 50% 48%, rgba(34,197,94,.06), transparent 36%),
+              var(--homeon-bg);
+            padding: 18px;
+            overflow: hidden;
+          }
+
+          .hf-top {
+            display: flex;
+            justify-content: center;
+          }
+
+          .hf-mid {
+            display: grid;
+            grid-template-columns: 160px minmax(120px, 1fr) 178px minmax(120px, 1fr) 160px;
+            gap: 12px;
+            align-items: center;
+          }
+
+          .hf-node {
+            min-height: 124px;
+            border-radius: 22px;
+            border: 1px solid var(--homeon-border);
+            background: color-mix(in srgb, var(--homeon-bg) 90%, transparent);
+            box-shadow: 0 16px 38px rgba(0,0,0,.07);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 5px;
+            padding: 12px;
+            box-sizing: border-box;
+          }
+
+          .hf-home-node {
+            min-height: 138px;
+            box-shadow: 0 20px 48px rgba(56,189,248,.13);
+          }
+
+          .hf-node strong {
+            font-size: 14px;
+            font-weight: 900;
+          }
+
+          .hf-node b {
+            font-size: 18px;
+            font-weight: 900;
+          }
+
+          .hf-home-node b {
+            font-size: 20px;
+          }
+
+          .hf-node small {
+            color: var(--homeon-muted);
+            font-size: 11px;
+          }
+
+          .hf-orb {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: white;
+            box-shadow: 0 0 28px rgba(0,0,0,.14);
+          }
+
+          .hf-orb ha-icon {
+            width: 29px;
+            height: 29px;
+          }
+
+          .hf-solar { background: linear-gradient(135deg, #facc15, #f97316); }
+          .hf-home-orb { background: linear-gradient(135deg, #38bdf8, #2563eb); }
+          .hf-grid-orb { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+          .hf-batt-orb { background: linear-gradient(135deg, #22c55e, #0f766e); }
+
+          .hf-vertical {
+            display: flex;
+            justify-content: center;
+            height: 52px;
+            align-items: center;
+          }
+
+          .hf-lane {
+            position: relative;
+            border-radius: 999px;
+            opacity: .26;
+          }
+
+          .hf-lane.on,
+          .hf-pv-flow.on .hf-lane {
+            opacity: 1;
+          }
+
+          .hf-lane-v {
+            width: 9px;
+            height: 48px;
+            background: linear-gradient(180deg, rgba(250,204,21,.18), rgba(250,204,21,.70));
+          }
+
+          .hf-lane-h {
+            height: 9px;
+            min-width: 110px;
+          }
+
+          .hf-grid-flow {
+            background: linear-gradient(90deg, rgba(167,139,250,.72), rgba(167,139,250,.18));
+          }
+
+          .hf-battery-flow {
+            background: linear-gradient(90deg, rgba(34,197,94,.18), rgba(34,197,94,.72));
+          }
+
+          .hf-lane i {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            opacity: 0;
+          }
+
+          .hf-lane:not(.on) i,
+          .hf-pv-flow:not(.on) .hf-lane i {
+            display: none;
+          }
+
+          .hf-lane-v i {
+            left: -1.5px;
+            background: #facc15;
+            box-shadow: 0 0 18px #facc15;
+            animation: hfDotDown 1.35s linear infinite;
+          }
+
+          .hf-lane-h i {
+            top: -1.5px;
+            animation: hfDotRight 1.55s linear infinite;
+          }
+
+          .hf-grid-flow i {
+            background: #a78bfa;
+            box-shadow: 0 0 18px #a78bfa;
+          }
+
+          .hf-battery-flow i {
+            background: #22c55e;
+            box-shadow: 0 0 18px #22c55e;
+          }
+
+          .hf-lane-h.reverse i {
+            animation-name: hfDotLeft;
+          }
+
+          .hf-lane i:nth-of-type(2) {
+            animation-delay: .45s;
+          }
+
+          .hf-lane i:nth-of-type(3) {
+            animation-delay: .9s;
+          }
+
+          .hf-lane em {
+            position: absolute;
+            font-style: normal;
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--homeon-muted);
+            background: color-mix(in srgb, var(--homeon-bg) 92%, transparent);
+            border: 1px solid var(--homeon-border);
+            border-radius: 999px;
+            padding: 4px 8px;
+            white-space: nowrap;
+          }
+
+          .hf-lane-v em {
+            left: 18px;
+            top: 12px;
+          }
+
+          .hf-lane-h em {
+            left: 50%;
+            top: -31px;
+            transform: translateX(-50%);
+          }
+
+          @keyframes hfDotDown {
+            0% { top: -10px; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { top: calc(100% + 5px); opacity: 0; }
+          }
+
+          @keyframes hfDotRight {
+            0% { left: -10px; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { left: calc(100% + 5px); opacity: 0; }
+          }
+
+          @keyframes hfDotLeft {
+            0% { left: calc(100% + 5px); opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { left: -10px; opacity: 0; }
+          }
+
+          .hf-inverter {
+            width: fit-content;
+            margin: 14px auto 0;
+            border: 1px solid var(--homeon-border);
+            border-radius: 999px;
+            padding: 8px 13px;
+            background: color-mix(in srgb, var(--homeon-bg) 90%, transparent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--homeon-muted);
+            box-shadow: 0 10px 26px rgba(0,0,0,.05);
+          }
+
+          .hf-inverter ha-icon {
+            width: 18px;
+            height: 18px;
+          }
+
+          .hf-inverter span {
+            font-size: 12px;
+          }
+
+          .hf-inverter b {
+            color: var(--homeon-text);
+            font-size: 12px;
+            font-weight: 900;
+          }
+
+          .hf-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+          }
+
+          .hf-summary div {
+            border: 1px solid var(--homeon-border);
+            border-radius: 16px;
+            padding: 11px 12px;
+            background: color-mix(in srgb, var(--homeon-bg) 88%, transparent);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            min-width: 0;
+          }
+
+          .hf-summary ha-icon {
+            color: var(--homeon-accent);
+            flex: 0 0 auto;
+          }
+
+          .hf-summary span {
+            color: var(--homeon-muted);
+            font-size: 12px;
+            flex: 1;
+            min-width: 0;
+          }
+
+          .hf-summary b {
+            font-size: 13px;
+            font-weight: 900;
+            white-space: nowrap;
+          }
+
+          @media (max-width: 980px) {
+            .brand img {
+              width: 132px !important;
+              height: 72px !important;
+              min-width: 132px !important;
+              min-height: 72px !important;
+            }
+
+            .hf-mid {
+              grid-template-columns: 1fr;
+            }
+
+            .hf-lane-h {
+              height: 42px;
+              min-width: 9px;
+              width: 9px;
+              justify-self: center;
+            }
+
+            .hf-lane-h i {
+              left: -1.5px;
+              top: auto;
+              animation-name: hfDotDown;
+            }
+
+            .hf-lane-h.reverse i {
+              animation-name: hfDotDown;
+            }
+
+            .hf-lane-h em {
+              left: 18px;
+              top: 8px;
+              transform: none;
+            }
+
+            .hf-summary {
+              grid-template-columns: 1fr;
+            }
+          }
+
         </style>
 
         <div class="wrap">
@@ -2121,7 +2620,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.24 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.25 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -2137,4 +2636,4 @@ if (!customElements.get("homeon-energy-dashboard")) {
   customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.24 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.25 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
