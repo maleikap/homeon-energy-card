@@ -2,7 +2,7 @@ class HomeOnEnergyCard extends HTMLElement {
   setConfig(config) {
     this.config = config || {};
     this.title = this.config.title || "HomeOn Energy Dashboard";
-    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=022";
+    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=024";
     this.render();
   }
 
@@ -294,6 +294,8 @@ class HomeOnEnergyCard extends HTMLElement {
     return `${Math.round(n).toLocaleString("pl-PL")} W`;
   }
 
+
+
   powerFlow() {
     const pv = Math.max(0, this.num("pvPower", 0));
     const load = Math.max(0, this.num("loadPower", 0));
@@ -303,88 +305,108 @@ class HomeOnEnergyCard extends HTMLElement {
     const batteryDischarge = Math.max(0, this.num("batteryDischarge", 0));
     const inverterSelf = Math.max(0, this.num("inverterSelf", 0));
 
-    const batteryToHome = batteryDischarge > batteryCharge;
-    const batteryActive = Math.max(batteryCharge, batteryDischarge) > 20;
-    const gridImporting = gridImport > gridExport;
-    const gridActive = Math.max(gridImport, gridExport) > 20;
+    const gridFlow = Math.max(gridImport, gridExport);
+    const batteryFlow = Math.max(batteryCharge, batteryDischarge);
 
-    const batteryLabel = batteryToHome ? "rozładowanie" : batteryCharge > 20 ? "ładowanie" : "postój";
-    const gridLabel = gridImporting ? "import" : gridExport > 20 ? "eksport" : "zero";
+    const pvOn = pv > 25 ? " on" : "";
+    const gridOn = gridFlow > 25 ? " on" : "";
+    const batteryOn = batteryFlow > 25 ? " on" : "";
 
-    const pvActive = pv > 20 ? " active" : "";
-    const batteryClass = batteryActive ? " active" : "";
-    const gridClass = gridActive ? " active" : "";
-    const batteryReverse = batteryActive && !batteryToHome ? " reverse" : "";
-    const gridReverse = gridActive && !gridImporting ? " reverse" : "";
+    const gridExportMode = gridExport > gridImport;
+    const batteryDischargeMode = batteryDischarge > batteryCharge;
+
+    const gridReverse = gridExportMode ? " reverse" : "";
+    const batteryReverse = batteryDischargeMode ? " reverse" : "";
+
+    const gridText = gridImport > gridExport ? "import z sieci" : gridExport > 25 ? "eksport do sieci" : "zero";
+    const batteryText = batteryDischarge > batteryCharge ? "oddaje do domu" : batteryCharge > 25 ? "ładuje się" : "postój";
 
     return `
-      <section class="energy-flow-card">
-        <div class="energy-flow-head">
+      <section class="pf-card">
+        <div class="pf-head">
           <div>
             <h3>Przepływ energii</h3>
-            <p>Animowany widok aktualnego kierunku pracy instalacji.</p>
+            <p>PV zawsze u góry, dom w środku, sieć po lewej, bateria po prawej. Kropki pokazują realny kierunek przepływu.</p>
           </div>
-          <div class="flow-mode-pill">${this.esc(this.value("mode"))}</div>
+          <div class="pf-mode">${this.esc(this.value("mode"))}</div>
         </div>
 
-        <div class="flow-scene">
-          <div class="flow-node flow-pv">
-            <div class="node-orb solar"><ha-icon icon="mdi:solar-power"></ha-icon></div>
+        <div class="pf-board">
+          <div class="pf-bg"></div>
+
+          <div class="pf-node pf-pv">
+            <div class="pf-orb pf-solar"><ha-icon icon="mdi:solar-power"></ha-icon></div>
             <strong>PV</strong>
-            <span>${this.fmtW(pv)}</span>
+            <b>${this.fmtW(pv)}</b>
           </div>
 
-          <div class="flow-node flow-home">
-            <div class="node-orb home"><ha-icon icon="mdi:home-lightning-bolt"></ha-icon></div>
+          <div class="pf-node pf-home">
+            <div class="pf-orb pf-house"><ha-icon icon="mdi:home-lightning-bolt"></ha-icon></div>
             <strong>Dom</strong>
-            <span>${this.fmtW(load)}</span>
+            <b>${this.fmtW(load)}</b>
+            <small>zużycie teraz</small>
           </div>
 
-          <div class="flow-node flow-battery">
-            <div class="node-orb battery"><ha-icon icon="mdi:battery"></ha-icon></div>
-            <strong>Bateria</strong>
-            <span>${this.esc(this.value("soc"))}</span>
-            <small>${this.esc(batteryLabel)}</small>
-          </div>
-
-          <div class="flow-node flow-grid">
-            <div class="node-orb grid"><ha-icon icon="mdi:transmission-tower"></ha-icon></div>
+          <div class="pf-node pf-grid">
+            <div class="pf-orb pf-grid-icon"><ha-icon icon="mdi:transmission-tower"></ha-icon></div>
             <strong>Sieć</strong>
-            <span>${this.fmtW(Math.max(gridImport, gridExport))}</span>
-            <small>${this.esc(gridLabel)}</small>
+            <b>${this.fmtW(gridFlow)}</b>
+            <small>${this.esc(gridText)}</small>
           </div>
 
-          <div class="flow-node flow-inverter">
-            <div class="node-orb inverter"><ha-icon icon="mdi:inverter"></ha-icon></div>
-            <strong>Falownik</strong>
-            <span>${this.fmtW(inverterSelf)}</span>
+          <div class="pf-node pf-battery">
+            <div class="pf-orb pf-batt"><ha-icon icon="mdi:battery"></ha-icon></div>
+            <strong>Bateria</strong>
+            <b>${this.esc(this.value("soc"))}</b>
+            <small>${this.esc(batteryText)}</small>
           </div>
 
-          <div class="flow-line pv-home vertical${pvActive}">
-            <i></i><i></i><i></i>
+          <div class="pf-line pf-line-pv${pvOn}">
+            <span></span>
+            <i class="d1"></i><i class="d2"></i><i class="d3"></i>
             <em>${this.fmtW(pv)}</em>
           </div>
 
-          <div class="flow-line battery-home horizontal${batteryClass}${batteryReverse}">
-            <i></i><i></i><i></i>
-            <em>${this.fmtW(Math.max(batteryCharge, batteryDischarge))}</em>
+          <div class="pf-line pf-line-grid${gridOn}${gridReverse}">
+            <span></span>
+            <i class="d1"></i><i class="d2"></i><i class="d3"></i>
+            <em>${this.fmtW(gridFlow)}</em>
           </div>
 
-          <div class="flow-line home-grid horizontal${gridClass}${gridReverse}">
-            <i></i><i></i><i></i>
-            <em>${this.fmtW(Math.max(gridImport, gridExport))}</em>
+          <div class="pf-line pf-line-battery${batteryOn}${batteryReverse}">
+            <span></span>
+            <i class="d1"></i><i class="d2"></i><i class="d3"></i>
+            <em>${this.fmtW(batteryFlow)}</em>
           </div>
 
-          <div class="flow-line inverter-home short${inverterSelf > 20 ? " active" : ""}">
-            <i></i><i></i>
-            <em>${this.fmtW(inverterSelf)}</em>
+          <div class="pf-center-label">
+            <ha-icon icon="mdi:inverter"></ha-icon>
+            <span>Falownik</span>
+            <b>${this.fmtW(inverterSelf)}</b>
           </div>
         </div>
 
-        <div class="flow-summary">
-          <div><ha-icon icon="mdi:battery-plus"></ha-icon><span>Cel ładowania</span><b>${this.esc(this.value("chargeTarget"))}</b></div>
-          <div><ha-icon icon="mdi:battery-lock"></ha-icon><span>Rezerwa nocna</span><b>${this.esc(this.value("nightReserve"))}</b></div>
-          <div><ha-icon icon="mdi:cash-check"></ha-icon><span>Do sprzedaży</span><b>${this.esc(this.value("availableSell"))}</b></div>
+        <div class="pf-summary">
+          <div>
+            <ha-icon icon="mdi:solar-power"></ha-icon>
+            <span>PV</span>
+            <b>${this.fmtW(pv)}</b>
+          </div>
+          <div>
+            <ha-icon icon="mdi:home-lightning-bolt"></ha-icon>
+            <span>Dom</span>
+            <b>${this.fmtW(load)}</b>
+          </div>
+          <div>
+            <ha-icon icon="mdi:battery-plus"></ha-icon>
+            <span>Cel ładowania</span>
+            <b>${this.esc(this.value("chargeTarget"))}</b>
+          </div>
+          <div>
+            <ha-icon icon="mdi:cash-check"></ha-icon>
+            <span>Do sprzedaży</span>
+            <b>${this.esc(this.value("availableSell"))}</b>
+          </div>
         </div>
       </section>
     `;
@@ -1110,6 +1132,829 @@ class HomeOnEnergyCard extends HTMLElement {
               flex-direction: column;
             }
           }
+          .brand img {
+            width: 132px !important;
+            height: 132px !important;
+            border-radius: 28px !important;
+            object-fit: contain !important;
+            background: rgba(255,255,255,.10) !important;
+            padding: 8px !important;
+            box-sizing: border-box !important;
+          }
+
+          .brand-title {
+            font-size: 33px !important;
+            font-weight: 900 !important;
+          }
+
+          .rf-card {
+            border: 1px solid var(--homeon-border);
+            border-radius: 22px;
+            padding: 18px;
+            background:
+              radial-gradient(circle at 50% 22%, rgba(250,204,21,.10), transparent 22%),
+              radial-gradient(circle at 16% 75%, rgba(56,189,248,.08), transparent 24%),
+              radial-gradient(circle at 84% 75%, rgba(34,197,94,.08), transparent 24%),
+              linear-gradient(145deg, rgba(127,127,127,.04), rgba(127,127,127,.015));
+          }
+
+          .rf-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+          }
+
+          .rf-head h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: -.02em;
+          }
+
+          .rf-head p {
+            margin: 4px 0 0;
+            color: var(--homeon-muted);
+            font-size: 12px;
+          }
+
+          .rf-mode {
+            border: 1px solid var(--homeon-border);
+            border-radius: 999px;
+            padding: 7px 12px;
+            background: var(--homeon-bg);
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+          }
+
+          .rf-shell {
+            position: relative;
+            height: 400px;
+            border-radius: 26px;
+            border: 1px solid var(--homeon-border);
+            background:
+              radial-gradient(circle at 50% 50%, rgba(34,197,94,.08), transparent 20%),
+              radial-gradient(circle at 50% 50%, rgba(59,130,246,.05), transparent 34%),
+              var(--homeon-bg);
+            overflow: hidden;
+          }
+
+          .rf-glow {
+            position: absolute;
+            inset: 0;
+            background:
+              radial-gradient(circle at 50% 47%, rgba(56,189,248,.10), transparent 18%),
+              radial-gradient(circle at 50% 47%, rgba(34,197,94,.07), transparent 28%);
+            pointer-events: none;
+          }
+
+          .rf-node {
+            position: absolute;
+            z-index: 5;
+            width: 154px;
+            min-height: 114px;
+            border-radius: 22px;
+            border: 1px solid var(--homeon-border);
+            background: rgba(255,255,255,.72);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 14px 34px rgba(0,0,0,.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 4px;
+            padding: 12px;
+            box-sizing: border-box;
+          }
+
+          .rf-name {
+            font-size: 14px;
+            font-weight: 800;
+          }
+
+          .rf-value {
+            font-size: 16px;
+            font-weight: 900;
+          }
+
+          .rf-sub {
+            color: var(--homeon-muted);
+            font-size: 11px;
+          }
+
+          .rf-orb {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            box-shadow: 0 0 24px rgba(0,0,0,.12);
+          }
+
+          .rf-orb ha-icon {
+            width: 28px;
+            height: 28px;
+          }
+
+          .rf-orb.solar { background: linear-gradient(135deg, #facc15, #fb923c); }
+          .rf-orb.home { background: linear-gradient(135deg, #38bdf8, #2563eb); }
+          .rf-orb.grid { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+          .rf-orb.battery { background: linear-gradient(135deg, #22c55e, #0f766e); }
+          .rf-orb.inverter { background: linear-gradient(135deg, #475569, #0f172a); }
+
+          .rf-pv {
+            top: 18px;
+            left: calc(50% - 77px);
+          }
+
+          .rf-home {
+            top: 138px;
+            left: calc(50% - 86px);
+            width: 172px;
+            min-height: 126px;
+            box-shadow: 0 18px 44px rgba(59,130,246,.11);
+          }
+
+          .rf-home .rf-value {
+            font-size: 18px;
+          }
+
+          .rf-grid {
+            top: 146px;
+            left: 58px;
+          }
+
+          .rf-battery {
+            top: 146px;
+            right: 58px;
+          }
+
+          .rf-inverter {
+            bottom: 20px;
+            left: calc(50% - 77px);
+            min-height: 98px;
+          }
+
+          .rf-link {
+            position: absolute;
+            z-index: 2;
+            opacity: .30;
+          }
+
+          .rf-link.on {
+            opacity: 1;
+          }
+
+          .rf-track {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: rgba(148,163,184,.22);
+          }
+
+          .rf-link i {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            opacity: 0;
+          }
+
+          .rf-link em {
+            position: absolute;
+            font-style: normal;
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--homeon-muted);
+            background: rgba(255,255,255,.9);
+            border: 1px solid var(--homeon-border);
+            border-radius: 999px;
+            padding: 4px 8px;
+            white-space: nowrap;
+          }
+
+          .rf-link:not(.on) i {
+            display: none;
+          }
+
+          .rf-link-pv {
+            left: calc(50% - 4px);
+            top: 116px;
+            width: 8px;
+            height: 46px;
+          }
+
+          .rf-link-pv .rf-track {
+            background: linear-gradient(180deg, rgba(250,204,21,.18), rgba(250,204,21,.65));
+          }
+
+          .rf-link-pv i {
+            left: -2px;
+            background: #facc15;
+            box-shadow: 0 0 18px #facc15;
+            animation: homeonDotDown 1.45s linear infinite;
+          }
+
+          .rf-link-pv i.p2 { animation-delay: .45s; }
+          .rf-link-pv i.p3 { animation-delay: .9s; }
+          .rf-link-pv em {
+            left: 16px;
+            top: 10px;
+          }
+
+          .rf-link-grid {
+            left: 206px;
+            top: 205px;
+            width: calc(50% - 292px);
+            height: 8px;
+          }
+
+          .rf-link-grid .rf-track {
+            background: linear-gradient(90deg, rgba(167,139,250,.55), rgba(167,139,250,.18));
+          }
+
+          .rf-link-grid i {
+            top: -2px;
+            background: #a78bfa;
+            box-shadow: 0 0 18px #a78bfa;
+            animation: homeonDotRight 1.55s linear infinite;
+          }
+
+          .rf-link-grid.reverse i {
+            animation-name: homeonDotLeft;
+          }
+
+          .rf-link-grid i.p2 { animation-delay: .45s; }
+          .rf-link-grid i.p3 { animation-delay: .9s; }
+          .rf-link-grid em {
+            left: 50%;
+            transform: translateX(-50%);
+            top: -30px;
+          }
+
+          .rf-link-battery {
+            right: 206px;
+            top: 205px;
+            width: calc(50% - 292px);
+            height: 8px;
+          }
+
+          .rf-link-battery .rf-track {
+            background: linear-gradient(90deg, rgba(34,197,94,.18), rgba(34,197,94,.60));
+          }
+
+          .rf-link-battery i {
+            top: -2px;
+            background: #22c55e;
+            box-shadow: 0 0 18px #22c55e;
+            animation: homeonDotRight 1.55s linear infinite;
+          }
+
+          .rf-link-battery.reverse i {
+            animation-name: homeonDotLeft;
+          }
+
+          .rf-link-battery i.p2 { animation-delay: .45s; }
+          .rf-link-battery i.p3 { animation-delay: .9s; }
+          .rf-link-battery em {
+            left: 50%;
+            transform: translateX(-50%);
+            top: -30px;
+          }
+
+          .rf-link-inverter {
+            left: calc(50% - 4px);
+            top: 265px;
+            width: 8px;
+            height: 58px;
+          }
+
+          .rf-link-inverter .rf-track {
+            background: linear-gradient(180deg, rgba(71,85,105,.16), rgba(71,85,105,.56));
+          }
+
+          .rf-link-inverter i {
+            left: -2px;
+            background: #64748b;
+            box-shadow: 0 0 16px #64748b;
+            animation: homeonDotDown 1.65s linear infinite;
+          }
+
+          .rf-link-inverter i.p2 { animation-delay: .55s; }
+          .rf-link-inverter em {
+            left: 16px;
+            top: 14px;
+          }
+
+          @keyframes homeonDotDown {
+            0% { top: -10px; opacity: 0; }
+            14% { opacity: 1; }
+            86% { opacity: 1; }
+            100% { top: calc(100% + 4px); opacity: 0; }
+          }
+
+          @keyframes homeonDotRight {
+            0% { left: -10px; opacity: 0; }
+            14% { opacity: 1; }
+            86% { opacity: 1; }
+            100% { left: calc(100% + 4px); opacity: 0; }
+          }
+
+          @keyframes homeonDotLeft {
+            0% { left: calc(100% + 4px); opacity: 0; }
+            14% { opacity: 1; }
+            86% { opacity: 1; }
+            100% { left: -10px; opacity: 0; }
+          }
+
+          .rf-bottom {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+          }
+
+          .rf-chip {
+            border: 1px solid var(--homeon-border);
+            border-radius: 15px;
+            padding: 11px 12px;
+            background: rgba(255,255,255,.65);
+            backdrop-filter: blur(6px);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+          }
+
+          .rf-chip ha-icon {
+            color: var(--homeon-accent);
+            flex: 0 0 auto;
+          }
+
+          .rf-chip span {
+            color: var(--homeon-muted);
+            font-size: 12px;
+            flex: 1;
+            min-width: 0;
+          }
+
+          .rf-chip b {
+            font-size: 13px;
+            font-weight: 900;
+            white-space: nowrap;
+          }
+
+          @media (max-width: 980px) {
+            .rf-shell {
+              height: 650px;
+            }
+
+            .rf-pv { top: 18px; left: calc(50% - 77px); }
+            .rf-home { top: 160px; left: calc(50% - 86px); }
+            .rf-grid { top: 320px; left: calc(50% - 77px); }
+            .rf-battery { top: 462px; right: auto; left: calc(50% - 77px); }
+            .rf-inverter { display: none; }
+
+            .rf-link {
+              display: none;
+            }
+
+            .rf-bottom {
+              grid-template-columns: 1fr;
+            }
+          }
+
+          .brand img {
+            width: 150px !important;
+            height: 150px !important;
+            min-width: 150px !important;
+            min-height: 150px !important;
+            border-radius: 30px !important;
+            object-fit: contain !important;
+            background: rgba(255,255,255,.12) !important;
+            padding: 8px !important;
+            box-sizing: border-box !important;
+          }
+
+          .brand-title {
+            font-size: 34px !important;
+            font-weight: 900 !important;
+            letter-spacing: -.04em !important;
+          }
+
+          .pf-card {
+            border: 1px solid var(--homeon-border);
+            border-radius: 24px;
+            padding: 18px;
+            background:
+              radial-gradient(circle at 50% 12%, rgba(250,204,21,.12), transparent 25%),
+              radial-gradient(circle at 12% 60%, rgba(167,139,250,.10), transparent 24%),
+              radial-gradient(circle at 88% 60%, rgba(34,197,94,.10), transparent 24%),
+              linear-gradient(145deg, rgba(127,127,127,.045), rgba(127,127,127,.015));
+          }
+
+          .pf-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 14px;
+          }
+
+          .pf-head h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: -.02em;
+          }
+
+          .pf-head p {
+            margin: 4px 0 0;
+            color: var(--homeon-muted);
+            font-size: 12px;
+            line-height: 1.35;
+          }
+
+          .pf-mode {
+            border: 1px solid var(--homeon-border);
+            border-radius: 999px;
+            padding: 7px 12px;
+            background: var(--homeon-bg);
+            font-size: 12px;
+            font-weight: 850;
+            white-space: nowrap;
+          }
+
+          .pf-board {
+            position: relative;
+            height: 360px;
+            border-radius: 26px;
+            border: 1px solid var(--homeon-border);
+            background:
+              radial-gradient(circle at 50% 50%, rgba(56,189,248,.10), transparent 20%),
+              radial-gradient(circle at 50% 50%, rgba(34,197,94,.07), transparent 34%),
+              var(--homeon-bg);
+            overflow: hidden;
+          }
+
+          .pf-bg {
+            position: absolute;
+            inset: 0;
+            background:
+              linear-gradient(90deg, transparent 0%, rgba(127,127,127,.04) 50%, transparent 100%),
+              linear-gradient(180deg, transparent 0%, rgba(127,127,127,.04) 50%, transparent 100%);
+            pointer-events: none;
+          }
+
+          .pf-node {
+            position: absolute;
+            z-index: 5;
+            width: 150px;
+            min-height: 112px;
+            border-radius: 22px;
+            border: 1px solid var(--homeon-border);
+            background: color-mix(in srgb, var(--homeon-bg) 88%, transparent);
+            box-shadow: 0 16px 38px rgba(0,0,0,.08);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 4px;
+            padding: 12px;
+            box-sizing: border-box;
+          }
+
+          .pf-node strong {
+            font-size: 14px;
+            font-weight: 900;
+          }
+
+          .pf-node b {
+            font-size: 17px;
+            font-weight: 900;
+          }
+
+          .pf-node small {
+            color: var(--homeon-muted);
+            font-size: 11px;
+          }
+
+          .pf-orb {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: white;
+            box-shadow: 0 0 26px rgba(0,0,0,.14);
+          }
+
+          .pf-orb ha-icon {
+            width: 28px;
+            height: 28px;
+          }
+
+          .pf-solar { background: linear-gradient(135deg, #facc15, #f97316); }
+          .pf-house { background: linear-gradient(135deg, #38bdf8, #2563eb); }
+          .pf-grid-icon { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
+          .pf-batt { background: linear-gradient(135deg, #22c55e, #0f766e); }
+
+          .pf-pv {
+            top: 18px;
+            left: calc(50% - 75px);
+          }
+
+          .pf-home {
+            top: 130px;
+            left: calc(50% - 82px);
+            width: 164px;
+            min-height: 126px;
+            box-shadow: 0 20px 46px rgba(56,189,248,.12);
+          }
+
+          .pf-grid {
+            top: 136px;
+            left: 68px;
+          }
+
+          .pf-battery {
+            top: 136px;
+            right: 68px;
+          }
+
+          .pf-center-label {
+            position: absolute;
+            z-index: 6;
+            left: calc(50% - 78px);
+            bottom: 18px;
+            width: 156px;
+            border: 1px solid var(--homeon-border);
+            border-radius: 999px;
+            padding: 8px 11px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            justify-content: center;
+            background: color-mix(in srgb, var(--homeon-bg) 90%, transparent);
+            color: var(--homeon-muted);
+            box-shadow: 0 10px 28px rgba(0,0,0,.06);
+          }
+
+          .pf-center-label ha-icon {
+            width: 18px;
+            height: 18px;
+          }
+
+          .pf-center-label span {
+            font-size: 12px;
+          }
+
+          .pf-center-label b {
+            color: var(--homeon-text);
+            font-size: 12px;
+            font-weight: 900;
+          }
+
+          .pf-line {
+            position: absolute;
+            z-index: 2;
+            opacity: .24;
+          }
+
+          .pf-line.on {
+            opacity: 1;
+          }
+
+          .pf-line span {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: rgba(148,163,184,.22);
+          }
+
+          .pf-line i {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            opacity: 0;
+          }
+
+          .pf-line:not(.on) i {
+            display: none;
+          }
+
+          .pf-line em {
+            position: absolute;
+            font-style: normal;
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--homeon-muted);
+            background: color-mix(in srgb, var(--homeon-bg) 92%, transparent);
+            border: 1px solid var(--homeon-border);
+            border-radius: 999px;
+            padding: 4px 8px;
+            white-space: nowrap;
+          }
+
+          .pf-line-pv {
+            left: calc(50% - 4px);
+            top: 116px;
+            width: 8px;
+            height: 40px;
+          }
+
+          .pf-line-pv span {
+            background: linear-gradient(180deg, rgba(250,204,21,.20), rgba(250,204,21,.72));
+          }
+
+          .pf-line-pv i {
+            left: -2px;
+            background: #facc15;
+            box-shadow: 0 0 18px #facc15;
+            animation: pfDotDown 1.35s linear infinite;
+          }
+
+          .pf-line-pv i.d2 { animation-delay: .42s; }
+          .pf-line-pv i.d3 { animation-delay: .84s; }
+
+          .pf-line-pv em {
+            left: 16px;
+            top: 8px;
+          }
+
+          .pf-line-grid {
+            left: 218px;
+            top: 194px;
+            width: calc(50% - 300px);
+            height: 8px;
+          }
+
+          .pf-line-grid span {
+            background: linear-gradient(90deg, rgba(167,139,250,.68), rgba(167,139,250,.16));
+          }
+
+          .pf-line-grid i {
+            top: -2px;
+            background: #a78bfa;
+            box-shadow: 0 0 18px #a78bfa;
+            animation: pfDotRight 1.55s linear infinite;
+          }
+
+          .pf-line-grid.reverse i {
+            animation-name: pfDotLeft;
+          }
+
+          .pf-line-grid i.d2 { animation-delay: .45s; }
+          .pf-line-grid i.d3 { animation-delay: .9s; }
+
+          .pf-line-grid em {
+            left: 50%;
+            top: -30px;
+            transform: translateX(-50%);
+          }
+
+          .pf-line-battery {
+            right: 218px;
+            top: 194px;
+            width: calc(50% - 300px);
+            height: 8px;
+          }
+
+          .pf-line-battery span {
+            background: linear-gradient(90deg, rgba(34,197,94,.16), rgba(34,197,94,.68));
+          }
+
+          .pf-line-battery i {
+            top: -2px;
+            background: #22c55e;
+            box-shadow: 0 0 18px #22c55e;
+            animation: pfDotRight 1.55s linear infinite;
+          }
+
+          .pf-line-battery.reverse i {
+            animation-name: pfDotLeft;
+          }
+
+          .pf-line-battery i.d2 { animation-delay: .45s; }
+          .pf-line-battery i.d3 { animation-delay: .9s; }
+
+          .pf-line-battery em {
+            left: 50%;
+            top: -30px;
+            transform: translateX(-50%);
+          }
+
+          @keyframes pfDotDown {
+            0% { top: -10px; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { top: calc(100% + 5px); opacity: 0; }
+          }
+
+          @keyframes pfDotRight {
+            0% { left: -10px; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { left: calc(100% + 5px); opacity: 0; }
+          }
+
+          @keyframes pfDotLeft {
+            0% { left: calc(100% + 5px); opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { left: -10px; opacity: 0; }
+          }
+
+          .pf-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+          }
+
+          .pf-summary div {
+            border: 1px solid var(--homeon-border);
+            border-radius: 16px;
+            padding: 11px 12px;
+            background: color-mix(in srgb, var(--homeon-bg) 88%, transparent);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            min-width: 0;
+          }
+
+          .pf-summary ha-icon {
+            color: var(--homeon-accent);
+            flex: 0 0 auto;
+          }
+
+          .pf-summary span {
+            color: var(--homeon-muted);
+            font-size: 12px;
+            flex: 1;
+            min-width: 0;
+          }
+
+          .pf-summary b {
+            font-size: 13px;
+            font-weight: 900;
+            white-space: nowrap;
+          }
+
+          @media (max-width: 980px) {
+            .brand img {
+              width: 110px !important;
+              height: 110px !important;
+              min-width: 110px !important;
+              min-height: 110px !important;
+            }
+
+            .pf-board {
+              height: auto;
+              min-height: 0;
+              display: grid;
+              grid-template-columns: 1fr;
+              gap: 10px;
+              padding: 12px;
+              box-sizing: border-box;
+            }
+
+            .pf-node,
+            .pf-pv,
+            .pf-home,
+            .pf-grid,
+            .pf-battery {
+              position: relative;
+              top: auto;
+              left: auto;
+              right: auto;
+              width: 100%;
+              min-height: 88px;
+            }
+
+            .pf-center-label {
+              position: relative;
+              left: auto;
+              bottom: auto;
+              width: 100%;
+              box-sizing: border-box;
+            }
+
+            .pf-line {
+              display: none;
+            }
+
+            .pf-summary {
+              grid-template-columns: 1fr;
+            }
+          }
+
         </style>
 
         <div class="wrap">
@@ -1276,7 +2121,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.22 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.24 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -1292,4 +2137,4 @@ if (!customElements.get("homeon-energy-dashboard")) {
   customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.22 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.24 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
