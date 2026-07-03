@@ -1,394 +1,9 @@
 class HomeOnEnergyCard extends HTMLElement {
   setConfig(config) {
     this.config = config || {};
-    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg";
-
-    this.labels = {
-      mode: "Tryb EMS",
-      reason: "Decyzja EMS",
-
-      enabled: "Włączony",
-      dryRun: "Tryb testowy dry-run",
-      inverterControl: "Sterowanie falownikiem",
-      inverterControlAction: "Akcja falownika",
-      inverterControlResult: "Wynik sterowania falownikiem",
-
-      soc: "SOC magazynu",
-      batteryStatus: "Status baterii",
-      batteryPower: "Moc baterii",
-      batteryCharge: "Ładowanie baterii",
-      batteryDischarge: "Rozładowanie baterii",
-
-      pvPower: "Moc PV",
-      loadPower: "Moc domu",
-      gridPower: "Moc sieci",
-      gridStatus: "Status sieci",
-      gridImport: "Import z sieci",
-      gridExport: "Eksport do sieci",
-      inverterSelf: "Pobór własny falownika",
-
-      buyPrice: "Cena zakupu",
-      sellPrice: "Cena sprzedaży",
-      bestSellPrice: "Najlepsza cena sprzedaży 24h",
-      bestSellTime: "Godzina najlepszej sprzedaży",
-      nextBetterSellPrice: "Następna lepsza cena sprzedaży",
-      nextBetterSellTime: "Godzina następnej lepszej sprzedaży",
-      sellDelta: "Różnica do najlepszej ceny",
-
-      pvToday: "Prognoza PV dziś",
-      pvTomorrow: "Prognoza PV jutro",
-
-      chargeTarget: "Cel ładowania",
-      dischargeTarget: "Cel rozładowania",
-      nightReserve: "Rezerwa nocna",
-      morningTarget: "Cel poranny",
-      availableSell: "Energia dostępna do sprzedaży",
-      freeSpace: "Wolne miejsce w magazynie",
-      chargeToTarget: "Energia do celu ładowania",
-      aboveMorning: "Energia ponad cel poranny",
-
-      inverterExportTarget: "Maksymalny eksport",
-      inverterChargeCurrent: "Prąd ładowania",
-      inverterDischargeCurrent: "Prąd rozładowania",
-      inverterSafeDischargeCurrent: "Bezpieczny prąd rozładowania",
-      inverterBlockDischargeCurrent: "Prąd blokady rozładowania",
-
-      learnSamples: "EMS próbki nauki",
-      learnHours: "EMS czas nauki",
-      learnConfidence: "EMS pewność nauki",
-      learnLastUpdate: "EMS ostatnia nauka",
-
-      learnAvgLoad: "EMS średnie zużycie domu",
-      learnAvgDayLoad: "EMS średnie zużycie dzień",
-      learnAvgNightLoad: "EMS średnie zużycie noc",
-      learnDailyKwh: "EMS szacowane zużycie dobowe",
-      learnNightKwh: "EMS szacowane zużycie nocne",
-
-      learnAvgPv: "EMS średnia produkcja PV",
-      learnAvgImport: "EMS średni import",
-      learnAvgExport: "EMS średni eksport",
-      learnAvgBatteryCharge: "EMS średnie ładowanie baterii",
-      learnAvgBatteryDischarge: "EMS średnie rozładowanie baterii",
-      learnAvgInverterSelf: "EMS średni pobór falownika",
-
-      learnEnergyLoad: "EMS energia domu",
-      learnEnergyPv: "EMS energia PV",
-      learnEnergyImport: "EMS energia import",
-      learnEnergyExport: "EMS energia eksport",
-      learnEnergyBatteryCharge: "EMS energia ładowania baterii",
-      learnEnergyBatteryDischarge: "EMS energia rozładowania baterii",
-      learnEnergyInverterSelf: "EMS energia poboru falownika",
-
-      learnAvgBuy: "EMS średnia cena zakupu",
-      learnAvgSell: "EMS średnia cena sprzedaży",
-      learnBestSellSeen: "EMS najlepsza zauważona cena sprzedaży",
-      learnMostMode: "EMS najczęstszy tryb",
-      planPhase: "Plan faza dnia",
-      planRecommendedSoc: "Plan zalecany SOC",
-      planNextAction: "Plan następna akcja",
-      planNextActionTime: "Plan godzina następnej akcji",
-      planNextActionReason: "Plan powód następnej akcji",
-      planChargeWindow: "Plan okno taniego ładowania",
-      planSellWindow: "Plan okno najlepszej sprzedaży",
-      planHoldReason: "Plan powód trzymania energii",
-      planNightKwh: "Plan prognoza zużycia nocnego",
-      planDayKwh: "Plan prognoza zużycia 24h",
-      planCheapestBuy: "Plan najtańsza cena zakupu",
-      planBestSell: "Plan najlepsza cena sprzedaży",
-      planOverview: "Plan 24h podsumowanie",
-      planWeatherTomorrow: "Plan pogoda jutro",
-      planPvTomorrow: "Plan prognoza PV jutro",
-      planEnergyBalanceTomorrow: "Plan bilans energii jutro",
-      planEnergyToKeep: "Plan energia do zostawienia",
-      planSafeToSell: "Plan bezpieczna energia do sprzedaży",
-      planSafeExportLimit: "Plan bezpieczny limit eksportu",
-      planWeatherStrategy: "Plan strategia pogoda",
-      planReasonableBuyWindow: "Plan okno normalnego zakupu",
-      learnPeakHour: "EMS godzina największego zużycia",
-      learnPeakLoad: "EMS największe godzinowe zużycie",
-      learnLowHour: "EMS godzina najniższego zużycia",
-      learnLowLoad: "EMS najniższe godzinowe zużycie"
-    };
-
-    this.candidates = {
-      mode: [
-        "sensor.homeon_tryb_ems",
-        "sensor.homeon_energy_manager_tryb_ems",
-        "sensor.homeon_energy_manager_homeon_tryb_ems"
-      ],
-      reason: [
-        "sensor.homeon_decyzja_ems",
-        "sensor.homeon_energy_manager_decyzja_ems",
-        "sensor.homeon_energy_manager_homeon_decyzja_ems"
-      ],
-
-      enabled: [
-        "switch.homeon_wlaczony",
-        "switch.homeon_energy_manager_wlaczony",
-        "switch.homeon_energy_manager_homeon_wlaczony"
-      ],
-      dryRun: [
-        "switch.homeon_tryb_testowy_dry_run",
-        "switch.homeon_energy_manager_tryb_testowy_dry_run",
-        "switch.homeon_energy_manager_homeon_tryb_testowy_dry_run"
-      ],
-      inverterControl: [
-        "switch.homeon_sterowanie_falownikiem",
-        "switch.homeon_energy_manager_sterowanie_falownikiem",
-        "switch.homeon_energy_manager_homeon_sterowanie_falownikiem"
-      ],
-      inverterControlAction: [
-        "sensor.homeon_akcja_falownika",
-        "sensor.homeon_energy_manager_akcja_falownika",
-        "sensor.homeon_energy_manager_homeon_akcja_falownika"
-      ],
-      inverterControlResult: [
-        "sensor.homeon_wynik_sterowania_falownikiem",
-        "sensor.homeon_energy_manager_wynik_sterowania_falownikiem",
-        "sensor.homeon_energy_manager_homeon_wynik_sterowania_falownikiem"
-      ],
-
-      soc: [
-        "sensor.homeon_soc_magazynu",
-        "sensor.homeon_energy_manager_soc_magazynu",
-        "sensor.homeon_energy_manager_homeon_soc_magazynu"
-      ],
-      batteryStatus: [
-        "sensor.homeon_status_baterii",
-        "sensor.homeon_energy_manager_status_baterii",
-        "sensor.homeon_energy_manager_homeon_status_baterii"
-      ],
-      batteryPower: [
-        "sensor.homeon_moc_baterii",
-        "sensor.homeon_energy_manager_moc_baterii",
-        "sensor.homeon_energy_manager_homeon_moc_baterii"
-      ],
-      batteryCharge: [
-        "sensor.homeon_ladowanie_baterii",
-        "sensor.homeon_energy_manager_ladowanie_baterii",
-        "sensor.homeon_energy_manager_homeon_ladowanie_baterii"
-      ],
-      batteryDischarge: [
-        "sensor.homeon_rozladowanie_baterii",
-        "sensor.homeon_energy_manager_rozladowanie_baterii",
-        "sensor.homeon_energy_manager_homeon_rozladowanie_baterii"
-      ],
-
-      pvPower: [
-        "sensor.homeon_moc_pv",
-        "sensor.homeon_energy_manager_moc_pv",
-        "sensor.homeon_energy_manager_homeon_moc_pv"
-      ],
-      loadPower: [
-        "sensor.homeon_moc_domu",
-        "sensor.homeon_energy_manager_moc_domu",
-        "sensor.homeon_energy_manager_homeon_moc_domu"
-      ],
-      gridPower: [
-        "sensor.homeon_moc_sieci",
-        "sensor.homeon_energy_manager_moc_sieci",
-        "sensor.homeon_energy_manager_homeon_moc_sieci"
-      ],
-      gridStatus: [
-        "sensor.homeon_status_sieci",
-        "sensor.homeon_energy_manager_status_sieci",
-        "sensor.homeon_energy_manager_homeon_status_sieci"
-      ],
-      gridImport: [
-        "sensor.homeon_import_z_sieci",
-        "sensor.homeon_energy_manager_import_z_sieci",
-        "sensor.homeon_energy_manager_homeon_import_z_sieci"
-      ],
-      gridExport: [
-        "sensor.homeon_eksport_do_sieci",
-        "sensor.homeon_energy_manager_eksport_do_sieci",
-        "sensor.homeon_energy_manager_homeon_eksport_do_sieci"
-      ],
-      inverterSelf: [
-        "sensor.homeon_pobor_wlasny_falownika",
-        "sensor.homeon_energy_manager_pobor_wlasny_falownika",
-        "sensor.homeon_energy_manager_homeon_pobor_wlasny_falownika"
-      ],
-
-      buyPrice: [
-        "sensor.homeon_cena_zakupu",
-        "sensor.homeon_energy_manager_cena_zakupu",
-        "sensor.homeon_energy_manager_homeon_cena_zakupu"
-      ],
-      sellPrice: [
-        "sensor.homeon_cena_sprzedazy",
-        "sensor.homeon_energy_manager_cena_sprzedazy",
-        "sensor.homeon_energy_manager_homeon_cena_sprzedazy"
-      ],
-      bestSellPrice: [
-        "sensor.homeon_najlepsza_cena_sprzedazy_24h",
-        "sensor.homeon_energy_manager_najlepsza_cena_sprzedazy_24h",
-        "sensor.homeon_energy_manager_homeon_najlepsza_cena_sprzedazy_24h"
-      ],
-      bestSellTime: [
-        "sensor.homeon_godzina_najlepszej_sprzedazy",
-        "sensor.homeon_energy_manager_godzina_najlepszej_sprzedazy",
-        "sensor.homeon_energy_manager_homeon_godzina_najlepszej_sprzedazy"
-      ],
-      nextBetterSellPrice: [
-        "sensor.homeon_nastepna_lepsza_cena_sprzedazy",
-        "sensor.homeon_energy_manager_nastepna_lepsza_cena_sprzedazy",
-        "sensor.homeon_energy_manager_homeon_nastepna_lepsza_cena_sprzedazy"
-      ],
-      nextBetterSellTime: [
-        "sensor.homeon_godzina_nastepnej_lepszej_sprzedazy",
-        "sensor.homeon_energy_manager_godzina_nastepnej_lepszej_sprzedazy",
-        "sensor.homeon_energy_manager_homeon_godzina_nastepnej_lepszej_sprzedazy"
-      ],
-      sellDelta: [
-        "sensor.homeon_roznica_do_najlepszej_ceny",
-        "sensor.homeon_energy_manager_roznica_do_najlepszej_ceny",
-        "sensor.homeon_energy_manager_homeon_roznica_do_najlepszej_ceny"
-      ],
-
-      pvToday: [
-        "sensor.homeon_prognoza_pv_dzis",
-        "sensor.homeon_energy_manager_prognoza_pv_dzis",
-        "sensor.homeon_energy_manager_homeon_prognoza_pv_dzis"
-      ],
-      pvTomorrow: [
-        "sensor.homeon_prognoza_pv_jutro",
-        "sensor.homeon_energy_manager_prognoza_pv_jutro",
-        "sensor.homeon_energy_manager_homeon_prognoza_pv_jutro"
-      ],
-
-      chargeTarget: [
-        "sensor.homeon_cel_ladowania",
-        "sensor.homeon_energy_manager_cel_ladowania",
-        "sensor.homeon_energy_manager_homeon_cel_ladowania"
-      ],
-      dischargeTarget: [
-        "sensor.homeon_cel_rozladowania",
-        "sensor.homeon_energy_manager_cel_rozladowania",
-        "sensor.homeon_energy_manager_homeon_cel_rozladowania"
-      ],
-      nightReserve: [
-        "sensor.homeon_rezerwa_nocna",
-        "sensor.homeon_energy_manager_rezerwa_nocna",
-        "sensor.homeon_energy_manager_homeon_rezerwa_nocna"
-      ],
-      morningTarget: [
-        "sensor.homeon_cel_poranny",
-        "sensor.homeon_energy_manager_cel_poranny",
-        "sensor.homeon_energy_manager_homeon_cel_poranny"
-      ],
-      availableSell: [
-        "sensor.homeon_energia_dostepna_do_sprzedazy",
-        "sensor.homeon_energy_manager_energia_dostepna_do_sprzedazy",
-        "sensor.homeon_energy_manager_homeon_energia_dostepna_do_sprzedazy"
-      ],
-      freeSpace: [
-        "sensor.homeon_wolne_miejsce_w_magazynie",
-        "sensor.homeon_energy_manager_wolne_miejsce_w_magazynie",
-        "sensor.homeon_energy_manager_homeon_wolne_miejsce_w_magazynie"
-      ],
-      chargeToTarget: [
-        "sensor.homeon_energia_do_celu_ladowania",
-        "sensor.homeon_energy_manager_energia_do_celu_ladowania",
-        "sensor.homeon_energy_manager_homeon_energia_do_celu_ladowania"
-      ],
-      aboveMorning: [
-        "sensor.homeon_energia_ponad_cel_poranny",
-        "sensor.homeon_energy_manager_energia_ponad_cel_poranny",
-        "sensor.homeon_energy_manager_homeon_energia_ponad_cel_poranny"
-      ],
-
-      inverterExportTarget: [
-        "number.homeon_maksymalny_eksport",
-        "number.homeon_energy_manager_maksymalny_eksport",
-        "number.homeon_energy_manager_homeon_maksymalny_eksport"
-      ],
-      inverterChargeCurrent: [
-        "number.homeon_prad_ladowania",
-        "number.homeon_energy_manager_prad_ladowania",
-        "number.homeon_energy_manager_homeon_prad_ladowania"
-      ],
-      inverterDischargeCurrent: [
-        "number.homeon_prad_rozladowania",
-        "number.homeon_energy_manager_prad_rozladowania",
-        "number.homeon_energy_manager_homeon_prad_rozladowania"
-      ],
-      inverterSafeDischargeCurrent: [
-        "number.homeon_bezpieczny_prad_rozladowania",
-        "number.homeon_energy_manager_bezpieczny_prad_rozladowania",
-        "number.homeon_energy_manager_homeon_bezpieczny_prad_rozladowania"
-      ],
-      inverterBlockDischargeCurrent: [
-        "number.homeon_prad_blokady_rozladowania",
-        "number.homeon_energy_manager_prad_blokady_rozladowania",
-        "number.homeon_energy_manager_homeon_prad_blokady_rozladowania"
-      ]
-    };
-
-    const learning = {
-      learnSamples: "EMS próbki nauki",
-      learnHours: "EMS czas nauki",
-      learnConfidence: "EMS pewność nauki",
-      learnLastUpdate: "EMS ostatnia nauka",
-      learnAvgLoad: "EMS średnie zużycie domu",
-      learnAvgDayLoad: "EMS średnie zużycie dzień",
-      learnAvgNightLoad: "EMS średnie zużycie noc",
-      learnDailyKwh: "EMS szacowane zużycie dobowe",
-      learnNightKwh: "EMS szacowane zużycie nocne",
-      learnAvgPv: "EMS średnia produkcja PV",
-      learnAvgImport: "EMS średni import",
-      learnAvgExport: "EMS średni eksport",
-      learnAvgBatteryCharge: "EMS średnie ładowanie baterii",
-      learnAvgBatteryDischarge: "EMS średnie rozładowanie baterii",
-      learnAvgInverterSelf: "EMS średni pobór falownika",
-      learnEnergyLoad: "EMS energia domu",
-      learnEnergyPv: "EMS energia PV",
-      learnEnergyImport: "EMS energia import",
-      learnEnergyExport: "EMS energia eksport",
-      learnEnergyBatteryCharge: "EMS energia ładowania baterii",
-      learnEnergyBatteryDischarge: "EMS energia rozładowania baterii",
-      learnEnergyInverterSelf: "EMS energia poboru falownika",
-      learnAvgBuy: "EMS średnia cena zakupu",
-      learnAvgSell: "EMS średnia cena sprzedaży",
-      learnBestSellSeen: "EMS najlepsza zauważona cena sprzedaży",
-      learnMostMode: "EMS najczęstszy tryb",
-      planPhase: "Plan faza dnia",
-      planRecommendedSoc: "Plan zalecany SOC",
-      planNextAction: "Plan następna akcja",
-      planNextActionTime: "Plan godzina następnej akcji",
-      planNextActionReason: "Plan powód następnej akcji",
-      planChargeWindow: "Plan okno taniego ładowania",
-      planSellWindow: "Plan okno najlepszej sprzedaży",
-      planHoldReason: "Plan powód trzymania energii",
-      planNightKwh: "Plan prognoza zużycia nocnego",
-      planDayKwh: "Plan prognoza zużycia 24h",
-      planCheapestBuy: "Plan najtańsza cena zakupu",
-      planBestSell: "Plan najlepsza cena sprzedaży",
-      planOverview: "Plan 24h podsumowanie",
-      planWeatherTomorrow: "Plan pogoda jutro",
-      planPvTomorrow: "Plan prognoza PV jutro",
-      planEnergyBalanceTomorrow: "Plan bilans energii jutro",
-      planEnergyToKeep: "Plan energia do zostawienia",
-      planSafeToSell: "Plan bezpieczna energia do sprzedaży",
-      planSafeExportLimit: "Plan bezpieczny limit eksportu",
-      planWeatherStrategy: "Plan strategia pogoda",
-      planReasonableBuyWindow: "Plan okno normalnego zakupu",
-      learnPeakHour: "EMS godzina największego zużycia",
-      learnPeakLoad: "EMS największe godzinowe zużycie",
-      learnLowHour: "EMS godzina najniższego zużycia",
-      learnLowLoad: "EMS najniższe godzinowe zużycie"
-    };
-
-    for (const [key, label] of Object.entries(learning)) {
-      const n = this.norm(label);
-      this.candidates[key] = [
-        `sensor.homeon_${n}`,
-        `sensor.homeon_energy_manager_${n}`,
-        `sensor.homeon_energy_manager_homeon_${n}`
-      ];
-    }
-
-    if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+    this.title = this.config.title || "HomeOn Energy Dashboard";
+    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=020";
+    this.render();
   }
 
   set hass(hass) {
@@ -397,1119 +12,860 @@ class HomeOnEnergyCard extends HTMLElement {
   }
 
   getCardSize() {
-    return 10;
+    return 12;
   }
 
-  norm(v) {
-    return String(v || "")
+  norm(text) {
+    return String(text || "")
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/ł/g, "l")
-      .replace(/[^a-z0-9]+/g, "_")
-      .replace(/^_+|_+$/g, "");
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
   }
 
-  entity(key) {
-    if (!this._hass) return null;
+  defs() {
+    return {
+      mode: { label: "Tryb EMS", icon: "mdi:state-machine", find: ["tryb ems"] },
+      reason: { label: "Decyzja EMS", icon: "mdi:text-box-check", find: ["decyzja ems"] },
 
-    const override = this.config.entities && this.config.entities[key];
-    if (override && this._hass.states[override]) return override;
+      enabled: { label: "HomeOn włączony", icon: "mdi:power", find: ["homeon wlaczony"], domain: "switch" },
+      dryRun: { label: "Tryb testowy", icon: "mdi:test-tube", find: ["tryb testowy dry run"], domain: "switch" },
+      inverterControl: { label: "Sterowanie falownikiem", icon: "mdi:inverter", find: ["sterowanie falownikiem"], domain: "switch" },
 
-    for (const id of this.candidates[key] || []) {
-      if (this._hass.states[id]) return id;
+      soc: { label: "SOC magazynu", icon: "mdi:battery", find: ["soc magazynu"] },
+      emergencySoc: { label: "Awaryjny SOC", icon: "mdi:battery-alert", find: ["awaryjny soc"] },
+      minSoc: { label: "Minimalny SOC", icon: "mdi:battery-low", find: ["minimalny soc"] },
+      batteryCapacity: { label: "Pojemność baterii", icon: "mdi:battery-high", find: ["pojemnosc baterii", "pojemnosc magazynu"] },
+
+      chargeTarget: { label: "Cel ładowania", icon: "mdi:battery-plus", find: ["cel ladowania"] },
+      dischargeTarget: { label: "Cel rozładowania", icon: "mdi:battery-minus", find: ["cel rozladowania"] },
+      morningTarget: { label: "Cel poranny", icon: "mdi:weather-sunset-up", find: ["cel poranny"] },
+      nightReserve: { label: "Rezerwa nocna", icon: "mdi:weather-night", find: ["rezerwa nocna"] },
+
+      targetSource: { label: "Źródło obliczeń celu", icon: "mdi:brain", find: ["cel zrodlo obliczen"] },
+      targetLearningWeight: { label: "Udział nauki w celu", icon: "mdi:percent", find: ["cel udzial nauki"] },
+      targetNightKwh: { label: "Prognoza zużycia nocnego", icon: "mdi:weather-night", find: ["cel prognoza zuzycia nocnego"] },
+      targetDayKwh: { label: "Prognoza zużycia 24h", icon: "mdi:calendar-today", find: ["cel prognoza zuzycia 24h"] },
+      targetPvCoverage: { label: "Pokrycie PV jutro", icon: "mdi:solar-power", find: ["cel pokrycie pv jutro"] },
+      targetReserveKwh: { label: "Wymagana rezerwa energii", icon: "mdi:battery-lock", find: ["cel wymagana rezerwa energii"] },
+      targetReason: { label: "Powód obliczeń celu", icon: "mdi:text-box-check", find: ["cel powod obliczen"] },
+
+      batteryPower: { label: "Moc baterii", icon: "mdi:battery-sync", find: ["moc baterii"] },
+      batteryStatus: { label: "Status baterii", icon: "mdi:battery-clock", find: ["status baterii"] },
+      batteryCharge: { label: "Ładowanie baterii", icon: "mdi:battery-arrow-up", find: ["ladowanie baterii"] },
+      batteryDischarge: { label: "Rozładowanie baterii", icon: "mdi:battery-arrow-down", find: ["rozladowanie baterii"] },
+
+      pvPower: { label: "Moc PV", icon: "mdi:solar-power", find: ["moc pv"] },
+      loadPower: { label: "Moc domu", icon: "mdi:home-lightning-bolt", find: ["moc domu"] },
+      gridPower: { label: "Moc sieci", icon: "mdi:transmission-tower", find: ["moc sieci"] },
+      gridStatus: { label: "Status sieci", icon: "mdi:transmission-tower-export", find: ["status sieci"] },
+      gridImport: { label: "Import z sieci", icon: "mdi:transmission-tower-import", find: ["import z sieci"] },
+      gridExport: { label: "Eksport do sieci", icon: "mdi:transmission-tower-export", find: ["eksport do sieci"] },
+      inverterSelf: { label: "Pobór własny falownika", icon: "mdi:inverter", find: ["pobor wlasny falownika"] },
+
+      buyPrice: { label: "Cena zakupu", icon: "mdi:cash-plus", find: ["cena zakupu"] },
+      sellPrice: { label: "Cena sprzedaży", icon: "mdi:cash-minus", find: ["cena sprzedazy"] },
+      bestSellPrice: { label: "Najlepsza cena sprzedaży 24h", icon: "mdi:cash-check", find: ["najlepsza cena sprzedazy 24h"] },
+      bestSellTime: { label: "Godzina najlepszej sprzedaży", icon: "mdi:clock-star-four-points", find: ["godzina najlepszej sprzedazy"] },
+      nextBetterSellPrice: { label: "Następna lepsza cena", icon: "mdi:cash-clock", find: ["nastepna lepsza cena sprzedazy"] },
+      nextBetterSellTime: { label: "Godzina lepszej ceny", icon: "mdi:clock-fast", find: ["godzina nastepnej lepszej sprzedazy"] },
+      sellDelta: { label: "Różnica do najlepszej ceny", icon: "mdi:delta", find: ["roznica do najlepszej ceny"] },
+
+      pvToday: { label: "Prognoza PV dziś", icon: "mdi:solar-power-variant", find: ["prognoza pv dzis"] },
+      pvTomorrow: { label: "Prognoza PV jutro", icon: "mdi:solar-power-variant-outline", find: ["prognoza pv jutro"] },
+
+      availableSell: { label: "Energia dostępna do sprzedaży", icon: "mdi:battery-arrow-down-outline", find: ["energia dostepna do sprzedazy"] },
+      freeSpace: { label: "Wolne miejsce w magazynie", icon: "mdi:battery-outline", find: ["wolne miejsce w magazynie"] },
+      chargeToTarget: { label: "Energia do celu ładowania", icon: "mdi:battery-plus-outline", find: ["energia do celu ladowania"] },
+      aboveMorning: { label: "Energia ponad cel poranny", icon: "mdi:battery-clock-outline", find: ["energia ponad cel poranny"] },
+
+      inverterExportTarget: { label: "Maksymalny eksport", icon: "mdi:transmission-tower-export", find: ["maksymalny eksport"] },
+      inverterChargeCurrent: { label: "Prąd ładowania", icon: "mdi:current-dc", find: ["prad ladowania"] },
+      inverterDischargeCurrent: { label: "Prąd rozładowania", icon: "mdi:current-dc", find: ["prad rozladowania"] },
+      inverterSafeDischargeCurrent: { label: "Bezpieczny prąd rozładowania", icon: "mdi:shield-check", find: ["bezpieczny prad rozladowania"] },
+      inverterBlockDischargeCurrent: { label: "Prąd blokady rozładowania", icon: "mdi:shield-lock", find: ["prad blokady rozladowania"] },
+
+      inverterAction: { label: "Akcja falownika", icon: "mdi:play-network", find: ["akcja falownika"] },
+      inverterResult: { label: "Wynik sterowania falownikiem", icon: "mdi:check-network", find: ["wynik sterowania falownikiem"] },
+      inverterExecutorMode: { label: "Tryb wykonawczy", icon: "mdi:state-machine", find: ["sterowanie tryb wykonawczy"] },
+      inverterSafeExportLimit: { label: "Bezpieczny limit eksportu", icon: "mdi:transmission-tower-export", find: ["sterowanie bezpieczny limit eksportu"] },
+      inverterSafeToSell: { label: "Bezpieczna energia do sprzedaży", icon: "mdi:cash-check", find: ["sterowanie bezpieczna energia do sprzedazy"] },
+      inverterWeatherLock: { label: "Blokada pogodowa", icon: "mdi:weather-cloudy-alert", find: ["sterowanie blokada pogodowa"] },
+      inverterLastRun: { label: "Ostatnie wykonanie", icon: "mdi:clock-check", find: ["sterowanie ostatnie wykonanie"] },
+      inverterConfigSource: { label: "Źródło konfiguracji falownika", icon: "mdi:cog", find: ["falownik zrodlo konfiguracji"] },
+      inverterDryRunSensor: { label: "Falownik dry-run", icon: "mdi:test-tube", find: ["falownik dry run"] },
+
+      inverterEntityGridCharging: { label: "Encja ładowania z sieci", icon: "mdi:toggle-switch", find: ["falownik encja ladowania z sieci"] },
+      inverterEntityExportSurplus: { label: "Encja eksportu nadwyżki", icon: "mdi:toggle-switch", find: ["falownik encja eksportu nadwyzki"] },
+      inverterEntityExportPower: { label: "Encja mocy eksportu", icon: "mdi:numeric", find: ["falownik encja mocy eksportu"] },
+      inverterEntityChargeCurrent: { label: "Encja prądu ładowania", icon: "mdi:numeric", find: ["falownik encja pradu ladowania"] },
+      inverterEntityDischargeCurrent: { label: "Encja prądu rozładowania", icon: "mdi:numeric", find: ["falownik encja pradu rozladowania"] },
+
+      planPhase: { label: "Faza dnia", icon: "mdi:weather-partly-cloudy", find: ["plan faza dnia"] },
+      planRecommendedSoc: { label: "Zalecany SOC", icon: "mdi:battery-check", find: ["plan zalecany soc"] },
+      planNextAction: { label: "Następna akcja", icon: "mdi:arrow-decision", find: ["plan nastepna akcja"] },
+      planNextActionTime: { label: "Czas następnej akcji", icon: "mdi:clock-outline", find: ["plan godzina nastepnej akcji"] },
+      planNextActionReason: { label: "Powód następnej akcji", icon: "mdi:text-box-search", find: ["plan powod nastepnej akcji"] },
+      planChargeWindow: { label: "Okno taniego ładowania", icon: "mdi:battery-clock", find: ["plan okno taniego ladowania"] },
+      planSellWindow: { label: "Okno najlepszej sprzedaży", icon: "mdi:cash-clock", find: ["plan okno najlepszej sprzedazy"] },
+      planHoldReason: { label: "Powód trzymania energii", icon: "mdi:battery-lock", find: ["plan powod trzymania energii"] },
+      planNightKwh: { label: "Plan zużycie nocne", icon: "mdi:weather-night", find: ["plan prognoza zuzycia nocnego"] },
+      planDayKwh: { label: "Plan zużycie 24h", icon: "mdi:calendar-today", find: ["plan prognoza zuzycia 24h"] },
+      planCheapestBuy: { label: "Najtańsza cena zakupu", icon: "mdi:cash-plus", find: ["plan najtansza cena zakupu"] },
+      planBestSell: { label: "Najlepsza cena sprzedaży", icon: "mdi:cash-minus", find: ["plan najlepsza cena sprzedazy"] },
+      planOverview: { label: "Podsumowanie planu 24h", icon: "mdi:view-dashboard", find: ["plan 24h podsumowanie"] },
+      planWeatherTomorrow: { label: "Pogoda / PV jutro", icon: "mdi:weather-cloudy-clock", find: ["plan pogoda jutro"] },
+      planPvTomorrow: { label: "Plan PV jutro", icon: "mdi:solar-power", find: ["plan prognoza pv jutro"] },
+      planEnergyBalanceTomorrow: { label: "Bilans energii jutro", icon: "mdi:scale-balance", find: ["plan bilans energii jutro"] },
+      planEnergyToKeep: { label: "Energia do zostawienia", icon: "mdi:battery-lock", find: ["plan energia do zostawienia"] },
+      planSafeToSell: { label: "Bezpieczna energia do sprzedaży", icon: "mdi:cash-check", find: ["plan bezpieczna energia do sprzedazy"] },
+      planSafeExportLimit: { label: "Bezpieczny limit eksportu", icon: "mdi:transmission-tower-export", find: ["plan bezpieczny limit eksportu"] },
+      planWeatherStrategy: { label: "Strategia pogodowa", icon: "mdi:weather-cloudy-alert", find: ["plan strategia pogoda"] },
+      planReasonableBuyWindow: { label: "Okno normalnego zakupu", icon: "mdi:cash-clock", find: ["plan okno normalnego zakupu"] },
+
+      learnSamples: { label: "Próbki nauki", icon: "mdi:counter", find: ["ems probki nauki"] },
+      learnHours: { label: "Czas nauki", icon: "mdi:clock-outline", find: ["ems czas nauki"] },
+      learnConfidence: { label: "Pewność nauki", icon: "mdi:brain", find: ["ems pewnosc nauki"] },
+      learnLastUpdate: { label: "Ostatnia nauka", icon: "mdi:update", find: ["ems ostatnia nauka"] },
+      learnAvgLoad: { label: "Średnie zużycie domu", icon: "mdi:home-lightning-bolt", find: ["ems srednie zuzycie domu"] },
+      learnAvgDayLoad: { label: "Średnie zużycie dzień", icon: "mdi:white-balance-sunny", find: ["ems srednie zuzycie dzien"] },
+      learnAvgNightLoad: { label: "Średnie zużycie noc", icon: "mdi:weather-night", find: ["ems srednie zuzycie noc"] },
+      learnDailyKwh: { label: "Szacowane zużycie dobowe", icon: "mdi:calendar-today", find: ["ems szacowane zuzycie dobowe"] },
+      learnNightKwh: { label: "Szacowane zużycie nocne", icon: "mdi:weather-night", find: ["ems szacowane zuzycie nocne"] },
+      learnAvgPv: { label: "Średnia produkcja PV", icon: "mdi:solar-power", find: ["ems srednia produkcja pv"] },
+      learnAvgImport: { label: "Średni import", icon: "mdi:transmission-tower-import", find: ["ems sredni import"] },
+      learnAvgExport: { label: "Średni eksport", icon: "mdi:transmission-tower-export", find: ["ems sredni eksport"] },
+      learnAvgBatteryCharge: { label: "Średnie ładowanie baterii", icon: "mdi:battery-arrow-up", find: ["ems srednie ladowanie baterii"] },
+      learnAvgBatteryDischarge: { label: "Średnie rozładowanie baterii", icon: "mdi:battery-arrow-down", find: ["ems srednie rozladowanie baterii"] },
+      learnAvgInverterSelf: { label: "Średni pobór falownika", icon: "mdi:inverter", find: ["ems sredni pobor falownika"] },
+      learnEnergyLoad: { label: "Energia domu", icon: "mdi:home-lightning-bolt", find: ["ems energia domu"] },
+      learnEnergyPv: { label: "Energia PV", icon: "mdi:solar-power", find: ["ems energia pv"] },
+      learnEnergyImport: { label: "Energia import", icon: "mdi:transmission-tower-import", find: ["ems energia import"] },
+      learnEnergyExport: { label: "Energia eksport", icon: "mdi:transmission-tower-export", find: ["ems energia eksport"] },
+      learnEnergyBatteryCharge: { label: "Energia ładowania baterii", icon: "mdi:battery-arrow-up", find: ["ems energia ladowania baterii"] },
+      learnEnergyBatteryDischarge: { label: "Energia rozładowania baterii", icon: "mdi:battery-arrow-down", find: ["ems energia rozladowania baterii"] },
+      learnEnergyInverterSelf: { label: "Energia poboru falownika", icon: "mdi:inverter", find: ["ems energia poboru falownika"] },
+      learnAvgBuy: { label: "Średnia cena zakupu", icon: "mdi:cash-plus", find: ["ems srednia cena zakupu"] },
+      learnAvgSell: { label: "Średnia cena sprzedaży", icon: "mdi:cash-minus", find: ["ems srednia cena sprzedazy"] },
+      learnBestSellSeen: { label: "Najlepsza zauważona sprzedaż", icon: "mdi:cash-star", find: ["ems najlepsza zauwazona cena sprzedazy"] },
+      learnMostMode: { label: "Najczęstszy tryb", icon: "mdi:state-machine", find: ["ems najczestszy tryb"] },
+      learnPeakHour: { label: "Godzina największego zużycia", icon: "mdi:chart-bell-curve", find: ["ems godzina najwiekszego zuzycia"] },
+      learnPeakLoad: { label: "Największe godzinowe zużycie", icon: "mdi:chart-line", find: ["ems najwieksze godzinowe zuzycie"] },
+      learnLowHour: { label: "Godzina najniższego zużycia", icon: "mdi:chart-bell-curve-cumulative", find: ["ems godzina najnizszego zuzycia"] },
+      learnLowLoad: { label: "Najniższe godzinowe zużycie", icon: "mdi:chart-line-variant", find: ["ems najnizsze godzinowe zuzycie"] }
+    };
+  }
+
+  findEntity(key) {
+    const hass = this._hass;
+    if (!hass) return null;
+
+    const defs = this.defs();
+    const def = defs[key] || {};
+
+    const configured = this.config.entities && this.config.entities[key];
+    if (configured && hass.states[configured]) return configured;
+
+    const direct = this.config[key];
+    if (direct && hass.states[direct]) return direct;
+
+    const candidates = def.candidates || [];
+    for (const entityId of candidates) {
+      if (hass.states[entityId]) return entityId;
     }
 
-    const label = this.labels[key];
-    const target = this.norm(label);
+    const findList = def.find || [];
+    const domain = def.domain || null;
 
-    for (const [id, obj] of Object.entries(this._hass.states)) {
-      if (!id.includes("homeon")) continue;
+    for (const pattern of findList) {
+      const tokens = this.norm(pattern).split(" ").filter(Boolean);
 
-      const friendly = obj.attributes?.friendly_name || "";
-      const idNorm = this.norm(id);
-      const friendlyNorm = this.norm(friendly);
+      for (const [entityId, stateObj] of Object.entries(hass.states)) {
+        if (domain && !entityId.startsWith(domain + ".")) continue;
 
-      if (
-        idNorm.endsWith(target) ||
-        idNorm.includes(target) ||
-        friendlyNorm.endsWith(target) ||
-        friendlyNorm.includes(target)
-      ) {
-        return id;
+        const friendly = this.norm(stateObj.attributes && stateObj.attributes.friendly_name);
+        const entityNorm = this.norm(entityId);
+
+        const friendlyOk = tokens.every((t) => friendly.includes(t));
+        const entityOk = tokens.every((t) => entityNorm.includes(t));
+
+        if (friendlyOk || entityOk) return entityId;
       }
     }
 
     return null;
   }
 
-  st(key, fallback = "-") {
-    const id = this.entity(key);
-    if (!id || !this._hass.states[id]) return fallback;
-
-    const value = this._hass.states[id].state;
-    if (value === "unknown" || value === "unavailable" || value === undefined || value === null) return fallback;
-    return value;
+  stateObj(key) {
+    const id = this.findEntity(key);
+    if (!id) return null;
+    return this._hass.states[id] || null;
   }
 
-  unit(key) {
-    const id = this.entity(key);
-    if (!id || !this._hass.states[id]) return "";
-    return this._hass.states[id].attributes.unit_of_measurement || "";
+  value(key, fallback = "—") {
+    const s = this.stateObj(key);
+    if (!s) return fallback;
+
+    const raw = s.state;
+    if (raw === undefined || raw === null || raw === "" || raw === "unknown" || raw === "unavailable") {
+      return fallback;
+    }
+
+    const unit = s.attributes && s.attributes.unit_of_measurement;
+    return unit ? `${raw} ${unit}` : String(raw);
   }
 
-  num(key, fallback = 0) {
-    const raw = this.st(key, fallback);
-    const n = Number(String(raw).replace(",", "."));
+  plain(key, fallback = "—") {
+    const s = this.stateObj(key);
+    if (!s) return fallback;
+    const raw = s.state;
+    if (raw === undefined || raw === null || raw === "" || raw === "unknown" || raw === "unavailable") return fallback;
+    return String(raw);
+  }
+
+  num(key, fallback = NaN) {
+    const s = this.stateObj(key);
+    if (!s) return fallback;
+    const n = parseFloat(String(s.state).replace(",", "."));
     return Number.isFinite(n) ? n : fallback;
   }
 
-  fmt(key, digits = null) {
-    const raw = this.st(key, "-");
-    const unit = this.unit(key);
-
-    const n = Number(String(raw).replace(",", "."));
-    if (Number.isFinite(n)) {
-      const d = digits === null ? (Math.abs(n) < 10 && n % 1 !== 0 ? 2 : 0) : digits;
-      return `${n.toFixed(d)} ${unit}`.trim();
-    }
-
-    return `${this.esc(raw)} ${this.esc(unit)}`.trim();
+  entityId(key) {
+    return this.findEntity(key) || "";
   }
 
-  esc(v) {
-    return String(v ?? "")
+  esc(text) {
+    return String(text ?? "—")
       .replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+      .replaceAll('"', "&quot;");
   }
 
-  boolText(key) {
-    const value = String(this.st(key, "off")).toLowerCase();
-    if (value === "on" || value === "true") return "ON";
-    if (value === "off" || value === "false") return "OFF";
-    return value.toUpperCase();
+  statusClass() {
+    const mode = this.norm(this.plain("mode", ""));
+    const reason = this.norm(this.plain("reason", ""));
+    if (mode.includes("emergency") || mode.includes("awaryj")) return "danger";
+    if (mode.includes("sell") || reason.includes("sprzed")) return "sell";
+    if (mode.includes("charge") || reason.includes("ladu")) return "charge";
+    if (mode.includes("weather") || reason.includes("pogod")) return "hold";
+    if (mode.includes("normal")) return "ok";
+    return "neutral";
   }
 
-  boolClass(key) {
-    return this.boolText(key) === "ON" ? "ok" : "muted";
+  icon(key) {
+    const def = this.defs()[key] || {};
+    return def.icon || "mdi:circle";
   }
 
-  modeInfo(mode) {
-    const raw = String(mode || "");
-    const map = {
-      DISABLED: ["Wyłączony", "muted"],
-      EMERGENCY_RESERVE: ["Rezerwa awaryjna", "alarm"],
-      NEGATIVE_IMPORT: ["Ładowanie z taniej energii", "charge"],
-      CHEAP_CHARGE: ["Tanie ładowanie", "charge"],
-      WAIT_BETTER_SELL_PRICE: ["Czeka na lepszą cenę", "wait"],
-      WEATHER_HOLD_RESERVE: ["Rezerwa pod pogodę", "wait"],
-      SELL_BATTERY_HIGH_PRICE: ["Sprzedaż baterii", "sell"],
-      PV_CHARGE: ["Ładowanie z PV", "charge"],
-      EXPENSIVE_SELF_USE: ["Droga energia — autokonsumpcja", "self"],
-      NORMAL: ["Normalna praca", "normal"]
-    };
-
-    return map[raw] || [raw || "-", "normal"];
+  label(key) {
+    const def = this.defs()[key] || {};
+    return def.label || key;
   }
 
-  pct(value) {
-    return Math.max(0, Math.min(100, Number(value) || 0));
-  }
+  tile(key, opts = {}) {
+    const label = opts.label || this.label(key);
+    const value = opts.value !== undefined ? opts.value : this.value(key);
+    const icon = opts.icon || this.icon(key);
+    const sub = opts.sub || "";
+    const wide = opts.wide ? " wide" : "";
+    const cls = opts.className || "";
 
-  bar(value, maxValue) {
-    const n = Math.max(0, Number(value) || 0);
-    const max = Math.max(1, Number(maxValue) || 1);
-    return this.pct((n / max) * 100);
-  }
-
-  metric(label, value, sub = "", icon = "") {
     return `
-      <div class="metric">
-        <div class="metric-head">
-          ${icon ? `<ha-icon icon="${this.esc(icon)}"></ha-icon>` : ""}
-          <span>${this.esc(label)}</span>
+      <div class="tile ${wide} ${cls}">
+        <div class="tile-icon"><ha-icon icon="${icon}"></ha-icon></div>
+        <div class="tile-body">
+          <div class="tile-label">${this.esc(label)}</div>
+          <div class="tile-value">${this.esc(value)}</div>
+          ${sub ? `<div class="tile-sub">${this.esc(sub)}</div>` : ""}
         </div>
-        <div class="metric-value">${value}</div>
-        ${sub ? `<div class="metric-sub">${sub}</div>` : ""}
       </div>
     `;
   }
 
-  row(label, value, pct = null) {
+  section(title, subtitle, content) {
     return `
-      <div class="learn-row">
-        <div class="learn-row-top">
-          <span>${this.esc(label)}</span>
-          <b>${value}</b>
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h3>${this.esc(title)}</h3>
+            ${subtitle ? `<p>${this.esc(subtitle)}</p>` : ""}
+          </div>
         </div>
-        ${pct === null ? "" : `<div class="mini-bar"><div style="width:${this.pct(pct)}%"></div></div>`}
+        ${content}
+      </section>
+    `;
+  }
+
+  grid(keys) {
+    return `<div class="grid">${keys.map((k) => Array.isArray(k) ? this.tile(k[0], k[1]) : this.tile(k)).join("")}</div>`;
+  }
+
+  gauge() {
+    const soc = Math.max(0, Math.min(100, this.num("soc", 0)));
+    const charge = Math.max(0, Math.min(100, this.num("chargeTarget", 0)));
+    const discharge = Math.max(0, Math.min(100, this.num("dischargeTarget", 0)));
+    const morning = Math.max(0, Math.min(100, this.num("morningTarget", 0)));
+    const night = Math.max(0, Math.min(100, this.num("nightReserve", 0)));
+
+    return `
+      <div class="gauge-card">
+        <div class="gauge-top">
+          <div>
+            <div class="gauge-label">SOC magazynu</div>
+            <div class="gauge-value">${Number.isFinite(soc) ? soc.toFixed(1) : "—"}%</div>
+          </div>
+          <div class="gauge-mini">
+            <span>Cel ładowania <b>${Number.isFinite(charge) ? charge.toFixed(1) : "—"}%</b></span>
+            <span>Cel rozładowania <b>${Number.isFinite(discharge) ? discharge.toFixed(1) : "—"}%</b></span>
+          </div>
+        </div>
+
+        <div class="bar">
+          <div class="bar-fill" style="width:${soc}%"></div>
+          <div class="marker night" style="left:${night}%"><span>Noc</span></div>
+          <div class="marker discharge" style="left:${discharge}%"><span>Min</span></div>
+          <div class="marker morning" style="left:${morning}%"><span>Rano</span></div>
+          <div class="marker charge" style="left:${charge}%"><span>Cel</span></div>
+        </div>
+
+        <div class="bar-legend">
+          <span>Rezerwa nocna: ${this.value("nightReserve")}</span>
+          <span>Cel poranny: ${this.value("morningTarget")}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  hero() {
+    const cls = this.statusClass();
+
+    return `
+      <div class="hero ${cls}">
+        <div class="hero-left">
+          <div class="brand">
+            <img src="${this.esc(this.logo)}" onerror="this.style.display='none'">
+            <div>
+              <div class="brand-title">${this.esc(this.title)}</div>
+              <div class="brand-sub">EMS · bateria · falownik · rynek energii</div>
+            </div>
+          </div>
+
+          <div class="mode-line">
+            <span>${this.value("mode")}</span>
+          </div>
+
+          <div class="reason-line">
+            ${this.value("reason")}
+          </div>
+        </div>
+
+        <div class="hero-right">
+          ${this.tile("soc")}
+          ${this.tile("pvPower")}
+          ${this.tile("loadPower")}
+          ${this.tile("gridPower")}
+        </div>
       </div>
     `;
   }
 
   render() {
-    if (!this.shadowRoot || !this._hass) return;
+    if (!this._hass) return;
+
+    const inverterResult = this.value("inverterResult");
+    const targetReason = this.value("targetReason");
+    const planReason = this.value("planNextActionReason");
+    const planStrategy = this.value("planWeatherStrategy");
+
+    this.innerHTML = `
+      <ha-card>
+        <style>
+          :host {
+            --homeon-bg: var(--card-background-color, #fff);
+            --homeon-border: rgba(127,127,127,.22);
+            --homeon-muted: var(--secondary-text-color);
+            --homeon-text: var(--primary-text-color);
+            --homeon-accent: var(--primary-color);
+            --homeon-radius: 18px;
+          }
+
+          ha-card {
+            overflow: hidden;
+            border-radius: var(--homeon-radius);
+          }
+
+          .wrap {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+          }
 
-    const modeRaw = this.st("mode");
-    const [modeLabel, modeClass] = this.modeInfo(modeRaw);
-    const reason = this.st("reason");
-
-    const soc = this.pct(this.num("soc", 0));
-    const chargeTarget = this.pct(this.num("chargeTarget", 0));
-    const dischargeTarget = this.pct(this.num("dischargeTarget", 0));
-    const morningTarget = this.pct(this.num("morningTarget", 0));
-    const confidence = this.pct(this.num("learnConfidence", 0));
-
-    const pvPower = this.num("pvPower", 0);
-    const loadPower = this.num("loadPower", 0);
-    const gridPower = this.num("gridPower", 0);
-    const batteryPower = this.num("batteryPower", 0);
-
-    const dailyKwh = this.num("learnDailyKwh", 0);
-    const nightKwh = this.num("learnNightKwh", 0);
-    const avgLoad = this.num("learnAvgLoad", 0);
-    const avgDay = this.num("learnAvgDayLoad", 0);
-    const avgNight = this.num("learnAvgNightLoad", 0);
-
-    const energyLoad = this.num("learnEnergyLoad", 0);
-    const energyPv = this.num("learnEnergyPv", 0);
-    const energyImport = this.num("learnEnergyImport", 0);
-    const energyExport = this.num("learnEnergyExport", 0);
-    const maxEnergy = Math.max(energyLoad, energyPv, energyImport, energyExport, 1);
-
-    const importantKeys = [
-      "mode",
-      "reason",
-      "soc",
-      "batteryPower",
-      "pvPower",
-      "loadPower",
-      "gridPower",
-      "buyPrice",
-      "sellPrice"
-    ];
-
-    const missing = importantKeys.filter(k => !this.entity(k));
-
-    this.shadowRoot.innerHTML = `
-      <style>
-        :host {
-          display: block;
-          --homeon-bg: #07111f;
-          --homeon-surface: rgba(255,255,255,0.075);
-          --homeon-surface-2: rgba(255,255,255,0.105);
-          --homeon-line: rgba(255,255,255,0.14);
-          --homeon-text: #eef6ff;
-          --homeon-muted: #8fa4b8;
-          --homeon-blue: #36a3ff;
-          --homeon-green: #35d48b;
-          --homeon-amber: #ffd166;
-          --homeon-red: #ff5c77;
-          --homeon-purple: #aa7cff;
-        }
-
-        ha-card {
-          border-radius: 26px;
-          overflow: hidden;
-          background: transparent;
-          box-shadow: none;
-        }
-
-        .shell {
-          position: relative;
-          color: var(--homeon-text);
-          background:
-            radial-gradient(circle at 12% 0%, rgba(54,163,255,0.20), transparent 28%),
-            radial-gradient(circle at 88% 8%, rgba(53,212,139,0.14), transparent 26%),
-            linear-gradient(145deg, #06101d 0%, #0a1628 46%, #07131d 100%);
-          border: 1px solid var(--homeon-line);
-          border-radius: 26px;
-          padding: 18px;
-          font-family: var(--ha-font-family, Inter, Roboto, Arial, sans-serif);
-        }
-
-        .shell:before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.030) 1px, transparent 1px);
-          background-size: 38px 38px;
-          mask-image: linear-gradient(to bottom, rgba(0,0,0,0.28), transparent 55%);
-        }
-
-        .content {
-          position: relative;
-          z-index: 1;
-        }
-
-        .header {
-          display: grid;
-          grid-template-columns: 1fr auto;
-          gap: 16px;
-          align-items: center;
-          margin-bottom: 16px;
-        }
-
-        .brand {
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          min-width: 0;
-        }
-
-        .brand img {
-          width: 132px;
-          max-width: 132px;
-          height: auto;
-          filter: drop-shadow(0 10px 24px rgba(0,0,0,0.35));
-        }
-
-        .title {
-          font-size: 21px;
-          line-height: 1.05;
-          font-weight: 860;
-          letter-spacing: -0.02em;
-        }
-
-        .subtitle {
-          margin-top: 5px;
-          color: var(--homeon-muted);
-          font-size: 12px;
-          letter-spacing: 0.02em;
-        }
-
-        .status-strip {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-          justify-content: flex-end;
-        }
-
-        .chip {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          min-height: 28px;
-          padding: 0 10px;
-          border-radius: 999px;
-          background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.13);
-          color: var(--homeon-muted);
-          font-size: 12px;
-          font-weight: 700;
-          white-space: nowrap;
-        }
-
-        .chip ha-icon {
-          --mdc-icon-size: 16px;
-        }
-
-        .chip.ok { color: var(--homeon-green); }
-        .chip.warn { color: var(--homeon-amber); }
-        .chip.alarm { color: var(--homeon-red); }
-        .chip.muted { color: var(--homeon-muted); }
-
-        .hero {
-          display: grid;
-          grid-template-columns: minmax(270px, 0.95fr) minmax(340px, 1.35fr) minmax(270px, 0.95fr);
-          gap: 14px;
-        }
-
-        .panel {
-          background: rgba(255,255,255,0.068);
-          border: 1px solid var(--homeon-line);
-          border-radius: 22px;
-          padding: 14px;
-          min-width: 0;
-          backdrop-filter: blur(16px);
-        }
-
-        .section-title {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          margin-bottom: 12px;
-          color: var(--homeon-muted);
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.11em;
-          font-weight: 800;
-        }
-
-        .section-title ha-icon {
-          --mdc-icon-size: 18px;
-        }
-
-        .mode-card {
-          border-radius: 20px;
-          padding: 15px;
-          background: linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.055));
-          border: 1px solid rgba(255,255,255,0.14);
-        }
-
-        .mode-line {
-          display: flex;
-          justify-content: space-between;
-          gap: 12px;
-          align-items: flex-start;
-        }
-
-        .mode-name {
-          font-size: 24px;
-          line-height: 1.12;
-          font-weight: 900;
-          letter-spacing: -0.03em;
-        }
-
-        .mode-code {
-          margin-top: 6px;
-          color: var(--homeon-muted);
-          font-size: 11px;
-          font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        }
-
-        .mode-dot {
-          width: 13px;
-          height: 13px;
-          border-radius: 999px;
-          margin-top: 6px;
-          background: var(--homeon-blue);
-          box-shadow: 0 0 0 6px rgba(54,163,255,0.14);
-        }
-
-        .mode-card.sell .mode-dot { background: var(--homeon-green); box-shadow: 0 0 0 6px rgba(53,212,139,0.14); }
-        .mode-card.charge .mode-dot { background: var(--homeon-amber); box-shadow: 0 0 0 6px rgba(255,209,102,0.14); }
-        .mode-card.wait .mode-dot { background: var(--homeon-amber); box-shadow: 0 0 0 6px rgba(255,209,102,0.14); }
-        .mode-card.self .mode-dot { background: var(--homeon-purple); box-shadow: 0 0 0 6px rgba(170,124,255,0.14); }
-        .mode-card.alarm .mode-dot { background: var(--homeon-red); box-shadow: 0 0 0 6px rgba(255,92,119,0.14); }
-        .mode-card.muted .mode-dot { background: var(--homeon-muted); box-shadow: 0 0 0 6px rgba(143,164,184,0.14); }
-
-        .decision {
-          margin-top: 12px;
-          color: #cfe1f2;
-          font-size: 13px;
-          line-height: 1.45;
-        }
-
-        .soc-block {
-          margin-top: 14px;
-        }
-
-        .soc-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: end;
-          gap: 10px;
-        }
-
-        .soc-value {
-          font-size: 48px;
-          font-weight: 920;
-          line-height: 1;
-          letter-spacing: -0.05em;
-        }
-
-        .soc-label {
-          color: var(--homeon-muted);
-          font-size: 12px;
-          margin-bottom: 5px;
-        }
-
-        .soc-bar {
-          position: relative;
-          height: 18px;
-          margin-top: 13px;
-          border-radius: 999px;
-          background: rgba(255,255,255,0.12);
-          overflow: hidden;
-        }
-
-        .soc-fill {
-          height: 100%;
-          width: ${soc}%;
-          border-radius: inherit;
-          background: linear-gradient(90deg, var(--homeon-green), var(--homeon-blue));
-        }
-
-        .soc-marker {
-          position: absolute;
-          top: -5px;
-          width: 3px;
-          height: 28px;
-          border-radius: 999px;
-          background: white;
-        }
-
-        .soc-marker.charge { left: ${chargeTarget}%; background: var(--homeon-amber); }
-        .soc-marker.discharge { left: ${dischargeTarget}%; background: var(--homeon-red); }
-        .soc-marker.morning { left: ${morningTarget}%; background: var(--homeon-purple); }
-
-        .target-list {
-          display: grid;
-          gap: 7px;
-          margin-top: 11px;
-          color: var(--homeon-muted);
-          font-size: 12px;
-        }
-
-        .target-list b {
-          color: var(--homeon-text);
-        }
-
-        .metrics {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 10px;
-        }
-
-        .metric {
-          min-width: 0;
-          padding: 12px;
-          border-radius: 17px;
-          background: rgba(255,255,255,0.075);
-          border: 1px solid rgba(255,255,255,0.105);
-        }
-
-        .metric-head {
-          display: flex;
-          align-items: center;
-          gap: 7px;
-          color: var(--homeon-muted);
-          font-size: 11px;
-          font-weight: 750;
-        }
-
-        .metric-head ha-icon {
-          --mdc-icon-size: 17px;
-        }
-
-        .metric-value {
-          margin-top: 6px;
-          font-size: 20px;
-          line-height: 1.12;
-          font-weight: 880;
-          letter-spacing: -0.025em;
-          overflow-wrap: anywhere;
-        }
-
-        .metric-sub {
-          margin-top: 4px;
-          color: var(--homeon-muted);
-          font-size: 11px;
-          overflow-wrap: anywhere;
-        }
-
-        .flow {
-          position: relative;
-          min-height: 454px;
-          padding: 16px;
-          border-radius: 22px;
-          background:
-            radial-gradient(circle at 50% 38%, rgba(54,163,255,0.12), transparent 33%),
-            rgba(255,255,255,0.052);
-          border: 1px solid var(--homeon-line);
-        }
-
-        .flow-grid {
-          height: 402px;
-          display: grid;
-          grid-template-columns: 1fr 1.08fr 1fr;
-          grid-template-rows: 1fr 1fr 1fr;
-          gap: 18px;
-          align-items: center;
-        }
-
-        .flow-node {
-          position: relative;
-          z-index: 2;
-          min-height: 106px;
-          border-radius: 22px;
-          padding: 12px;
-          background: rgba(255,255,255,0.092);
-          border: 1px solid rgba(255,255,255,0.14);
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          text-align: center;
-        }
-
-        .flow-node.main {
-          min-height: 132px;
-          background: linear-gradient(145deg, rgba(54,163,255,0.18), rgba(255,255,255,0.075));
-        }
-
-        .flow-node ha-icon {
-          --mdc-icon-size: 30px;
-          color: var(--homeon-blue);
-          margin: 0 auto 8px;
-        }
-
-        .flow-name {
-          color: var(--homeon-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.10em;
-          font-size: 10px;
-          font-weight: 850;
-        }
-
-        .flow-value {
-          margin-top: 5px;
-          font-size: 21px;
-          font-weight: 900;
-          letter-spacing: -0.03em;
-        }
-
-        .flow-sub {
-          margin-top: 4px;
-          color: var(--homeon-muted);
-          font-size: 11px;
-        }
-
-        .flow-line {
-          position: absolute;
-          z-index: 1;
-          background: rgba(255,255,255,0.12);
-          border-radius: 999px;
-          overflow: hidden;
-        }
-
-        .flow-line:after {
-          content: "";
-          position: absolute;
-          border-radius: inherit;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.85), transparent);
-          opacity: 0.9;
-        }
-
-        .flow-line.idle {
-          opacity: 0.24;
-        }
-
-        .flow-line.idle:after {
-          display: none;
-        }
-
-        .line-v {
-          width: 4px;
-          left: calc(50% - 2px);
-        }
-
-        .line-v:after {
-          width: 4px;
-          height: 32px;
-          animation: flowY 1.35s linear infinite;
-        }
-
-        .line-h {
-          height: 4px;
-          top: calc(50% - 2px);
-        }
-
-        .line-h:after {
-          width: 42px;
-          height: 4px;
-          animation: flowX 1.35s linear infinite;
-        }
-
-        .line-h.reverse:after {
-          animation-name: flowXRev;
-        }
-
-        .pv-home { top: 118px; height: 72px; background: linear-gradient(180deg, transparent, var(--homeon-amber), transparent); }
-        .home-inverter { top: 296px; height: 60px; background: linear-gradient(180deg, transparent, var(--homeon-purple), transparent); }
-        .grid-home { left: 78px; width: calc(50% - 138px); background: linear-gradient(90deg, transparent, var(--homeon-blue), transparent); }
-        .home-battery { right: 78px; width: calc(50% - 138px); background: linear-gradient(90deg, transparent, var(--homeon-green), transparent); }
-
-        @keyframes flowY {
-          from { top: -34px; }
-          to { top: 100%; }
-        }
-
-        @keyframes flowX {
-          from { left: -44px; }
-          to { left: 100%; }
-        }
-
-        @keyframes flowXRev {
-          from { left: 100%; }
-          to { left: -44px; }
-        }
-
-        .flow-pv { grid-column: 2; grid-row: 1; }
-        .flow-gridnode { grid-column: 1; grid-row: 2; }
-        .flow-home { grid-column: 2; grid-row: 2; }
-        .flow-battery { grid-column: 3; grid-row: 2; }
-        .flow-inverter { grid-column: 2; grid-row: 3; }
-
-        .learn {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 14px;
-          margin-top: 14px;
-        }
-
-        .learn-card {
-          background: rgba(255,255,255,0.06);
-          border: 1px solid var(--homeon-line);
-          border-radius: 22px;
-          padding: 14px;
-        }
-
-        .confidence {
-          display: grid;
-          grid-template-columns: auto 1fr;
-          gap: 14px;
-          align-items: center;
-        }
-
-        .confidence-num {
-          font-size: 42px;
-          font-weight: 930;
-          line-height: 1;
-          letter-spacing: -0.05em;
-        }
-
-        .confidence-text {
-          color: var(--homeon-muted);
-          font-size: 12px;
-          line-height: 1.4;
-        }
-
-        .confidence-bar {
-          grid-column: 1 / -1;
-          height: 13px;
-          border-radius: 999px;
-          background: rgba(255,255,255,0.12);
-          overflow: hidden;
-        }
-
-        .confidence-fill {
-          height: 100%;
-          width: ${confidence}%;
-          background: linear-gradient(90deg, var(--homeon-amber), var(--homeon-green));
-        }
-
-        .learn-rows {
-          display: grid;
-          gap: 10px;
-        }
-
-        .learn-row-top {
-          display: flex;
-          justify-content: space-between;
-          gap: 12px;
-          color: var(--homeon-muted);
-          font-size: 12px;
-        }
-
-        .learn-row-top b {
-          color: var(--homeon-text);
-          font-weight: 850;
-          white-space: nowrap;
-        }
-
-        .mini-bar {
-          height: 8px;
-          margin-top: 6px;
-          background: rgba(255,255,255,0.11);
-          border-radius: 999px;
-          overflow: hidden;
-        }
-
-        .mini-bar div {
-          height: 100%;
-          border-radius: inherit;
-          background: linear-gradient(90deg, var(--homeon-blue), var(--homeon-green));
-        }
-
-        .footer-grid {
-          display: grid;
-          grid-template-columns: 1.1fr 0.9fr;
-          gap: 14px;
-          margin-top: 14px;
-        }
-
-        .action-box {
-          padding: 13px;
-          border-radius: 18px;
-          background: rgba(255,255,255,0.075);
-          border: 1px solid rgba(255,255,255,0.11);
-          color: #d7e7f5;
-          font-size: 13px;
-          line-height: 1.45;
-        }
-
-        .missing {
-          margin-bottom: 14px;
-          padding: 12px 14px;
-          border-radius: 18px;
-          background: rgba(255,92,119,0.10);
-          border: 1px solid rgba(255,92,119,0.35);
-          color: #ffd9e2;
-          font-size: 13px;
-          line-height: 1.45;
-        }
-
-        @media (max-width: 1100px) {
           .hero {
-            grid-template-columns: 1fr;
-          }
-
-          .flow {
-            min-height: 420px;
-          }
-
-          .footer-grid,
-          .learn {
-            grid-template-columns: 1fr;
-          }
-        }
-
-        @media (max-width: 700px) {
-          .shell {
-            padding: 13px;
+            border: 1px solid var(--homeon-border);
             border-radius: 20px;
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            gap: 16px;
+            background: linear-gradient(135deg, rgba(50,120,255,.13), rgba(80,200,140,.08));
           }
 
-          .header {
-            grid-template-columns: 1fr;
-          }
+          .hero.danger { background: linear-gradient(135deg, rgba(220,50,50,.20), rgba(255,170,0,.10)); }
+          .hero.sell { background: linear-gradient(135deg, rgba(0,170,120,.20), rgba(0,120,255,.08)); }
+          .hero.charge { background: linear-gradient(135deg, rgba(0,130,255,.18), rgba(80,200,140,.08)); }
+          .hero.hold { background: linear-gradient(135deg, rgba(255,170,0,.18), rgba(0,120,255,.08)); }
+          .hero.ok { background: linear-gradient(135deg, rgba(40,180,110,.16), rgba(0,120,255,.06)); }
 
-          .status-strip {
-            justify-content: flex-start;
+          .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
           }
 
           .brand img {
-            width: 112px;
-            max-width: 112px;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            object-fit: contain;
           }
 
-          .metrics {
-            grid-template-columns: 1fr;
+          .brand-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -.02em;
           }
 
-          .flow {
-            min-height: 0;
+          .brand-sub {
+            color: var(--homeon-muted);
+            font-size: 13px;
           }
 
-          .flow-grid {
-            height: auto;
+          .mode-line {
+            font-size: 28px;
+            line-height: 1.15;
+            font-weight: 850;
+            letter-spacing: -.03em;
+            margin-bottom: 10px;
+          }
+
+          .reason-line {
+            color: var(--homeon-muted);
+            font-size: 14px;
+            line-height: 1.4;
+            max-width: 720px;
+          }
+
+          .hero-right {
             display: grid;
-            grid-template-columns: 1fr;
-            grid-template-rows: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
           }
 
-          .flow-node,
-          .flow-node.main {
-            grid-column: auto;
-            grid-row: auto;
+          .section {
+            border: 1px solid var(--homeon-border);
+            border-radius: 18px;
+            padding: 14px;
+            background: rgba(127,127,127,.035);
           }
 
-          .flow-line {
-            display: none;
+          .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
           }
-        }
-      </style>
 
-      <ha-card>
-        <div class="shell">
-          <div class="content">
-            <div class="header">
-              <div class="brand">
-                <img src="${this.esc(this.logo)}" alt="HomeOn">
-                <div>
-                  <div class="title">HomeOn Energy Manager</div>
-                  <div class="subtitle">PV · magazyn energii · ceny dynamiczne · sterowanie falownikiem</div>
-                </div>
-              </div>
+          .section h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -.01em;
+          }
 
-              <div class="status-strip">
-                <span class="chip ${this.boolClass("enabled")}"><ha-icon icon="mdi:power"></ha-icon>EMS ${this.esc(this.boolText("enabled"))}</span>
-                <span class="chip ${this.boolText("dryRun") === "ON" ? "warn" : "ok"}"><ha-icon icon="mdi:test-tube"></ha-icon>Dry-run ${this.esc(this.boolText("dryRun"))}</span>
-                <span class="chip ${this.boolClass("inverterControl")}"><ha-icon icon="mdi:power-settings"></ha-icon>Falownik ${this.esc(this.boolText("inverterControl"))}</span>
-                <span class="chip ${confidence >= 70 ? "ok" : confidence >= 30 ? "warn" : "muted"}"><ha-icon icon="mdi:brain"></ha-icon>Nauka ${confidence.toFixed(0)}%</span>
-              </div>
-            </div>
+          .section p {
+            margin: 3px 0 0;
+            color: var(--homeon-muted);
+            font-size: 12px;
+          }
 
-            ${missing.length ? `<div class="missing"><b>Brakuje części encji:</b> ${missing.map(k => this.esc(this.labels[k])).join(", ")}. Karta dalej próbuje dopasować encje po nazwach przyjaznych.</div>` : ""}
+          .grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+          }
 
-            <div class="hero">
-              <div class="panel">
-                <div class="section-title">
-                  <span>Decyzja systemu</span>
-                  <ha-icon icon="mdi:state-machine"></ha-icon>
-                </div>
+          .tile {
+            border: 1px solid var(--homeon-border);
+            border-radius: 14px;
+            padding: 11px;
+            background: var(--homeon-bg);
+            display: flex;
+            gap: 10px;
+            min-height: 58px;
+            box-sizing: border-box;
+          }
 
-                <div class="mode-card ${modeClass}">
-                  <div class="mode-line">
-                    <div>
-                      <div class="mode-name">${this.esc(modeLabel)}</div>
-                      <div class="mode-code">${this.esc(modeRaw)}</div>
-                    </div>
-                    <div class="mode-dot"></div>
-                  </div>
-                  <div class="decision">${this.esc(reason)}</div>
-                </div>
+          .tile.wide {
+            grid-column: span 4;
+          }
 
-                <div class="soc-block">
-                  <div class="soc-top">
-                    <div>
-                      <div class="soc-value">${soc.toFixed(0)}%</div>
-                      <div class="soc-label">Stan magazynu energii</div>
-                    </div>
-                    <div class="chip muted"><ha-icon icon="mdi:battery-sync"></ha-icon>${this.esc(this.st("batteryStatus"))}</div>
-                  </div>
+          .tile-icon {
+            color: var(--homeon-accent);
+            flex: 0 0 auto;
+            margin-top: 2px;
+          }
 
-                  <div class="soc-bar">
-                    <div class="soc-fill"></div>
-                    <div class="soc-marker charge"></div>
-                    <div class="soc-marker discharge"></div>
-                    <div class="soc-marker morning"></div>
-                  </div>
+          .tile-icon ha-icon {
+            width: 22px;
+            height: 22px;
+          }
 
-                  <div class="target-list">
-                    <div>Cel ładowania: <b>${this.fmt("chargeTarget")}</b></div>
-                    <div>Cel rozładowania: <b>${this.fmt("dischargeTarget")}</b></div>
-                    <div>Cel poranny: <b>${this.fmt("morningTarget")}</b></div>
-                    <div>Rezerwa nocna: <b>${this.fmt("nightReserve")}</b></div>
-                  </div>
-                </div>
+          .tile-body {
+            min-width: 0;
+          }
 
-                <div class="metrics" style="margin-top:14px;">
-                  ${this.metric("Moc baterii", this.fmt("batteryPower"), this.esc(this.st("batteryStatus")), "mdi:battery")}
-                  ${this.metric("Do sprzedaży", this.fmt("availableSell"), "energia ponad cel", "mdi:cash-fast")}
-                  ${this.metric("Wolne miejsce", this.fmt("freeSpace"), "miejsce na PV/tani zakup", "mdi:battery-outline")}
-                  ${this.metric("Do celu", this.fmt("chargeToTarget"), "brakuje do celu ładowania", "mdi:battery-clock")}
-                </div>
-              </div>
+          .tile-label {
+            color: var(--homeon-muted);
+            font-size: 12px;
+            line-height: 1.2;
+            margin-bottom: 5px;
+          }
 
-              <div class="flow">
-                <div class="section-title">
-                  <span>Przepływ energii</span>
-                  <ha-icon icon="mdi:transmission-tower-export"></ha-icon>
-                </div>
+          .tile-value {
+            color: var(--homeon-text);
+            font-size: 15px;
+            font-weight: 750;
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+          }
 
-                <div class="flow-line line-v pv-home ${pvPower > 20 ? "" : "idle"}"></div>
-                <div class="flow-line line-h grid-home ${Math.abs(gridPower) > 20 ? "" : "idle"} ${String(this.st("gridStatus")).toLowerCase().includes("eksport") ? "reverse" : ""}"></div>
-                <div class="flow-line line-h home-battery ${Math.abs(batteryPower) > 20 ? "" : "idle"} ${String(this.st("batteryStatus")).toLowerCase().includes("roz") ? "reverse" : ""}"></div>
-                <div class="flow-line line-v home-inverter ${this.num("inverterSelf", 0) > 10 ? "" : "idle"}"></div>
+          .tile-sub {
+            margin-top: 4px;
+            color: var(--homeon-muted);
+            font-size: 11px;
+            overflow-wrap: anywhere;
+          }
 
-                <div class="flow-grid">
-                  <div class="flow-node flow-pv">
-                    <ha-icon icon="mdi:solar-power"></ha-icon>
-                    <div class="flow-name">PV</div>
-                    <div class="flow-value">${this.fmt("pvPower")}</div>
-                    <div class="flow-sub">prognoza jutro: ${this.fmt("pvTomorrow", 1)}</div>
-                  </div>
+          .gauge-card {
+            border: 1px solid var(--homeon-border);
+            border-radius: 18px;
+            padding: 16px;
+            background: var(--homeon-bg);
+          }
 
-                  <div class="flow-node flow-gridnode">
-                    <ha-icon icon="mdi:transmission-tower"></ha-icon>
-                    <div class="flow-name">Sieć</div>
-                    <div class="flow-value">${this.fmt("gridPower")}</div>
-                    <div class="flow-sub">${this.esc(this.st("gridStatus"))}</div>
-                  </div>
+          .gauge-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+          }
 
-                  <div class="flow-node main flow-home">
-                    <ha-icon icon="mdi:home-lightning-bolt"></ha-icon>
-                    <div class="flow-name">Dom</div>
-                    <div class="flow-value">${this.fmt("loadPower")}</div>
-                    <div class="flow-sub">średnio: ${this.fmt("learnAvgLoad")}</div>
-                  </div>
+          .gauge-label {
+            color: var(--homeon-muted);
+            font-size: 13px;
+          }
 
-                  <div class="flow-node flow-battery">
-                    <ha-icon icon="mdi:battery-high"></ha-icon>
-                    <div class="flow-name">Magazyn</div>
-                    <div class="flow-value">${soc.toFixed(0)}%</div>
-                    <div class="flow-sub">${this.fmt("batteryPower")}</div>
-                  </div>
+          .gauge-value {
+            font-size: 34px;
+            font-weight: 900;
+            letter-spacing: -.04em;
+          }
 
-                  <div class="flow-node flow-inverter">
-                    <ha-icon icon="mdi:inverter"></ha-icon>
-                    <div class="flow-name">Falownik</div>
-                    <div class="flow-value">${this.fmt("inverterSelf")}</div>
-                    <div class="flow-sub">pobór własny / straty</div>
-                  </div>
-                </div>
-              </div>
+          .gauge-mini {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            color: var(--homeon-muted);
+            font-size: 12px;
+            text-align: right;
+          }
 
-              <div class="panel">
-                <div class="section-title">
-                  <span>Rynek energii</span>
-                  <ha-icon icon="mdi:cash-clock"></ha-icon>
-                </div>
+          .gauge-mini b {
+            color: var(--homeon-text);
+          }
 
-                <div class="metrics">
-                  ${this.metric("Zakup teraz", this.fmt("buyPrice", 3), "cena dynamiczna", "mdi:cash-plus")}
-                  ${this.metric("Sprzedaż teraz", this.fmt("sellPrice", 3), "aktualna cena", "mdi:cash-minus")}
-                  ${this.metric("Najlepsza sprzedaż", this.fmt("bestSellPrice", 3), this.esc(this.st("bestSellTime")), "mdi:clock-star-four-points")}
-                  ${this.metric("Następna lepsza", this.fmt("nextBetterSellPrice", 3), this.esc(this.st("nextBetterSellTime")), "mdi:clock-fast")}
-                  ${this.metric("Różnica do top", this.fmt("sellDelta", 3), "ile brakuje do najlepszej ceny", "mdi:delta")}
-                  ${this.metric("Prognoza dziś", this.fmt("pvToday", 1), "pozostała produkcja", "mdi:weather-sunny")}
-                </div>
+          .bar {
+            height: 18px;
+            border-radius: 999px;
+            background: rgba(127,127,127,.16);
+            position: relative;
+            overflow: visible;
+          }
 
-                <div class="section-title" style="margin-top:16px;">
-                  <span>Nastawy falownika</span>
-                  <ha-icon icon="mdi:tune"></ha-icon>
-                </div>
+          .bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--homeon-accent), rgba(0,180,120,.95));
+          }
 
-                <div class="metrics">
-                  ${this.metric("Eksport max", this.fmt("inverterExportTarget", 0), "limit HomeOn", "mdi:transmission-tower-export")}
-                  ${this.metric("Ładowanie", this.fmt("inverterChargeCurrent", 0), "prąd ładowania", "mdi:battery-arrow-up")}
-                  ${this.metric("Rozładowanie", this.fmt("inverterDischargeCurrent", 0), "prąd pracy", "mdi:battery-arrow-down")}
-                  ${this.metric("Tryb bezpieczny", this.fmt("inverterSafeDischargeCurrent", 0), "gdy EMS czeka", "mdi:battery-lock")}
-                </div>
-              </div>
-            </div>
+          .marker {
+            position: absolute;
+            top: -6px;
+            height: 30px;
+            width: 2px;
+            background: var(--homeon-text);
+            opacity: .85;
+          }
 
-            <div class="learn">
-              <div class="learn-card">
-                <div class="section-title">
-                  <span>Model zużycia domu</span>
-                  <ha-icon icon="mdi:brain"></ha-icon>
-                </div>
+          .marker span {
+            position: absolute;
+            top: 31px;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 10px;
+            color: var(--homeon-muted);
+          }
 
-                <div class="confidence">
-                  <div class="confidence-num">${confidence.toFixed(0)}%</div>
-                  <div class="confidence-text">
-                    Pewność nauki rośnie wraz z czasem obserwacji. Po dobie EMS zaczyna mieć sensowny profil zużycia dzień/noc.
-                  </div>
-                  <div class="confidence-bar"><div class="confidence-fill"></div></div>
-                </div>
+          .bar-legend {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 22px;
+            color: var(--homeon-muted);
+            font-size: 12px;
+          }
 
-                <div class="learn-rows" style="margin-top:14px;">
-                  ${this.row("Czas nauki", this.fmt("learnHours", 1))}
-                  ${this.row("Próbki", this.fmt("learnSamples", 0))}
-                  ${this.row("Ostatnia aktualizacja", this.esc(this.st("learnLastUpdate")))}
-                  ${this.row("Najczęstszy tryb EMS", this.esc(this.st("learnMostMode")))}
-                </div>
-              </div>
+          .long-text {
+            border: 1px solid var(--homeon-border);
+            border-radius: 14px;
+            padding: 12px;
+            background: var(--homeon-bg);
+            color: var(--homeon-text);
+            font-size: 13px;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+          }
 
-              <div class="learn-card">
-                <div class="section-title">
-                  <span>Zużycie i rezerwa</span>
-                  <ha-icon icon="mdi:home-analytics"></ha-icon>
-                </div>
+          .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+          }
 
-                <div class="learn-rows">
-                  ${this.row("Średnie zużycie domu", this.fmt("learnAvgLoad"), this.bar(avgLoad, Math.max(avgLoad, avgDay, avgNight, 1)))}
-                  ${this.row("Średnie zużycie w dzień", this.fmt("learnAvgDayLoad"), this.bar(avgDay, Math.max(avgLoad, avgDay, avgNight, 1)))}
-                  ${this.row("Średnie zużycie w nocy", this.fmt("learnAvgNightLoad"), this.bar(avgNight, Math.max(avgLoad, avgDay, avgNight, 1)))}
-                  ${this.row("Szacowane zużycie dobowe", this.fmt("learnDailyKwh", 2), this.bar(dailyKwh, Math.max(dailyKwh, 1)))}
-                  ${this.row("Szacowane zużycie nocne", this.fmt("learnNightKwh", 2), this.bar(nightKwh, Math.max(dailyKwh, 1)))}
-                </div>
-              </div>
+          .footer {
+            color: var(--homeon-muted);
+            font-size: 11px;
+            text-align: center;
+            padding: 4px 0 0;
+          }
 
-              <div class="learn-card">
-                <div class="section-title">
-                  <span>Bilans od startu nauki</span>
-                  <ha-icon icon="mdi:chart-bar"></ha-icon>
-                </div>
+          @media (max-width: 900px) {
+            .hero {
+              grid-template-columns: 1fr;
+            }
 
-                <div class="learn-rows">
-                  ${this.row("Energia domu", this.fmt("learnEnergyLoad", 2), this.bar(energyLoad, maxEnergy))}
-                  ${this.row("Energia PV", this.fmt("learnEnergyPv", 2), this.bar(energyPv, maxEnergy))}
-                  ${this.row("Import z sieci", this.fmt("learnEnergyImport", 2), this.bar(energyImport, maxEnergy))}
-                  ${this.row("Eksport do sieci", this.fmt("learnEnergyExport", 2), this.bar(energyExport, maxEnergy))}
-                  ${this.row("Pobór własny falownika", this.fmt("learnEnergyInverterSelf", 2))}
-                </div>
-              </div>
+            .grid {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
 
-              <div class="learn-card">
-                <div class="section-title">
-                  <span>Ceny i sterowanie</span>
-                  <ha-icon icon="mdi:currency-usd"></ha-icon>
-                </div>
+            .tile.wide {
+              grid-column: span 2;
+            }
 
-                <div class="learn-rows">
-                  ${this.row("Średnia cena zakupu", this.fmt("learnAvgBuy", 3))}
-                  ${this.row("Średnia cena sprzedaży", this.fmt("learnAvgSell", 3))}
-                  ${this.row("Najlepsza zauważona cena", this.fmt("learnBestSellSeen", 3))}
-                </div>
+            .split {
+              grid-template-columns: 1fr;
+            }
+          }
 
-                <div class="action-box" style="margin-top:13px;">
-                  <b>Akcja falownika</b><br>
-                  ${this.esc(this.st("inverterControlAction"))}
-                </div>
+          @media (max-width: 520px) {
+            .wrap {
+              padding: 12px;
+            }
 
-                <div class="action-box" style="margin-top:10px;">
-                  <b>Wynik ostatniej próby</b><br>
-                  ${this.esc(this.st("inverterControlResult"))}
-                </div>
-              </div>
-            </div>
+            .grid {
+              grid-template-columns: 1fr;
+            }
 
-            <div class="panel" style="margin-top:14px;">
-              <div class="section-title">
-                <span>Plan następnych 24h</span>
-                <ha-icon icon="mdi:calendar-clock"></ha-icon>
-              </div>
+            .tile.wide {
+              grid-column: span 1;
+            }
 
-              <div class="metrics">
-                ${this.metric("Następna akcja", this.esc(this.st("planNextAction")), this.esc(this.st("planNextActionTime")), "mdi:calendar-arrow-right")}
-                ${this.metric("Zalecany SOC", this.fmt("planRecommendedSoc", 1), this.esc(this.st("planPhase")), "mdi:battery-check")}
-                ${this.metric("Tanie ładowanie", this.esc(this.st("planChargeWindow")), "najlepsze okno zakupu", "mdi:battery-clock")}
-                ${this.metric("Najlepsza sprzedaż", this.esc(this.st("planSellWindow")), "najlepsze okno sprzedaży", "mdi:cash-clock")}
-                ${this.metric("Pogoda jutro", this.esc(this.st("planWeatherTomorrow")), "PV: " + this.fmt("planPvTomorrow", 2), "mdi:weather-partly-cloudy")}
-                ${this.metric("Bezpieczna sprzedaż", this.fmt("planSafeToSell", 2), "limit: " + this.fmt("planSafeExportLimit", 0), "mdi:cash-check")}
-                ${this.metric("Zostawić energię", this.fmt("planEnergyToKeep", 2), this.esc(this.st("planReasonableBuyWindow")), "mdi:battery-lock")}
-                ${this.metric("Bilans jutro", this.fmt("planEnergyBalanceTomorrow", 2), "PV minus zużycie", "mdi:scale-balance")}
-                ${this.metric("Zużycie nocne", this.fmt("planNightKwh", 2), "prognoza z profilu domu", "mdi:weather-night")}
-                ${this.metric("Zużycie 24h", this.fmt("planDayKwh", 2), "prognoza z profilu godzinowego", "mdi:calendar-today")}
-              </div>
+            .hero-right {
+              grid-template-columns: 1fr;
+            }
 
-              <div class="action-box" style="margin-top:13px;">
-                <b>Powód planu</b><br>
-                ${this.esc(this.st("planNextActionReason"))}
-              </div>
+            .gauge-top {
+              flex-direction: column;
+            }
 
-              <div class="action-box" style="margin-top:10px;">
-                <b>Podsumowanie 24h</b><br>
-                ${this.esc(this.st("planOverview"))}
-              </div>
+            .gauge-mini {
+              text-align: left;
+            }
 
-              <div class="action-box" style="margin-top:10px;">
-                <b>Strategia pogoda / PV</b><br>
-                ${this.esc(this.st("planWeatherStrategy"))}
-              </div>
-            </div>
+            .bar-legend {
+              flex-direction: column;
+            }
+          }
+        </style>
 
-            <div class="footer-grid">
-              <div class="panel">
-                <div class="section-title">
-                  <span>Szybki stan mocy</span>
-                  <ha-icon icon="mdi:flash"></ha-icon>
-                </div>
+        <div class="wrap">
+          ${this.hero()}
 
-                <div class="metrics">
-                  ${this.metric("PV", this.fmt("pvPower"), pvPower > 20 ? "produkcja aktywna" : "brak produkcji", "mdi:solar-power")}
-                  ${this.metric("Dom", this.fmt("loadPower"), "aktualne zużycie", "mdi:home-lightning-bolt")}
-                  ${this.metric("Sieć", this.fmt("gridPower"), this.esc(this.st("gridStatus")), "mdi:transmission-tower")}
-                  ${this.metric("Bateria", this.fmt("batteryPower"), this.esc(this.st("batteryStatus")), "mdi:battery")}
-                </div>
-              </div>
+          ${this.gauge()}
 
-              <div class="panel">
-                <div class="section-title">
-                  <span>Tryb testów</span>
-                  <ha-icon icon="mdi:shield-check"></ha-icon>
-                </div>
+          <div class="split">
+            ${this.section(
+              "Cele baterii EMS",
+              "Dlaczego HomeOn chce taki poziom magazynu.",
+              this.grid([
+                "targetSource",
+                "targetLearningWeight",
+                "targetNightKwh",
+                "targetDayKwh",
+                "targetPvCoverage",
+                "targetReserveKwh",
+                "nightReserve",
+                "morningTarget",
+                "chargeTarget",
+                "dischargeTarget",
+                "availableSell",
+                "freeSpace"
+              ]) + `<div class="long-text">${this.esc(targetReason)}</div>`
+            )}
 
-                <div class="action-box">
-                  EMS: <b>${this.esc(this.boolText("enabled"))}</b><br>
-                  Dry-run: <b>${this.esc(this.boolText("dryRun"))}</b><br>
-                  Sterowanie falownikiem: <b>${this.esc(this.boolText("inverterControl"))}</b><br>
-                  Limit eksportu: <b>${this.fmt("inverterExportTarget", 0)}</b><br>
-                  Blokada rozładowania: <b>${this.fmt("inverterBlockDischargeCurrent", 0)}</b>
-                </div>
-              </div>
-            </div>
+            ${this.section(
+              "Sterowanie falownikiem",
+              "Tryb testowy, komendy i encje Deye/Solarman.",
+              this.grid([
+                "enabled",
+                "dryRun",
+                "inverterControl",
+                "inverterExecutorMode",
+                "inverterSafeExportLimit",
+                "inverterSafeToSell",
+                "inverterWeatherLock",
+                "inverterLastRun",
+                "inverterExportTarget",
+                "inverterChargeCurrent",
+                "inverterDischargeCurrent",
+                "inverterSafeDischargeCurrent"
+              ]) + `<div class="long-text">${this.esc(inverterResult)}</div>`
+            )}
+          </div>
+
+          ${this.section(
+            "Przepływ energii teraz",
+            "Aktualny bilans domu, PV, sieci, baterii i falownika.",
+            this.grid([
+              "pvPower",
+              "loadPower",
+              "gridPower",
+              "gridStatus",
+              "gridImport",
+              "gridExport",
+              "batteryPower",
+              "batteryStatus",
+              "batteryCharge",
+              "batteryDischarge",
+              "inverterSelf",
+              "pvTomorrow"
+            ])
+          )}
+
+          <div class="split">
+            ${this.section(
+              "Rynek energii",
+              "Ceny zakupu, sprzedaży i najlepsze okna.",
+              this.grid([
+                "buyPrice",
+                "sellPrice",
+                "bestSellPrice",
+                "bestSellTime",
+                "nextBetterSellPrice",
+                "nextBetterSellTime",
+                "sellDelta",
+                "planCheapestBuy",
+                "planBestSell",
+                "planChargeWindow",
+                "planSellWindow",
+                "learnBestSellSeen"
+              ])
+            )}
+
+            ${this.section(
+              "Plan następnych 24h",
+              "Planowanie energii, pogody i bezpiecznej sprzedaży.",
+              this.grid([
+                "planPhase",
+                "planRecommendedSoc",
+                "planNextAction",
+                "planNextActionTime",
+                "planNightKwh",
+                "planDayKwh",
+                "planWeatherTomorrow",
+                "planPvTomorrow",
+                "planEnergyBalanceTomorrow",
+                "planEnergyToKeep",
+                "planSafeToSell",
+                "planSafeExportLimit"
+              ]) + `<div class="long-text">${this.esc(planReason)}</div><div class="long-text">${this.esc(planStrategy)}</div>`
+            )}
+          </div>
+
+          ${this.section(
+            "Uczenie EMS",
+            "Model zużycia domu i pewność obliczeń.",
+            this.grid([
+              "learnSamples",
+              "learnHours",
+              "learnConfidence",
+              "learnLastUpdate",
+              "learnAvgLoad",
+              "learnAvgDayLoad",
+              "learnAvgNightLoad",
+              "learnDailyKwh",
+              "learnNightKwh",
+              "learnPeakHour",
+              "learnPeakLoad",
+              "learnLowHour",
+              "learnLowLoad",
+              "learnMostMode",
+              "learnAvgBuy",
+              "learnAvgSell"
+            ])
+          )}
+
+          ${this.section(
+            "Bilans od startu nauki",
+            "Energia zliczona przez HomeOn od uruchomienia modelu.",
+            this.grid([
+              "learnEnergyLoad",
+              "learnEnergyPv",
+              "learnEnergyImport",
+              "learnEnergyExport",
+              "learnEnergyBatteryCharge",
+              "learnEnergyBatteryDischarge",
+              "learnEnergyInverterSelf",
+              "learnAvgPv",
+              "learnAvgImport",
+              "learnAvgExport",
+              "learnAvgBatteryCharge",
+              "learnAvgBatteryDischarge"
+            ])
+          )}
+
+          ${this.section(
+            "Diagnostyka encji falownika",
+            "Tutaj od razu widać, czym HomeOn próbuje sterować.",
+            this.grid([
+              "inverterConfigSource",
+              "inverterDryRunSensor",
+              "inverterEntityGridCharging",
+              "inverterEntityExportSurplus",
+              "inverterEntityExportPower",
+              "inverterEntityChargeCurrent",
+              "inverterEntityDischargeCurrent",
+              "inverterBlockDischargeCurrent"
+            ])
+          )}
+
+          <div class="footer">
+            HomeOn Energy Card 0.2.20 · wszystkie sekcje są automatycznie wykrywane po nazwach encji HomeOn
           </div>
         </div>
       </ha-card>
@@ -1521,9 +877,8 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "homeon-energy-card",
-  name: "HomeOn Energy Card",
-  description: "Panel HomeOn Energy Manager z prognozą PV i sprzedażą bezpiecznej nadwyżki."
-});
+if (!customElements.get("homeon-energy-dashboard")) {
+  customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
+}
+
+console.info("%c HomeOn Energy Card 0.2.20 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
