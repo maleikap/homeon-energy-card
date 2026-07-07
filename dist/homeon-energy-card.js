@@ -125,6 +125,16 @@ class HomeOnEnergyCard extends HTMLElement {
       planWeatherStrategy: { label: "Strategia pogodowa", icon: "mdi:weather-cloudy-alert", find: ["plan strategia pogoda"] },
       planReasonableBuyWindow: { label: "Okno normalnego zakupu", icon: "mdi:cash-clock", find: ["plan okno normalnego zakupu"] },
 
+      deyePlan: { label: "Deye plan komend", icon: "mdi:clipboard-list", find: ["deye plan komend"] },
+      deyeCurrent: { label: "Deye aktualne stany", icon: "mdi:eye-check", find: ["deye aktualne stany"] },
+      deyeChanges: { label: "Deye plan zmian", icon: "mdi:compare-horizontal", find: ["deye plan zmian"] },
+      deyeChangedOnly: { label: "Deye tylko realne zmiany", icon: "mdi:playlist-check", find: ["deye tylko realne zmiany"] },
+      deyeServices: { label: "Deye usługi HA", icon: "mdi:api", find: ["deye uslugi ha", "deye usługi ha"] },
+      deyeCommandCount: { label: "Deye liczba komend", icon: "mdi:counter", find: ["deye liczba komend"] },
+      deyeChangedCount: { label: "Deye liczba realnych zmian", icon: "mdi:counter", find: ["deye liczba realnych zmian"] },
+      deyeUnchangedCount: { label: "Deye liczba bez zmian", icon: "mdi:counter", find: ["deye liczba bez zmian"] },
+      deyeTestMode: { label: "Deye tryb testu", icon: "mdi:test-tube", find: ["deye tryb testu"] },
+
       learnSamples: { label: "Próbki nauki", icon: "mdi:counter", find: ["ems probki nauki"] },
       learnHours: { label: "Czas nauki", icon: "mdi:clock-outline", find: ["ems czas nauki"] },
       learnConfidence: { label: "Pewność nauki", icon: "mdi:brain", find: ["ems pewnosc nauki"] },
@@ -526,6 +536,77 @@ class HomeOnEnergyCard extends HTMLElement {
           <div><ha-icon icon="mdi:home-lightning-bolt"></ha-icon><span>Dom</span><b>${this.fmtW(load)}</b></div>
           <div><ha-icon icon="mdi:battery-plus"></ha-icon><span>Cel ładowania</span><b>${this.esc(this.value("chargeTarget"))}</b></div>
           <div><ha-icon icon="mdi:cash-check"></ha-icon><span>Do sprzedaży</span><b>${this.esc(this.value("availableSell"))}</b></div>
+        </div>
+      </section>
+    `;
+  }
+
+
+  deyeInspector() {
+    const testMode = this.value("deyeTestMode");
+    const changedOnly = this.value("deyeChangedOnly");
+    const changes = this.value("deyeChanges");
+    const current = this.value("deyeCurrent");
+    const services = this.value("deyeServices");
+    const plan = this.value("deyePlan");
+
+    return `
+      <section class="deye-card">
+        <div class="deye-head">
+          <div>
+            <h3>Deye — co HomeOn chce zmienić</h3>
+            <p>Podgląd komend przed zapisem do falownika. Przy dry-run nic nie jest wysyłane do Deye.</p>
+          </div>
+          <div class="deye-pill">${this.esc(testMode)}</div>
+        </div>
+
+        <div class="deye-top-grid">
+          ${this.tile("deyeTestMode")}
+          ${this.tile("deyeCommandCount")}
+          ${this.tile("deyeChangedCount")}
+          ${this.tile("deyeUnchangedCount")}
+        </div>
+
+        <div class="deye-change-main">
+          <div class="deye-panel deye-important">
+            <div class="deye-panel-title">
+              <ha-icon icon="mdi:playlist-check"></ha-icon>
+              <span>Tylko realne zmiany</span>
+            </div>
+            <div class="deye-panel-text">${this.esc(changedOnly)}</div>
+          </div>
+
+          <div class="deye-panel">
+            <div class="deye-panel-title">
+              <ha-icon icon="mdi:compare-horizontal"></ha-icon>
+              <span>Aktualnie w Deye → nowa wartość HomeOn</span>
+            </div>
+            <div class="deye-panel-text">${this.esc(changes)}</div>
+          </div>
+
+          <div class="deye-panel">
+            <div class="deye-panel-title">
+              <ha-icon icon="mdi:eye-check"></ha-icon>
+              <span>Aktualne stany encji Deye</span>
+            </div>
+            <div class="deye-panel-text">${this.esc(current)}</div>
+          </div>
+
+          <div class="deye-panel">
+            <div class="deye-panel-title">
+              <ha-icon icon="mdi:clipboard-list"></ha-icon>
+              <span>Plan komend</span>
+            </div>
+            <div class="deye-panel-text">${this.esc(plan)}</div>
+          </div>
+
+          <div class="deye-panel">
+            <div class="deye-panel-title">
+              <ha-icon icon="mdi:api"></ha-icon>
+              <span>Usługi Home Assistant, które zostaną wykonane</span>
+            </div>
+            <div class="deye-panel-text">${this.esc(services)}</div>
+          </div>
         </div>
       </section>
     `;
@@ -2454,12 +2535,126 @@ class HomeOnEnergyCard extends HTMLElement {
             }
           }
 
+
+          .deye-card {
+            border: 1px solid var(--homeon-border);
+            border-radius: 22px;
+            padding: 16px;
+            background:
+              radial-gradient(circle at 12% 20%, rgba(56,189,248,.10), transparent 25%),
+              radial-gradient(circle at 88% 20%, rgba(34,197,94,.10), transparent 25%),
+              linear-gradient(145deg, rgba(127,127,127,.045), rgba(127,127,127,.015));
+          }
+
+          .deye-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+          }
+
+          .deye-head h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: -.02em;
+          }
+
+          .deye-head p {
+            margin: 4px 0 0;
+            color: var(--homeon-muted);
+            font-size: 12px;
+            line-height: 1.35;
+          }
+
+          .deye-pill {
+            max-width: 360px;
+            border: 1px solid var(--homeon-border);
+            border-radius: 999px;
+            padding: 7px 12px;
+            background: var(--homeon-bg);
+            font-size: 12px;
+            font-weight: 850;
+            white-space: normal;
+            text-align: right;
+          }
+
+          .deye-top-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+          }
+
+          .deye-change-main {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
+
+          .deye-panel {
+            border: 1px solid var(--homeon-border);
+            border-radius: 16px;
+            padding: 12px;
+            background: color-mix(in srgb, var(--homeon-bg) 90%, transparent);
+          }
+
+          .deye-important {
+            border-color: rgba(34,197,94,.45);
+            background:
+              radial-gradient(circle at 0% 0%, rgba(34,197,94,.12), transparent 32%),
+              color-mix(in srgb, var(--homeon-bg) 90%, transparent);
+          }
+
+          .deye-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--homeon-muted);
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 8px;
+          }
+
+          .deye-panel-title ha-icon {
+            color: var(--homeon-accent);
+            width: 20px;
+            height: 20px;
+          }
+
+          .deye-panel-text {
+            font-size: 13px;
+            font-weight: 750;
+            line-height: 1.45;
+            color: var(--homeon-text);
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+          }
+
+          @media (max-width: 900px) {
+            .deye-top-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .deye-head {
+              flex-direction: column;
+            }
+
+            .deye-pill {
+              max-width: none;
+              text-align: left;
+            }
+          }
+
         </style>
 
         <div class="wrap">
           ${this.hero()}
 
           ${this.powerFlow()}
+
+          ${this.deyeInspector()}
 
           ${this.gauge()}
 
@@ -2620,7 +2815,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.25 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.27 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -2636,4 +2831,4 @@ if (!customElements.get("homeon-energy-dashboard")) {
   customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.25 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.27 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
