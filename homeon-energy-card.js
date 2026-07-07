@@ -125,6 +125,10 @@ class HomeOnEnergyCard extends HTMLElement {
       planWeatherStrategy: { label: "Strategia pogodowa", icon: "mdi:weather-cloudy-alert", find: ["plan strategia pogoda"] },
       planReasonableBuyWindow: { label: "Okno normalnego zakupu", icon: "mdi:cash-clock", find: ["plan okno normalnego zakupu"] },
 
+      deyeWorkModeEntity: { label: "Deye encja trybu pracy", icon: "mdi:form-select", find: ["deye encja trybu pracy"] },
+      deyeWorkModeCurrent: { label: "Deye aktualny tryb pracy", icon: "mdi:form-select", find: ["deye aktualny tryb pracy"] },
+      deyeWorkModeTarget: { label: "Deye docelowy tryb pracy", icon: "mdi:target", find: ["deye docelowy tryb pracy"] },
+      deyeWorkModeSellOption: { label: "Deye opcja sprzedaży z baterii", icon: "mdi:export", find: ["deye opcja sprzedazy z baterii", "deye opcja sprzedaży z baterii"] },
       deyePlan: { label: "Deye plan komend", icon: "mdi:clipboard-list", find: ["deye plan komend"] },
       deyeCurrent: { label: "Deye aktualne stany", icon: "mdi:eye-check", find: ["deye aktualne stany"] },
       deyeChanges: { label: "Deye plan zmian", icon: "mdi:compare-horizontal", find: ["deye plan zmian"] },
@@ -561,6 +565,10 @@ class HomeOnEnergyCard extends HTMLElement {
         </div>
 
         <div class="deye-top-grid">
+          ${this.tile("deyeWorkModeCurrent")}
+          ${this.tile("deyeWorkModeTarget")}
+          ${this.tile("deyeWorkModeSellOption")}
+          ${this.tile("deyeWorkModeEntity")}
           ${this.tile("deyeTestMode")}
           ${this.tile("deyeCommandCount")}
           ${this.tile("deyeChangedCount")}
@@ -568,6 +576,13 @@ class HomeOnEnergyCard extends HTMLElement {
         </div>
 
         <div class="deye-change-main">
+          <div class="deye-panel deye-important">
+            <div class="deye-panel-title">
+              <ha-icon icon="mdi:form-select"></ha-icon>
+              <span>Tryb pracy Deye wymagany do sprzedaży z magazynu</span>
+            </div>
+            <div class="deye-panel-text">Aktualnie: ${this.esc(this.value("deyeWorkModeCurrent"))} → Cel: ${this.esc(this.value("deyeWorkModeTarget"))}. Opcja sprzedaży: ${this.esc(this.value("deyeWorkModeSellOption"))}. Encja: ${this.esc(this.value("deyeWorkModeEntity"))}</div>
+          </div>
           <div class="deye-panel deye-important">
             <div class="deye-panel-title">
               <ha-icon icon="mdi:playlist-check"></ha-icon>
@@ -2815,7 +2830,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.27 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.28 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -2831,4 +2846,4 @@ if (!customElements.get("homeon-energy-dashboard")) {
   customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.27 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.28 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
