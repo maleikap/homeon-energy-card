@@ -135,6 +135,12 @@ class HomeOnEnergyCard extends HTMLElement {
       deyeUnchangedCount: { label: "Deye liczba bez zmian", icon: "mdi:counter", find: ["deye liczba bez zmian"] },
       deyeTestMode: { label: "Deye tryb testu", icon: "mdi:test-tube", find: ["deye tryb testu"] },
 
+      pvRealityStatus: { label: "Realna pogoda PV", icon: "mdi:weather-sunny-alert", find: ["pv pogoda z produkcji"] },
+      pvRealityScore: { label: "Jakość pogody z PV", icon: "mdi:percent", find: ["pv realna jakosc pogody"] },
+      pvRealityExpected: { label: "PV oczekiwane przy pogodzie", icon: "mdi:solar-power", find: ["pv oczekiwana moc przy pogodzie"] },
+      pvRealityLock: { label: "Blokada rozładowania", icon: "mdi:battery-lock", find: ["pv blokada rozladowania"] },
+      pvRealityReason: { label: "Powód oceny PV", icon: "mdi:text-box-check", find: ["pv powod oceny pogody"] },
+      pvRealityKwp: { label: "Moc instalacji PV", icon: "mdi:solar-power-variant", find: ["pv moc instalacji", "moc instalacji pv kwp"] },
       learnSamples: { label: "Próbki nauki", icon: "mdi:counter", find: ["ems probki nauki"] },
       learnHours: { label: "Czas nauki", icon: "mdi:clock-outline", find: ["ems czas nauki"] },
       learnConfidence: { label: "Pewność nauki", icon: "mdi:brain", find: ["ems pewnosc nauki"] },
@@ -583,6 +589,79 @@ class HomeOnEnergyCard extends HTMLElement {
     `;
   }
 
+
+
+  pvRealityCard() {
+    if (
+      !this.hasUsefulValue("pvRealityStatus") &&
+      !this.hasUsefulValue("pvRealityScore") &&
+      !this.hasUsefulValue("pvRealityExpected")
+    ) {
+      return "";
+    }
+
+    const score = Math.max(0, Math.min(100, this.num("pvRealityScore", 0)));
+    const status = this.plain("pvRealityStatus", "—");
+    const lockRaw = this.norm(this.plain("pvRealityLock", "off"));
+    const locked = lockRaw.includes("on") || lockRaw.includes("true") || lockRaw.includes("tak");
+
+    let quality = "neutral";
+    if (locked || score < 35) quality = "bad";
+    else if (score < 50) quality = "weak";
+    else if (score < 75) quality = "ok";
+    else quality = "good";
+
+    const ringStyle = `--pv-score:${score};`;
+
+    return `
+      <section class="pv-reality-card pv-reality-${quality}">
+        <div class="pv-reality-head">
+          <div>
+            <h3>PV — realna pogoda z produkcji</h3>
+            <p>HomeOn porównuje aktualną produkcję z mocą instalacji, godziną i porą roku. To zabezpiecza magazyn, gdy prognoza pogody się myli.</p>
+          </div>
+          <div class="pv-reality-status">
+            <span>${this.esc(status)}</span>
+            <b>${locked ? "Ochrona magazynu aktywna" : "Praca normalna"}</b>
+          </div>
+        </div>
+
+        <div class="pv-reality-main">
+          <div class="pv-reality-score">
+            <div class="pv-score-ring" style="${ringStyle}">
+              <div>
+                <strong>${Math.round(score)}%</strong>
+                <span>jakość PV</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pv-reality-data">
+            <div class="pv-reality-grid">
+              ${this.tile("pvRealityKwp")}
+              ${this.tile("pvPower")}
+              ${this.tile("pvRealityExpected")}
+              ${this.tile("pvRealityLock")}
+              ${this.tile("pvTomorrow")}
+              ${this.tile("chargeTarget")}
+            </div>
+
+            <div class="pv-reality-progress">
+              <div>
+                <span style="width:${score}%"></span>
+              </div>
+              <p>Im wyższy wynik, tym bardziej aktualna produkcja PV potwierdza dobrą pogodę. Przy niskim wyniku HomeOn ostrożniej rozładowuje baterię.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pv-reality-reason">
+          <ha-icon icon="mdi:text-box-check"></ha-icon>
+          <span>${this.esc(this.value("pvRealityReason"))}</span>
+        </div>
+      </section>
+    `;
+  }
 
   deyeInspector() {
     const testMode = this.value("deyeTestMode");
@@ -3042,12 +3121,304 @@ class HomeOnEnergyCard extends HTMLElement {
             }
           }
 
+
+          /* HOMEON 0.2.35 - PV REALITY VISUAL */
+
+          .pv-reality-card {
+            position: relative;
+            border: 1px solid var(--homeon-border);
+            border-radius: 24px;
+            padding: 18px;
+            overflow: hidden;
+            background:
+              radial-gradient(circle at 0% 0%, rgba(250,204,21,.14), transparent 34%),
+              radial-gradient(circle at 100% 0%, rgba(34,197,94,.10), transparent 32%),
+              radial-gradient(circle at 50% 120%, rgba(56,189,248,.09), transparent 38%),
+              linear-gradient(145deg, rgba(127,127,127,.045), rgba(127,127,127,.015));
+          }
+
+          .pv-reality-card::before {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            top: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(250,204,21,.55), rgba(34,197,94,.45), transparent);
+            pointer-events: none;
+          }
+
+          .pv-reality-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 16px;
+          }
+
+          .pv-reality-head h3 {
+            margin: 0;
+            font-size: 20px;
+            line-height: 1.15;
+            font-weight: 950;
+            letter-spacing: -.03em;
+          }
+
+          .pv-reality-head p {
+            margin: 5px 0 0;
+            color: var(--homeon-muted);
+            font-size: 12.5px;
+            line-height: 1.4;
+            max-width: 820px;
+          }
+
+          .pv-reality-status {
+            border: 1px solid var(--homeon-border);
+            border-radius: 18px;
+            padding: 10px 12px;
+            background: color-mix(in srgb, var(--homeon-bg) 90%, transparent);
+            min-width: 210px;
+            text-align: right;
+          }
+
+          .pv-reality-status span {
+            display: block;
+            font-size: 15px;
+            font-weight: 950;
+            color: var(--homeon-text);
+          }
+
+          .pv-reality-status b {
+            display: block;
+            margin-top: 3px;
+            color: var(--homeon-muted);
+            font-size: 11.5px;
+            font-weight: 750;
+          }
+
+          .pv-reality-main {
+            display: grid;
+            grid-template-columns: 210px minmax(0, 1fr);
+            gap: 16px;
+            align-items: center;
+          }
+
+          .pv-reality-score {
+            display: grid;
+            place-items: center;
+          }
+
+          .pv-score-ring {
+            --pv-score: 0;
+            width: 172px;
+            height: 172px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background:
+              conic-gradient(
+                #22c55e calc(var(--pv-score) * 1%),
+                rgba(148,163,184,.22) 0
+              );
+            box-shadow: 0 18px 44px rgba(0,0,0,.10);
+          }
+
+          .pv-score-ring > div {
+            width: 126px;
+            height: 126px;
+            border-radius: 50%;
+            background: color-mix(in srgb, var(--homeon-bg) 94%, transparent);
+            display: grid;
+            place-items: center;
+            align-content: center;
+            border: 1px solid var(--homeon-border);
+          }
+
+          .pv-score-ring strong {
+            font-size: 34px;
+            font-weight: 950;
+            letter-spacing: -.05em;
+            color: var(--homeon-text);
+          }
+
+          .pv-score-ring span {
+            color: var(--homeon-muted);
+            font-size: 12px;
+            font-weight: 800;
+          }
+
+          .pv-reality-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+          }
+
+          .pv-reality-grid .tile {
+            min-height: 68px !important;
+            background: color-mix(in srgb, var(--homeon-bg) 90%, transparent) !important;
+          }
+
+          .pv-reality-grid .tile span {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            line-height: 1.2 !important;
+          }
+
+          .pv-reality-grid .tile b {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            text-align: right !important;
+            max-width: 160px !important;
+            overflow-wrap: anywhere !important;
+          }
+
+          .pv-reality-progress {
+            margin-top: 12px;
+            border: 1px solid var(--homeon-border);
+            border-radius: 18px;
+            padding: 12px;
+            background: color-mix(in srgb, var(--homeon-bg) 88%, transparent);
+          }
+
+          .pv-reality-progress div {
+            height: 12px;
+            border-radius: 999px;
+            background: rgba(148,163,184,.22);
+            overflow: hidden;
+          }
+
+          .pv-reality-progress span {
+            display: block;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #facc15, #22c55e);
+          }
+
+          .pv-reality-progress p {
+            margin: 8px 0 0;
+            color: var(--homeon-muted);
+            font-size: 12px;
+            line-height: 1.35;
+          }
+
+          .pv-reality-reason {
+            margin-top: 12px;
+            border: 1px solid var(--homeon-border);
+            border-radius: 18px;
+            padding: 12px 13px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: color-mix(in srgb, var(--homeon-bg) 90%, transparent);
+            color: var(--homeon-text);
+            font-size: 13px;
+            line-height: 1.45;
+            font-weight: 750;
+            overflow-wrap: anywhere;
+          }
+
+          .pv-reality-reason ha-icon {
+            color: var(--homeon-accent);
+            flex: 0 0 auto;
+            width: 22px;
+            height: 22px;
+          }
+
+          .pv-reality-bad .pv-score-ring {
+            background:
+              conic-gradient(
+                #ef4444 calc(var(--pv-score) * 1%),
+                rgba(148,163,184,.22) 0
+              );
+          }
+
+          .pv-reality-weak .pv-score-ring {
+            background:
+              conic-gradient(
+                #f97316 calc(var(--pv-score) * 1%),
+                rgba(148,163,184,.22) 0
+              );
+          }
+
+          .pv-reality-ok .pv-score-ring {
+            background:
+              conic-gradient(
+                #facc15 calc(var(--pv-score) * 1%),
+                rgba(148,163,184,.22) 0
+              );
+          }
+
+          .pv-reality-good .pv-score-ring {
+            background:
+              conic-gradient(
+                #22c55e calc(var(--pv-score) * 1%),
+                rgba(148,163,184,.22) 0
+              );
+          }
+
+          .pv-reality-bad {
+            border-color: rgba(239,68,68,.45);
+            background:
+              radial-gradient(circle at 0% 0%, rgba(239,68,68,.16), transparent 34%),
+              radial-gradient(circle at 100% 0%, rgba(249,115,22,.10), transparent 32%),
+              linear-gradient(145deg, rgba(127,127,127,.045), rgba(127,127,127,.015));
+          }
+
+          .pv-reality-good {
+            border-color: rgba(34,197,94,.38);
+          }
+
+          @media (max-width: 900px) {
+            .pv-reality-head {
+              flex-direction: column;
+            }
+
+            .pv-reality-status {
+              min-width: 0;
+              width: 100%;
+              text-align: left;
+              box-sizing: border-box;
+            }
+
+            .pv-reality-main {
+              grid-template-columns: 1fr;
+            }
+
+            .pv-reality-grid {
+              grid-template-columns: 1fr 1fr;
+            }
+          }
+
+          @media (max-width: 560px) {
+            .pv-reality-grid {
+              grid-template-columns: 1fr;
+            }
+
+            .pv-score-ring {
+              width: 150px;
+              height: 150px;
+            }
+
+            .pv-score-ring > div {
+              width: 110px;
+              height: 110px;
+            }
+
+            .pv-score-ring strong {
+              font-size: 30px;
+            }
+          }
+
         </style>
 
         <div class="wrap">
           ${this.hero()}
 
           ${this.powerFlow()}
+
+          ${this.pvRealityCard()}
 
           ${this.deyeInspector()}
 
@@ -3210,7 +3581,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.34 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.35 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -3226,4 +3597,4 @@ if (!customElements.get("homeon-energy-dashboard")) {
   customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.34 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.35 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
