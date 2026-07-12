@@ -125,10 +125,6 @@ class HomeOnEnergyCard extends HTMLElement {
       planWeatherStrategy: { label: "Strategia pogodowa", icon: "mdi:weather-cloudy-alert", find: ["plan strategia pogoda"] },
       planReasonableBuyWindow: { label: "Okno normalnego zakupu", icon: "mdi:cash-clock", find: ["plan okno normalnego zakupu"] },
 
-      deyeWorkModeEntity: { label: "Deye encja trybu pracy", icon: "mdi:form-select", find: ["deye encja trybu pracy"] },
-      deyeWorkModeCurrent: { label: "Deye aktualny tryb pracy", icon: "mdi:form-select", find: ["deye aktualny tryb pracy"] },
-      deyeWorkModeTarget: { label: "Deye docelowy tryb pracy", icon: "mdi:target", find: ["deye docelowy tryb pracy"] },
-      deyeWorkModeSellOption: { label: "Deye opcja sprzedaży z baterii", icon: "mdi:export", find: ["deye opcja sprzedazy z baterii", "deye opcja sprzedaży z baterii"] },
       deyePlan: { label: "Deye plan komend", icon: "mdi:clipboard-list", find: ["deye plan komend"] },
       deyeCurrent: { label: "Deye aktualne stany", icon: "mdi:eye-check", find: ["deye aktualne stany"] },
       deyeChanges: { label: "Deye plan zmian", icon: "mdi:compare-horizontal", find: ["deye plan zmian"] },
@@ -401,42 +397,71 @@ class HomeOnEnergyCard extends HTMLElement {
     return def.label || key;
   }
 
+
+  hasUsefulValue(key) {
+    const obj = this.stateObj(key);
+    if (!obj) return false;
+
+    const state = String(obj.state ?? "").trim().toLowerCase();
+
+    if (
+      state === "" ||
+      state === "unknown" ||
+      state === "unavailable" ||
+      state === "none" ||
+      state === "null"
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
   tile(key, opts = {}) {
-    const label = opts.label || this.label(key);
-    const value = opts.value !== undefined ? opts.value : this.value(key);
-    const icon = opts.icon || this.icon(key);
-    const sub = opts.sub || "";
-    const wide = opts.wide ? " wide" : "";
-    const cls = opts.className || "";
+    if (!this.hasUsefulValue(key)) return "";
+
+    const def = this.defs()[key] || {};
+    const label = opts.label || def.label || key;
+    const icon = opts.icon || def.icon || "mdi:information-outline";
+    const value = this.value(key, "");
 
     return `
-      <div class="tile ${wide} ${cls}">
-        <div class="tile-icon"><ha-icon icon="${icon}"></ha-icon></div>
-        <div class="tile-body">
-          <div class="tile-label">${this.esc(label)}</div>
-          <div class="tile-value">${this.esc(value)}</div>
-          ${sub ? `<div class="tile-sub">${this.esc(sub)}</div>` : ""}
+      <div class="tile">
+        <ha-icon icon="${this.esc(icon)}"></ha-icon>
+        <div>
+          <span>${this.esc(label)}</span>
+          <b>${this.esc(value)}</b>
         </div>
       </div>
     `;
   }
 
   section(title, subtitle, content) {
+    const body = String(content || "").trim();
+    if (!body) return "";
+
     return `
-      <section class="section">
+      <section class="section-card">
         <div class="section-head">
           <div>
             <h3>${this.esc(title)}</h3>
             ${subtitle ? `<p>${this.esc(subtitle)}</p>` : ""}
           </div>
         </div>
-        ${content}
+        ${body}
       </section>
     `;
   }
 
   grid(keys) {
-    return `<div class="grid">${keys.map((k) => Array.isArray(k) ? this.tile(k[0], k[1]) : this.tile(k)).join("")}</div>`;
+    const html = (keys || [])
+      .map((key) => this.tile(key))
+      .filter((item) => String(item || "").trim())
+      .join("");
+
+    if (!html) return "";
+
+    return `<div class="grid">${html}</div>`;
   }
 
   fmtW(n) {
@@ -565,10 +590,6 @@ class HomeOnEnergyCard extends HTMLElement {
         </div>
 
         <div class="deye-top-grid">
-          ${this.tile("deyeWorkModeCurrent")}
-          ${this.tile("deyeWorkModeTarget")}
-          ${this.tile("deyeWorkModeSellOption")}
-          ${this.tile("deyeWorkModeEntity")}
           ${this.tile("deyeTestMode")}
           ${this.tile("deyeCommandCount")}
           ${this.tile("deyeChangedCount")}
@@ -576,13 +597,6 @@ class HomeOnEnergyCard extends HTMLElement {
         </div>
 
         <div class="deye-change-main">
-          <div class="deye-panel deye-important">
-            <div class="deye-panel-title">
-              <ha-icon icon="mdi:form-select"></ha-icon>
-              <span>Tryb pracy Deye wymagany do sprzedaży z magazynu</span>
-            </div>
-            <div class="deye-panel-text">Aktualnie: ${this.esc(this.value("deyeWorkModeCurrent"))} → Cel: ${this.esc(this.value("deyeWorkModeTarget"))}. Opcja sprzedaży: ${this.esc(this.value("deyeWorkModeSellOption"))}. Encja: ${this.esc(this.value("deyeWorkModeEntity"))}</div>
-          </div>
           <div class="deye-panel deye-important">
             <div class="deye-panel-title">
               <ha-icon icon="mdi:playlist-check"></ha-icon>
@@ -2662,6 +2676,56 @@ class HomeOnEnergyCard extends HTMLElement {
             }
           }
 
+          /* UKRYWANIE PUSTYCH KAFELKOW 0.2.32 */
+
+          .section-card {
+            margin-top: 14px !important;
+          }
+
+          .section-head {
+            margin-bottom: 10px !important;
+          }
+
+          .grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
+            gap: 10px !important;
+            align-items: stretch !important;
+          }
+
+          .tile {
+            min-height: 58px !important;
+            padding: 10px 12px !important;
+          }
+
+          .tile div {
+            min-width: 0 !important;
+          }
+
+          .tile span {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          }
+
+          .tile b {
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          }
+
+          .deye-change-main,
+          .hf-summary,
+          .pf-summary {
+            gap: 10px !important;
+          }
+
+          @media (max-width: 900px) {
+            .grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+
         </style>
 
         <div class="wrap">
@@ -2830,7 +2894,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.28 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.32 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -2846,4 +2910,4 @@ if (!customElements.get("homeon-energy-dashboard")) {
   customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.28 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.32 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
