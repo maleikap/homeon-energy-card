@@ -424,24 +424,37 @@ class HomeOnEnergyCard extends HTMLElement {
     const label = opts.label || def.label || key;
     const icon = opts.icon || def.icon || "mdi:information-outline";
     const value = this.value(key, "");
+    const tileClass = "tile tile-" + this.norm(key).replaceAll(" ", "-").replace(/[^a-z0-9_-]/g, "");
 
     return `
-      <div class="tile">
+      <div class="${tileClass}" title="${this.esc(label)}: ${this.esc(value)}">
         <ha-icon icon="${this.esc(icon)}"></ha-icon>
         <div>
-          <span>${this.esc(label)}</span>
-          <b>${this.esc(value)}</b>
+          <span title="${this.esc(label)}">${this.esc(label)}</span>
+          <b title="${this.esc(value)}">${this.esc(value)}</b>
         </div>
       </div>
     `;
+  }
+
+  sectionClass(title) {
+    const t = this.norm(title);
+    if (t.includes("rynek") || t.includes("energia")) return "market-section";
+    if (t.includes("uczenie")) return "learning-section";
+    if (t.includes("bilans")) return "balance-section";
+    if (t.includes("plan")) return "plan-section";
+    if (t.includes("falownik")) return "inverter-section";
+    return "";
   }
 
   section(title, subtitle, content) {
     const body = String(content || "").trim();
     if (!body) return "";
 
+    const cls = this.sectionClass(title);
+
     return `
-      <section class="section-card">
+      <section class="section-card ${this.esc(cls)}">
         <div class="section-head">
           <div>
             <h3>${this.esc(title)}</h3>
@@ -2932,6 +2945,103 @@ class HomeOnEnergyCard extends HTMLElement {
             }
           }
 
+
+          /* HOMEON 0.2.34 - CZYTELNY RYNEK ENERGII */
+
+          .market-section {
+            background:
+              radial-gradient(circle at 0% 0%, rgba(250,204,21,.10), transparent 34%),
+              radial-gradient(circle at 100% 0%, rgba(56,189,248,.08), transparent 30%),
+              linear-gradient(145deg, rgba(127,127,127,.045), rgba(127,127,127,.015)) !important;
+          }
+
+          .market-section .section-head h3 {
+            font-size: 20px !important;
+          }
+
+          .market-section .grid {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+            gap: 12px !important;
+          }
+
+          .market-section .tile {
+            min-height: 86px !important;
+            align-items: flex-start !important;
+            padding: 13px 14px !important;
+            border-radius: 18px !important;
+          }
+
+          .market-section .tile ha-icon {
+            margin-top: 2px !important;
+            width: 24px !important;
+            height: 24px !important;
+            min-width: 24px !important;
+          }
+
+          .market-section .tile div {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            justify-content: center !important;
+            gap: 7px !important;
+            min-width: 0 !important;
+            width: 100% !important;
+          }
+
+          .market-section .tile span {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            line-height: 1.25 !important;
+            font-size: 12.5px !important;
+            font-weight: 750 !important;
+            max-width: 100% !important;
+            color: var(--homeon-muted) !important;
+          }
+
+          .market-section .tile b {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+            text-align: left !important;
+            max-width: 100% !important;
+            width: fit-content !important;
+            line-height: 1.25 !important;
+            font-size: 15px !important;
+            font-weight: 950 !important;
+            padding: 5px 9px !important;
+          }
+
+          .market-section .tile-bestselltime b,
+          .market-section .tile-nextbetterselltime b {
+            font-size: 13.5px !important;
+          }
+
+          .market-section .tile-buyprice b,
+          .market-section .tile-sellprice b,
+          .market-section .tile-bestsellprice b,
+          .market-section .tile-nextbettersellprice b {
+            font-size: 16px !important;
+          }
+
+          @media (min-width: 1200px) {
+            .market-section .grid {
+              grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+          }
+
+          @media (max-width: 760px) {
+            .market-section .grid {
+              grid-template-columns: 1fr !important;
+            }
+
+            .market-section .tile {
+              min-height: 74px !important;
+            }
+          }
+
         </style>
 
         <div class="wrap">
@@ -3100,7 +3210,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.33 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.34 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -3116,4 +3226,4 @@ if (!customElements.get("homeon-energy-dashboard")) {
   customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.33 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.34 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");

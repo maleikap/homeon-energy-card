@@ -2,14 +2,13 @@
 
 Karta Lovelace dla HomeOn Energy Manager.
 
-## Nowe w 0.2.33
-- poprawiony wyglad dolnych sekcji
-- mniejsze i czytelniejsze kafelki
-- lepsze sekcje uczenia, bilansu, planu i Deye Inspector
-- mniej pustej przestrzeni
+## Nowe w 0.2.34
+- poprawiona czytelnosc sekcji Rynek energii
+- pelne nazwy kafelkow bez ucinania
+- dlugie wartosci zawijaja sie w kilku liniach
 
 ## Zasob
-/hacsfiles/homeon-energy-card/homeon-energy-card.js?v=0.2.33
+/hacsfiles/homeon-energy-card/homeon-energy-card.js?v=0.2.34
 
 ## Uzycie
 type: custom:homeon-energy-card
