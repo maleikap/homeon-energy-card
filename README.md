@@ -2,14 +2,14 @@
 
 Karta Lovelace dla HomeOn Energy Manager.
 
-## Nowe w 0.2.32
-- karta ukrywa kafelki bez encji
-- karta ukrywa kafelki z unknown/unavailable
-- sekcje bez danych znikaja calkowicie
-- layout sam sie zageszcza bez pustych miejsc
+## Nowe w 0.2.33
+- poprawiony wyglad dolnych sekcji
+- mniejsze i czytelniejsze kafelki
+- lepsze sekcje uczenia, bilansu, planu i Deye Inspector
+- mniej pustej przestrzeni
 
 ## Zasob
-/hacsfiles/homeon-energy-card/homeon-energy-card.js?v=0.2.32
+/hacsfiles/homeon-energy-card/homeon-energy-card.js?v=0.2.33
 
 ## Uzycie
 type: custom:homeon-energy-card

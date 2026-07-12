@@ -2726,6 +2726,212 @@ class HomeOnEnergyCard extends HTMLElement {
             }
           }
 
+
+          /* HOMEON 0.2.33 - PREMIUM BOTTOM LAYOUT */
+
+          .section-card {
+            position: relative !important;
+            margin-top: 16px !important;
+            padding: 16px !important;
+            border-radius: 24px !important;
+            border: 1px solid var(--homeon-border) !important;
+            background:
+              radial-gradient(circle at 0% 0%, rgba(56,189,248,.075), transparent 34%),
+              radial-gradient(circle at 100% 0%, rgba(34,197,94,.060), transparent 30%),
+              linear-gradient(145deg, rgba(127,127,127,.045), rgba(127,127,127,.015)) !important;
+            overflow: hidden !important;
+          }
+
+          .section-card::before {
+            content: "" !important;
+            position: absolute !important;
+            left: 16px !important;
+            right: 16px !important;
+            top: 0 !important;
+            height: 1px !important;
+            background: linear-gradient(90deg, transparent, rgba(56,189,248,.35), transparent) !important;
+            pointer-events: none !important;
+          }
+
+          .section-head {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 12px !important;
+            margin-bottom: 12px !important;
+          }
+
+          .section-head h3 {
+            margin: 0 !important;
+            font-size: 18px !important;
+            line-height: 1.15 !important;
+            font-weight: 950 !important;
+            letter-spacing: -.03em !important;
+          }
+
+          .section-head p {
+            margin: 5px 0 0 !important;
+            max-width: 760px !important;
+            color: var(--homeon-muted) !important;
+            font-size: 12px !important;
+            line-height: 1.35 !important;
+          }
+
+          .section-card .grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)) !important;
+            gap: 10px !important;
+            align-items: stretch !important;
+          }
+
+          .section-card .tile {
+            min-height: 64px !important;
+            padding: 10px 12px !important;
+            border-radius: 18px !important;
+            border: 1px solid color-mix(in srgb, var(--homeon-border) 86%, transparent) !important;
+            background:
+              linear-gradient(145deg, color-mix(in srgb, var(--homeon-bg) 94%, transparent), color-mix(in srgb, var(--homeon-bg) 82%, transparent)) !important;
+            box-shadow: 0 10px 24px rgba(0,0,0,.045) !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 11px !important;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease !important;
+          }
+
+          .section-card .tile:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 14px 30px rgba(0,0,0,.065) !important;
+            border-color: color-mix(in srgb, var(--homeon-accent) 34%, var(--homeon-border)) !important;
+          }
+
+          .section-card .tile ha-icon {
+            width: 22px !important;
+            height: 22px !important;
+            min-width: 22px !important;
+            color: var(--homeon-accent) !important;
+            filter: drop-shadow(0 0 10px color-mix(in srgb, var(--homeon-accent) 32%, transparent)) !important;
+          }
+
+          .section-card .tile div {
+            min-width: 0 !important;
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto !important;
+            align-items: center !important;
+            column-gap: 10px !important;
+            row-gap: 2px !important;
+          }
+
+          .section-card .tile span {
+            min-width: 0 !important;
+            color: var(--homeon-muted) !important;
+            font-size: 12px !important;
+            font-weight: 650 !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+          }
+
+          .section-card .tile b {
+            color: var(--homeon-text) !important;
+            font-size: 14px !important;
+            line-height: 1.2 !important;
+            font-weight: 950 !important;
+            text-align: right !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            max-width: 210px !important;
+          }
+
+          .section-card .tile b:empty {
+            display: none !important;
+          }
+
+          .section-card .tile b:not(:empty) {
+            padding: 4px 8px !important;
+            border-radius: 999px !important;
+            background: color-mix(in srgb, var(--homeon-accent) 9%, transparent) !important;
+          }
+
+          .deye-card {
+            margin-top: 16px !important;
+            border-radius: 24px !important;
+            padding: 16px !important;
+            background:
+              radial-gradient(circle at 0% 0%, rgba(34,197,94,.10), transparent 32%),
+              radial-gradient(circle at 100% 0%, rgba(56,189,248,.10), transparent 32%),
+              linear-gradient(145deg, rgba(127,127,127,.045), rgba(127,127,127,.015)) !important;
+          }
+
+          .deye-top-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
+            gap: 10px !important;
+          }
+
+          .deye-panel {
+            border-radius: 18px !important;
+            padding: 12px 13px !important;
+            background:
+              linear-gradient(145deg, color-mix(in srgb, var(--homeon-bg) 94%, transparent), color-mix(in srgb, var(--homeon-bg) 84%, transparent)) !important;
+            box-shadow: 0 10px 24px rgba(0,0,0,.045) !important;
+          }
+
+          .deye-panel-title {
+            margin-bottom: 7px !important;
+          }
+
+          .deye-panel-text {
+            font-size: 12px !important;
+            line-height: 1.42 !important;
+            max-height: 92px !important;
+            overflow: auto !important;
+            padding-right: 4px !important;
+          }
+
+          .deye-important .deye-panel-text {
+            max-height: 130px !important;
+            font-weight: 850 !important;
+          }
+
+          .hf-summary,
+          .pf-summary {
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)) !important;
+          }
+
+          @media (min-width: 1100px) {
+            .section-card .grid {
+              grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            }
+
+            .section-card:nth-of-type(n+4) .grid {
+              grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            }
+          }
+
+          @media (max-width: 760px) {
+            .section-card {
+              padding: 13px !important;
+              border-radius: 20px !important;
+            }
+
+            .section-card .grid {
+              grid-template-columns: 1fr !important;
+            }
+
+            .section-card .tile div {
+              grid-template-columns: 1fr !important;
+            }
+
+            .section-card .tile b {
+              text-align: left !important;
+              max-width: none !important;
+              width: fit-content !important;
+            }
+          }
+
         </style>
 
         <div class="wrap">
@@ -2894,7 +3100,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.32 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.33 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -2910,4 +3116,4 @@ if (!customElements.get("homeon-energy-dashboard")) {
   customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.32 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.33 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
