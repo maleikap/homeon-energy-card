@@ -141,6 +141,17 @@ class HomeOnEnergyCard extends HTMLElement {
       pvRealityLock: { label: "Blokada rozładowania", icon: "mdi:battery-lock", find: ["pv blokada rozladowania"] },
       pvRealityReason: { label: "Powód oceny PV", icon: "mdi:text-box-check", find: ["pv powod oceny pogody"] },
       pvRealityKwp: { label: "Moc instalacji PV", icon: "mdi:solar-power-variant", find: ["pv moc instalacji", "moc instalacji pv kwp"] },
+      batteryTrade: { label: "Tryb handlu baterią", icon: "mdi:cash-sync", find: ["tryb handlu bateria"] },
+      negativePriceStatus: { label: "Okno ceny ujemnej", icon: "mdi:cash-clock", find: ["okno ceny ujemnej"] },
+      negativePriceStart: { label: "Start ceny ujemnej", icon: "mdi:clock-start", find: ["start ceny ujemnej"] },
+      negativePriceEnd: { label: "Koniec ceny ujemnej", icon: "mdi:clock-end", find: ["koniec ceny ujemnej"] },
+      negativePriceMin: { label: "Najniższa cena zakupu", icon: "mdi:cash-minus", find: ["najnizsza cena zakupu w oknie"] },
+      negativePriceEnergyToFree: { label: "Energia do zwolnienia", icon: "mdi:battery-arrow-down", find: ["energia do zwolnienia przed cena ujemna"] },
+      negativePriceRequiredFree: { label: "Wymagane wolne miejsce", icon: "mdi:battery-outline", find: ["wymagane wolne miejsce na cene ujemna"] },
+      negativePriceTargetSoc: { label: "SOC przed oknem", icon: "mdi:battery-sync", find: ["docelowy soc przed cena ujemna"] },
+      negativePriceExportW: { label: "Moc zwalniania magazynu", icon: "mdi:transmission-tower-export", find: ["zalecana moc zwalniania magazynu"] },
+      negativePriceStrategy: { label: "Strategia ceny ujemnej", icon: "mdi:strategy", find: ["strategia ceny ujemnej"] },
+      negativePriceReason: { label: "Powód strategii ceny ujemnej", icon: "mdi:text-box-check", find: ["powod strategii ceny ujemnej"] },
       learnSamples: { label: "Próbki nauki", icon: "mdi:counter", find: ["ems probki nauki"] },
       learnHours: { label: "Czas nauki", icon: "mdi:clock-outline", find: ["ems czas nauki"] },
       learnConfidence: { label: "Pewność nauki", icon: "mdi:brain", find: ["ems pewnosc nauki"] },
@@ -445,6 +456,7 @@ class HomeOnEnergyCard extends HTMLElement {
 
   sectionClass(title) {
     const t = this.norm(title);
+    if (t.includes("ujemn") || t.includes("arbitraz")) return "negative-section market-section";
     if (t.includes("rynek") || t.includes("energia")) return "market-section";
     if (t.includes("uczenie")) return "learning-section";
     if (t.includes("bilans")) return "balance-section";
@@ -590,6 +602,38 @@ class HomeOnEnergyCard extends HTMLElement {
   }
 
 
+
+
+  negativePriceCard() {
+    if (
+      !this.hasUsefulValue("negativePriceStatus") &&
+      !this.hasUsefulValue("negativePriceStrategy")
+    ) {
+      return "";
+    }
+
+    const reason = this.value("negativePriceReason");
+    const strategy = this.value("negativePriceStrategy");
+
+    return this.section(
+      "Plan cen ujemnych",
+      "HomeOn robi miejsce w magazynie przed ceną ujemną, ładuje w czasie ceny ujemnej i pozwala sprzedać później przy lepszej cenie.",
+      this.grid([
+        "negativePriceStatus",
+        "negativePriceStart",
+        "negativePriceEnd",
+        "negativePriceMin",
+        "negativePriceEnergyToFree",
+        "negativePriceRequiredFree",
+        "negativePriceTargetSoc",
+        "negativePriceExportW",
+        "batteryTrade",
+        "pvRealityStatus",
+        "pvRealityScore",
+        "sellPrice"
+      ]) + `<div class="long-text">${this.esc(strategy)}</div><div class="long-text">${this.esc(reason)}</div>`
+    );
+  }
 
   pvRealityCard() {
     if (
@@ -3411,6 +3455,41 @@ class HomeOnEnergyCard extends HTMLElement {
             }
           }
 
+
+          /* HOMEON 0.2.38 - NEGATIVE PRICE PLANNER */
+
+          .negative-section {
+            border-color: rgba(250,204,21,.42) !important;
+            background:
+              radial-gradient(circle at 0% 0%, rgba(250,204,21,.16), transparent 34%),
+              radial-gradient(circle at 100% 0%, rgba(56,189,248,.10), transparent 32%),
+              linear-gradient(145deg, rgba(127,127,127,.045), rgba(127,127,127,.015)) !important;
+          }
+
+          .negative-section .section-head h3::after {
+            content: "  ·  arbitraż";
+            color: var(--homeon-muted);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
+          }
+
+          .negative-section .grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+          }
+
+          .negative-section .tile {
+            min-height: 74px !important;
+          }
+
+          .negative-section .tile span,
+          .negative-section .tile b {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            overflow-wrap: anywhere !important;
+          }
+
         </style>
 
         <div class="wrap">
@@ -3419,6 +3498,8 @@ class HomeOnEnergyCard extends HTMLElement {
           ${this.powerFlow()}
 
           ${this.pvRealityCard()}
+
+          ${this.negativePriceCard()}
 
           ${this.deyeInspector()}
 
@@ -3581,7 +3662,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.35 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.38 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -3597,4 +3678,4 @@ if (!customElements.get("homeon-energy-dashboard")) {
   customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.35 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.38 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");

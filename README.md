@@ -21,16 +21,6 @@ The card shows:
 - suggested storage release power,
 - current strategy and decision reason.
 
-Existing sections remain unchanged:
-
-- PV Reality Check,
-- battery targets,
-- energy market overview,
-- 24-hour plan,
-- inverter control diagnostics,
-- Deye command preview,
-- EMS learning and balance.
-
 ## Resource
 
 Use one of the following resources in Home Assistant:
@@ -46,12 +36,6 @@ YAML example:
 
     type: custom:homeon-energy-card
     title: HomeOn Energy Dashboard
-
-## Requirements
-
-This card is intended to be used together with HomeOn Energy Manager.
-
-For the Negative Price Window Planner section to show useful data, HomeOn Energy Manager must expose the negative-price planner sensors introduced in version 0.2.38.
 
 ## Notes
 
