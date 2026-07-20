@@ -1,34 +1,43 @@
 # HomeOn Energy Card
 
-HomeOn Energy Card is a Lovelace dashboard card for HomeOn Energy Manager.
+## Version 0.2.44
 
-## Version 0.2.40.5
+HomeOn Energy Card 0.2.44 adds an operator panel and fixes legacy custom element registration issues.
 
-Frontend registration fix.
+### Recommended Lovelace resource
 
-This version registers the Lovelace card using a fresh subclass instead of reusing the original constructor. This prevents browser errors when Home Assistant or the browser cache has already seen the previous constructor.
+    /hacsfiles/homeon-energy-card/homeon-energy-card-v044.js?v=044
 
-A cache-busting physical file is also provided:
+### Recommended card type
 
-    homeon-energy-card-0405.js
+    type: custom:homeon-energy-card-v044
 
-## Resource
+### Legacy compatibility
 
-Use only one HomeOn card resource in Home Assistant.
+The old file:
 
-Recommended:
+    homeon-energy-card.js
 
-    /hacsfiles/homeon-energy-card/homeon-energy-card-0405.js
+is now a safe legacy loader/proxy. It no longer declares the old card class directly, which prevents duplicate `customElements.define` browser errors.
 
-or:
+## Operator panel
 
-    /local/community/homeon-energy-card/homeon-energy-card-0405.js
+Version 0.2.44 adds quick access to:
 
-Do not use both at the same time.
+- SAFE_MODE and data quality diagnostics,
+- economic sell readiness,
+- EMS mode hysteresis,
+- Deye Safe Driver status,
+- real Deye command diagnostics.
 
-## Usage
+## Notes after update
 
-YAML example:
+After updating through HACS, hard refresh the browser cache.
 
-    type: custom:homeon-energy-card
-    title: HomeOn Energy Dashboard
+Desktop:
+
+    Ctrl + F5
+
+Mobile app:
+
+    fully close and reopen the Home Assistant app.
