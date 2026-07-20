@@ -3671,9 +3671,14 @@ class HomeOnEnergyCard extends HTMLElement {
 }
 
 
-/* HOMEON 0.2.40.3 - SINGLE CUSTOM ELEMENT REGISTRATION */
-if (!customElements.get("homeon-energy-card")) {
-  customElements.define("homeon-energy-card", HomeOnEnergyCard);
+
+/* HOMEON 0.2.40.4 - SAFE SINGLE CUSTOM ELEMENT REGISTRATION */
+try {
+  if (!window.customElements.get("homeon-energy-card")) {
+    window.customElements.define("homeon-energy-card", HomeOnEnergyCard);
+  }
+} catch (err) {
+  console.warn("HomeOn Energy Card registration skipped:", err);
 }
 
-console.info("HomeOn Energy Card 0.2.40.3 loaded");
+console.info("HomeOn Energy Card 0.2.40.4 loaded");
