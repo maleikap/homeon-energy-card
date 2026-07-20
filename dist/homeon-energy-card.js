@@ -3671,11 +3671,20 @@ class HomeOnEnergyCard extends HTMLElement {
 }
 
 if (!customElements.get("homeon-energy-card")) {
+}
+
+if (!customElements.get("homeon-energy-dashboard")) {
+}
+
+console.info("%c HomeOn Energy Card 0.2.38 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+
+/* HOMEON 0.2.40.1 - SAFE CUSTOM ELEMENT REGISTRATION */
+if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
 if (!customElements.get("homeon-energy-dashboard")) {
-  customElements.define("homeon-energy-dashboard", HomeOnEnergyCard);
+  customElements.define("homeon-energy-dashboard", class HomeOnEnergyDashboard extends HomeOnEnergyCard {});
 }
 
-console.info("%c HomeOn Energy Card 0.2.38 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("HomeOn Energy Card 0.2.40.1 loaded");
