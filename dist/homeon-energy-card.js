@@ -3672,13 +3672,22 @@ class HomeOnEnergyCard extends HTMLElement {
 
 
 
-/* HOMEON 0.2.40.4 - SAFE SINGLE CUSTOM ELEMENT REGISTRATION */
-try {
-  if (!window.customElements.get("homeon-energy-card")) {
-    window.customElements.define("homeon-energy-card", HomeOnEnergyCard);
-  }
-} catch (err) {
-  console.warn("HomeOn Energy Card registration skipped:", err);
-}
 
-console.info("HomeOn Energy Card 0.2.40.4 loaded");
+/* HOMEON 0.2.40.5 - SUBCLASS CUSTOM ELEMENT REGISTRATION */
+(() => {
+  const tagName = "homeon-energy-card";
+
+  try {
+    if (window.customElements.get(tagName)) {
+      console.info("HomeOn Energy Card 0.2.40.5 already registered");
+      return;
+    }
+
+    class HomeOnEnergyCardElement extends HomeOnEnergyCard {}
+
+    window.customElements.define(tagName, HomeOnEnergyCardElement);
+    console.info("HomeOn Energy Card 0.2.40.5 loaded");
+  } catch (err) {
+    console.warn("HomeOn Energy Card registration skipped safely:", err);
+  }
+})();

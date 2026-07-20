@@ -2,25 +2,27 @@
 
 HomeOn Energy Card is a Lovelace dashboard card for HomeOn Energy Manager.
 
-## Version 0.2.40.4
+## Version 0.2.40.5
 
-Final frontend registration hotfix.
+Frontend registration fix.
 
-Only one custom element is registered:
+This version registers the Lovelace card using a fresh subclass instead of reusing the original constructor. This prevents browser errors when Home Assistant or the browser cache has already seen the previous constructor.
 
-    homeon-energy-card
+A cache-busting physical file is also provided:
 
-The old alias `homeon-energy-dashboard` has been removed completely. The registration is additionally protected with try/catch to avoid dashboard crashes if Home Assistant loads an older duplicate resource from cache.
+    homeon-energy-card-0405.js
 
 ## Resource
 
-Use only one resource in Home Assistant:
+Use only one HomeOn card resource in Home Assistant.
 
-- /hacsfiles/homeon-energy-card/homeon-energy-card.js?v=0.2.40.4
+Recommended:
+
+    /hacsfiles/homeon-energy-card/homeon-energy-card-0405.js
 
 or:
 
-- /local/community/homeon-energy-card/homeon-energy-card.js?v=0.2.40.4
+    /local/community/homeon-energy-card/homeon-energy-card-0405.js
 
 Do not use both at the same time.
 
