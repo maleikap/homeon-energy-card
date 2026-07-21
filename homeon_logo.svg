@@ -1,20 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" role="img" aria-label="HomeOn">
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="150" viewBox="0 0 620 150">
   <defs>
-    <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#20c997"/>
-      <stop offset="1" stop-color="#0b8f5a"/>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#22c55e"/>
     </linearGradient>
-    <linearGradient id="g2" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#ffcf33"/>
-      <stop offset="1" stop-color="#ff8a00"/>
+    <linearGradient id="text" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#334155"/>
     </linearGradient>
   </defs>
-  <rect width="520" height="160" rx="34" fill="#07150f"/>
-  <circle cx="82" cy="80" r="48" fill="url(#g1)"/>
-  <path d="M58 85 L82 55 L106 85 H95 V111 H69 V85 Z" fill="#ffffff"/>
-  <circle cx="119" cy="42" r="20" fill="url(#g2)"/>
-  <path d="M119 29 L110 45 H119 L114 56 L130 38 H121 Z" fill="#ffffff"/>
-  <text x="155" y="94" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800" fill="#ffffff">Home</text>
-  <text x="315" y="94" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800" fill="#20c997">On</text>
-  <text x="157" y="124" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="600" fill="#b7d7c8">Energy Manager</text>
+
+  <rect width="620" height="150" fill="transparent"/>
+
+  <g transform="translate(18 22)">
+    <rect x="0" y="0" width="106" height="106" rx="26" fill="url(#mark)"/>
+    <path d="M27 61 L53 30 L79 61" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M36 60 V82 H70 V60" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="82" cy="27" r="9" fill="#ffffff"/>
+  </g>
+
+  <text x="148" y="70" font-family="Arial, Helvetica, sans-serif" font-size="47" font-weight="800" fill="url(#text)">HomeOn</text>
+  <text x="151" y="108" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="500" fill="#64748b">Energy Management System</text>
+
+  <g transform="translate(465 42)" opacity="0.95">
+    <path d="M0 32 C24 32 24 0 48 0 C72 0 72 64 96 64 C120 64 120 32 144 32" fill="none" stroke="#38bdf8" stroke-width="7" stroke-linecap="round"/>
+    <path d="M0 64 C24 64 24 32 48 32 C72 32 72 0 96 0 C120 0 120 64 144 64" fill="none" stroke="#22c55e" stroke-width="7" stroke-linecap="round"/>
+  </g>
 </svg>

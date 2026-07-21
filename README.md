@@ -1,38 +1,21 @@
 # HomeOn Energy Card
 
-## Version 0.2.44
+## Version 0.2.45
 
-HomeOn Energy Card 0.2.44 adds an operator panel and fixes legacy custom element registration issues.
+Logo fix release.
 
-### Recommended Lovelace resource
+This version restores the main HomeOn Energy Card flow and adds the HomeOn logo directly to the repository.
 
-    /hacsfiles/homeon-energy-card/homeon-energy-card-v044.js?v=044
+Recommended Lovelace resource:
 
-### Recommended card type
+    /hacsfiles/homeon-energy-card/homeon-energy-card.js?v=045
 
-    type: custom:homeon-energy-card-v044
+Recommended card type:
 
-### Legacy compatibility
+    type: custom:homeon-energy-card
+    logo: /hacsfiles/homeon-energy-card/homeon_logo.svg?v=045
 
-The old file:
-
-    homeon-energy-card.js
-
-is now a safe legacy loader/proxy. It no longer declares the old card class directly, which prevents duplicate `customElements.define` browser errors.
-
-## Operator panel
-
-Version 0.2.44 adds quick access to:
-
-- SAFE_MODE and data quality diagnostics,
-- economic sell readiness,
-- EMS mode hysteresis,
-- Deye Safe Driver status,
-- real Deye command diagnostics.
-
-## Notes after update
-
-After updating through HACS, hard refresh the browser cache.
+If the browser still shows an old version, hard-refresh the dashboard.
 
 Desktop:
 
