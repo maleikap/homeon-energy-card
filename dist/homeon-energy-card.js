@@ -3692,3 +3692,239 @@ class HomeOnEnergyCard extends HTMLElement {
   }
 })();
 
+
+/* HOMEON_INLINE_LOGO_PATCH_START */
+(() => {
+  const TAG = "homeon-energy-card";
+
+  const logoSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="560" height="118" viewBox="0 0 560 118" role="img" aria-label="HomeOn Energy Management System">
+      <defs>
+        <linearGradient id="hoMark" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#38bdf8"/>
+          <stop offset="100%" stop-color="#22c55e"/>
+        </linearGradient>
+        <linearGradient id="hoText" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#cbd5e1"/>
+        </linearGradient>
+      </defs>
+
+      <rect width="560" height="118" rx="0" fill="transparent"/>
+
+      <g transform="translate(6 14)">
+        <rect x="0" y="0" width="88" height="88" rx="22" fill="url(#hoMark)"/>
+        <path d="M22 52 L44 25 L66 52" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M30 51 V70 H58 V51" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="68" cy="23" r="7" fill="#ffffff"/>
+      </g>
+
+      <text x="116" y="53" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="800" fill="url(#hoText)">HomeOn</text>
+      <text x="119" y="82" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="500" fill="#94a3b8">Energy Management System</text>
+
+      <g transform="translate(395 33)" opacity="0.96">
+        <path d="M0 26 C22 26 22 0 44 0 C66 0 66 52 88 52 C110 52 110 26 132 26" fill="none" stroke="#38bdf8" stroke-width="5.5" stroke-linecap="round"/>
+        <path d="M0 52 C22 52 22 26 44 26 C66 26 66 0 88 0 C110 0 110 52 132 52" fill="none" stroke="#22c55e" stroke-width="5.5" stroke-linecap="round"/>
+      </g>
+    </svg>
+  `;
+
+  const logoBarHtml = `
+    <div class="homeon-inline-logo-bar" style="
+      box-sizing:border-box;
+      width:100%;
+      padding:14px 18px;
+      border-bottom:1px solid var(--divider-color);
+      background:linear-gradient(135deg, #0f172a, #1e293b);
+    ">
+      <div style="
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:16px;
+      ">
+        <div style="
+          width:min(360px, 74vw);
+          height:auto;
+          line-height:0;
+        ">
+          ${logoSvg}
+        </div>
+        <div style="
+          color:#cbd5e1;
+          font-size:12px;
+          line-height:1.35;
+          text-align:right;
+          white-space:nowrap;
+          opacity:.9;
+        ">
+          Operator Console<br>
+          v0.2.46
+        </div>
+      </div>
+    </div>
+  `;
+
+  function addLogoToElement(el) {
+    if (!el) return false;
+
+    const roots = [];
+
+    if (el.shadowRoot) roots.push(el.shadowRoot);
+    roots.push(el);
+
+    for (const root of roots) {
+      let host = null;
+
+      try {
+        host = root.querySelector("ha-card");
+      } catch (err) {
+        host = null;
+      }
+
+      if (!host) {
+        host = root;
+      }
+
+      if (!host || !host.querySelector) continue;
+
+      if (host.querySelector(".homeon-inline-logo-bar")) {
+        return true;
+      }
+
+      const box = document.createElement("div");
+      box.innerHTML = logoBarHtml.trim();
+      const logo = box.firstElementChild;
+
+      if (!logo) continue;
+
+      try {
+        host.prepend(logo);
+        return true;
+      } catch (err) {
+        console.warn("HomeOn inline logo prepend failed:", err);
+      }
+    }
+
+    return false;
+  }
+
+  function collectRoots(root, out) {
+    out.push(root);
+
+    let all = [];
+
+    try {
+      all = root.querySelectorAll ? root.querySelectorAll("*") : [];
+    } catch (err) {
+      all = [];
+    }
+
+    for (const node of all) {
+      if (node.shadowRoot) {
+        collectRoots(node.shadowRoot, out);
+      }
+    }
+  }
+
+  function scanAndApply() {
+    const roots = [];
+    collectRoots(document, roots);
+
+    const cards = new Set();
+
+    for (const root of roots) {
+      try {
+        root.querySelectorAll(TAG).forEach((el) => cards.add(el));
+      } catch (err) {}
+    }
+
+    cards.forEach((el) => addLogoToElement(el));
+  }
+
+  function delayedApply(el) {
+    window.setTimeout(() => addLogoToElement(el), 0);
+    window.setTimeout(() => addLogoToElement(el), 250);
+    window.setTimeout(() => addLogoToElement(el), 1000);
+    window.setTimeout(() => addLogoToElement(el), 2500);
+  }
+
+  function patchClass() {
+    const CardClass = customElements.get(TAG);
+
+    if (!CardClass || !CardClass.prototype || CardClass.prototype.__homeonInlineLogoPatched) {
+      return;
+    }
+
+    const proto = CardClass.prototype;
+
+    const oldConnected = proto.connectedCallback;
+    proto.connectedCallback = function(...args) {
+      if (oldConnected) {
+        oldConnected.apply(this, args);
+      }
+      delayedApply(this);
+    };
+
+    const oldSetConfig = proto.setConfig;
+    if (oldSetConfig) {
+      proto.setConfig = function(...args) {
+        const result = oldSetConfig.apply(this, args);
+        delayedApply(this);
+        return result;
+      };
+    }
+
+    const oldRender = proto.render;
+    if (oldRender) {
+      proto.render = function(...args) {
+        const result = oldRender.apply(this, args);
+        delayedApply(this);
+        return result;
+      };
+    }
+
+    const hassDescriptor = Object.getOwnPropertyDescriptor(proto, "hass");
+    if (hassDescriptor && hassDescriptor.set) {
+      Object.defineProperty(proto, "hass", {
+        configurable: true,
+        enumerable: hassDescriptor.enumerable,
+        get: hassDescriptor.get,
+        set: function(value) {
+          hassDescriptor.set.call(this, value);
+          delayedApply(this);
+        }
+      });
+    }
+
+    proto.__homeonInlineLogoPatched = true;
+    console.info("HomeOn inline logo patch installed for", TAG);
+  }
+
+  function boot() {
+    patchClass();
+    scanAndApply();
+  }
+
+  if (customElements.get(TAG)) {
+    boot();
+  } else {
+    customElements.whenDefined(TAG).then(boot);
+  }
+
+  window.setTimeout(boot, 500);
+  window.setTimeout(boot, 1500);
+  window.setTimeout(boot, 3000);
+  window.setTimeout(boot, 6000);
+
+  let ticks = 0;
+  const timer = window.setInterval(() => {
+    ticks += 1;
+    scanAndApply();
+
+    if (ticks >= 30) {
+      window.clearInterval(timer);
+    }
+  }, 1000);
+})();
+/* HOMEON_INLINE_LOGO_PATCH_END */

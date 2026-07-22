@@ -1,26 +1,19 @@
 # HomeOn Energy Card
 
-## Version 0.2.45
+## Version 0.2.46
 
-Logo fix release.
+Inline logo patch.
 
-This version restores the main HomeOn Energy Card flow and adds the HomeOn logo directly to the repository.
+The HomeOn logo is embedded directly inside the card JavaScript, so it no longer depends on an external SVG path, `/local`, `/hacsfiles`, browser image cache, or GitHub raw asset loading.
 
 Recommended Lovelace resource:
 
-    /hacsfiles/homeon-energy-card/homeon-energy-card.js?v=045
+    /hacsfiles/homeon-energy-card/homeon-energy-card.js?v=046
 
-Recommended card type:
+Recommended card:
 
     type: custom:homeon-energy-card
-    logo: /hacsfiles/homeon-energy-card/homeon_logo.svg?v=045
 
-If the browser still shows an old version, hard-refresh the dashboard.
+For immediate local testing:
 
-Desktop:
-
-    Ctrl + F5
-
-Mobile app:
-
-    fully close and reopen the Home Assistant app.
+    /local/community/homeon-energy-card/homeon-energy-card.js?v=046local
