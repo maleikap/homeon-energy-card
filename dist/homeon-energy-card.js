@@ -3693,6 +3693,7 @@ class HomeOnEnergyCard extends HTMLElement {
 })();
 
 
+
 /* HOMEON_INLINE_LOGO_PATCH_START */
 (() => {
   const TAG = "homeon-energy-card";
