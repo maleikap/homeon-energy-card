@@ -5,22 +5,42 @@ on:
     branches:
       - main
     paths:
-      - homeon-energy-card.js
       - dist/homeon-energy-card.js
       - dist/homeon_logo.svg
-      - hacs.json
-      - .github/workflows/release.yml
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: homeon-energy-card-release
+  cancel-in-progress: false
+
 jobs:
-  release:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Validate release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f homeon-energy-card.js
+          test -f dist/homeon-energy-card.js
+          test -f homeon_logo.svg
+          test -f dist/homeon_logo.svg
+          cmp -s homeon-energy-card.js dist/homeon-energy-card.js
+          cmp -s homeon_logo.svg dist/homeon_logo.svg
+          grep -q '<title>HomeOn logo extracted from photo</title>' dist/homeon_logo.svg
+          node --check dist/homeon-energy-card.js
+          test ! -e homeon-test-card.js
+          test ! -e homeon-operator-fresh.js
+          test ! -e homeon-operator-pretty.js
+          test ! -e homeon-logo-injector.js
+          test ! -e dist/homeon-energy-card-0405.js
+          test ! -e dist/homeon-energy-card-v044.js
 
       - name: Read card version
         id: version
@@ -30,12 +50,23 @@ jobs:
           test -n "$version"
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+  release:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Publish release with HACS assets
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ needs.validate.outputs.version }}
         shell: bash
         run: |
+          set -euo pipefail
           tag="v$VERSION"
           if ! gh release view "$tag" >/dev/null 2>&1; then
             gh release create "$tag" --target "$GITHUB_SHA" --title "HomeOn Energy Card $VERSION" --generate-notes
