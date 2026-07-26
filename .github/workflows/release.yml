@@ -1,0 +1,44 @@
+name: Publish HACS release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - homeon-energy-card.js
+      - dist/homeon-energy-card.js
+      - dist/homeon_logo.svg
+      - hacs.json
+      - .github/workflows/release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Read card version
+        id: version
+        shell: bash
+        run: |
+          version="$(sed -n 's/.*HomeOn Energy Card \([0-9][0-9.]*\) loaded.*/\1/p' dist/homeon-energy-card.js | tail -n 1)"
+          test -n "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          tag="v$VERSION"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists"
+            exit 0
+          fi
+          gh release create "$tag" --target "$GITHUB_SHA" --title "HomeOn Energy Card $VERSION" --generate-notes
