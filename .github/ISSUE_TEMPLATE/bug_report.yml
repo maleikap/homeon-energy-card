@@ -1,0 +1,92 @@
+name: Bug report
+description: Report a reproducible problem with HomeOn Energy Card
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. Please provide enough information to reproduce it.
+
+  - type: input
+    id: card-version
+    attributes:
+      label: HomeOn Energy Card version
+      placeholder: "0.2.52"
+    validations:
+      required: true
+
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.7.0"
+    validations:
+      required: true
+
+  - type: input
+    id: hacs-version
+    attributes:
+      label: HACS version
+    validations:
+      required: true
+
+  - type: dropdown
+    id: installation
+    attributes:
+      label: Installation method
+      options:
+        - HACS
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem description
+      description: Explain what happened and what you expected.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open...
+        2. Select...
+        3. Observe...
+    validations:
+      required: true
+
+  - type: textarea
+    id: yaml
+    attributes:
+      label: Card configuration
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console output
+      render: text
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional information
+      description: Add screenshots or other relevant details.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I installed or redownloaded the latest release through HACS.
+          required: true
+        - label: I refreshed the Home Assistant frontend after the update.
+          required: true
