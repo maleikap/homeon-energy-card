@@ -11,6 +11,7 @@
 <p align="center">
   <a href="https://github.com/maleikap/homeon-energy-card/releases"><img src="https://img.shields.io/github/v/release/maleikap/homeon-energy-card" alt="Latest release"></a>
   <a href="https://github.com/maleikap/homeon-energy-card"><img src="https://img.shields.io/badge/Home%20Assistant-HACS-41BDF5" alt="Home Assistant HACS"></a>
+  <a href="https://buycoffee.to/homeon"><img src="https://img.shields.io/badge/Support%20HomeOn-BuyCoffee-F6C344" alt="Support HomeOn on BuyCoffee"></a>
 </p>
 
 ## Overview
@@ -87,6 +88,14 @@ After an update, refresh the Home Assistant frontend if the browser still displa
 ## Related project
 
 - [HomeOn Energy Manager](https://github.com/maleikap/homeon-energy-manager) — Home Assistant integration providing EMS logic, entities and inverter-control functions
+
+## Support the project
+
+If HomeOn Energy Card is useful to you and you would like to support its continued development, you can contribute through [BuyCoffee](https://buycoffee.to/homeon).
+
+<p>
+  <a href="https://buycoffee.to/homeon"><img src="https://img.shields.io/badge/Support%20HomeOn-BuyCoffee-F6C344?style=for-the-badge" alt="Support HomeOn on BuyCoffee"></a>
+</p>
 
 ## Support
 
