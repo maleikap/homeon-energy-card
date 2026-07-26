@@ -1,0 +1,47 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate project files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f hacs.json
+          test -f homeon-energy-card.js
+          test -f dist/homeon-energy-card.js
+          test -f homeon_logo.svg
+          test -f dist/homeon_logo.svg
+          cmp -s homeon-energy-card.js dist/homeon-energy-card.js
+          cmp -s homeon_logo.svg dist/homeon_logo.svg
+          grep -q '<title>HomeOn logo extracted from photo</title>' homeon_logo.svg
+          node --check homeon-energy-card.js
+          test "$(grep -c 'customElements.define' homeon-energy-card.js)" -eq 1
+          test ! -e homeon-test-card.js
+          test ! -e homeon-operator-fresh.js
+          test ! -e homeon-operator-pretty.js
+          test ! -e homeon-logo-injector.js
+          test ! -e dist/homeon-energy-card-0405.js
+          test ! -e dist/homeon-energy-card-v044.js
+
+  validate-hacs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: plugin
