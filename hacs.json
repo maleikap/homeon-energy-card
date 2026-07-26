@@ -1,4 +1,5 @@
 {
   "name": "HomeOn Energy Card",
-  "render_readme": true
+  "render_readme": true,
+  "filename": "homeon-energy-card.js"
 }
