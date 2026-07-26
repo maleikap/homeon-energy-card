@@ -1,6 +1,6 @@
 # HomeOn Energy Card
 
-## Version 0.2.50
+## Version 0.2.51
 
 Restores the clean HomeOn Energy Card layout from version 0.2.38 and fixes loading of the original HomeOn logo through HACS.
 
@@ -9,11 +9,11 @@ No inline logo, injector, forced logo patch, or replacement fallback is used.
 
 Recommended Lovelace resource:
 
-    /hacsfiles/homeon-energy-card/homeon-energy-card.js?v=050
+    /hacsfiles/homeon-energy-card/homeon-energy-card.js?v=051
 
 Recommended card:
 
     type: custom:homeon-energy-card
-    logo: /hacsfiles/homeon-energy-card/homeon_logo.svg?v=050
+    logo: /hacsfiles/homeon-energy-card/homeon_logo.svg?v=051
 
 After updating/redownloading in HACS, remove obsolete local resources and hard refresh the dashboard.
