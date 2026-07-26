@@ -96,10 +96,6 @@ After an update, refresh the Home Assistant frontend if the browser still displa
 - [Releases](https://github.com/maleikap/homeon-energy-card/releases)
 - [Issue tracker](https://github.com/maleikap/homeon-energy-card/issues)
 
-## Author
-
-Developed and maintained by **Paweł Maleika** as part of the HomeOn project.
-
 ## Support the project
 
 If HomeOn Energy Card is useful to you and you would like to support its continued development, you can contribute through [BuyCoffee](https://buycoffee.to/homeon).
