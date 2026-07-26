@@ -1,16 +1,19 @@
 # HomeOn Energy Card
 
-## Version 0.2.48
+## Version 0.2.49
 
-Restores the original HomeOn logo asset in the GitHub repository.
+Fixes display of the original HomeOn logo.
 
-Recommended HACS/Lovelace resource:
+The original `homeon_logo.svg` is stored in the GitHub repository and served by HACS.  
+The card now displays it as a wide logo instead of forcing it into a small square.
 
-    /hacsfiles/homeon-energy-card/homeon-energy-card.js?v=048
+Recommended Lovelace resource:
+
+    /hacsfiles/homeon-energy-card/homeon-energy-card.js?v=049
 
 Recommended card:
 
     type: custom:homeon-energy-card
-    logo: /hacsfiles/homeon-energy-card/homeon_logo.svg?v=048
+    logo: /hacsfiles/homeon-energy-card/homeon_logo.svg?v=049
 
-After HACS update, hard refresh the dashboard.
+After updating/redownloading in HACS, hard refresh the dashboard.

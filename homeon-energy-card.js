@@ -2,7 +2,7 @@ class HomeOnEnergyCard extends HTMLElement {
   setConfig(config) {
     this.config = config || {};
     this.title = this.config.title || "HomeOn Energy Dashboard";
-    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=048";
+    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=049";
     this.render();
   }
 
@@ -820,7 +820,10 @@ class HomeOnEnergyCard extends HTMLElement {
       <div class="hero ${cls}">
         <div class="hero-left">
           <div class="brand">
-            <img src="${this.esc(this.logo)}" onerror="this.onerror=null;this.src='/hacsfiles/homeon-energy-card/homeon_logo.svg?v=025'">
+            <div class="brand-logo-box">
+              <img src="${this.esc(this.logo)}" alt="HomeOn" onerror="this.style.display='none'; const f=this.parentElement.querySelector('.brand-logo-fallback'); if(f){f.style.display='flex';}">
+              <div class="brand-logo-fallback">HomeOn</div>
+            </div>
             <div>
               <div class="brand-title">${this.esc(this.title)}</div>
               <div class="brand-sub">EMS · bateria · falownik · rynek energii</div>
@@ -907,14 +910,35 @@ class HomeOnEnergyCard extends HTMLElement {
             margin-bottom: 18px;
           }
 
-          .brand img {
-            width: 104px;
-            height: 104px;
-            border-radius: 24px;
+          .brand-logo-box {
+            width: clamp(210px, 32vw, 340px);
+            height: 78px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            flex: 0 0 auto;
+          }
+
+          .brand-logo-box img {
+            display: block;
+            width: 100%;
+            height: 100%;
             object-fit: contain;
-            background: rgba(255,255,255,.08);
-            padding: 6px;
-            box-sizing: border-box;
+            object-position: left center;
+          }
+
+          .brand-logo-fallback {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 210px;
+            height: 58px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(56,189,248,.22), rgba(34,197,94,.18));
+            border: 1px solid var(--homeon-border);
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: -.03em;
           }
 
           .brand-title {
