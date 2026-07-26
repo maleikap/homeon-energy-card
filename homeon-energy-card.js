@@ -2,7 +2,7 @@ class HomeOnEnergyCard extends HTMLElement {
   setConfig(config) {
     this.config = config || {};
     this.title = this.config.title || "HomeOn Energy Dashboard";
-    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=051";
+    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=052";
     this.render();
   }
 
@@ -3662,7 +3662,7 @@ class HomeOnEnergyCard extends HTMLElement {
           )}
 
           <div class="footer">
-            HomeOn Energy Card 0.2.51 · animowany przepływ energii · pełna diagnostyka EMS
+            HomeOn Energy Card 0.2.52 · animowany przepływ energii · pełna diagnostyka EMS
           </div>
         </div>
       </ha-card>
@@ -3674,4 +3674,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 0.2.51 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 0.2.52 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
