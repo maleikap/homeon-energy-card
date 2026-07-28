@@ -2,6 +2,13 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [0.2.53] - 2026-07-28
+
+### Fixed
+
+- Duplicate tiles that resolved to the same Home Assistant entity are now shown only once per card section
+- Entity discovery remains compatible with existing HomeOn Energy Manager entity identifiers
+
 ## [0.2.52] - 2026-07-26
 
 ### Added
