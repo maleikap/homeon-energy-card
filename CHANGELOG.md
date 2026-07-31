@@ -2,6 +2,28 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.0.0] - 2026-07-31
+
+### Added
+
+- Client-focused daily financial chart using Pstryk AIO sale-value and purchase-cost entities
+- Live daily sale, purchase and financial balance values
+- Optional YAML overrides for both financial entity identifiers
+
+### Changed
+
+- Replaced the diagnostic dashboard with a concise everyday client view
+- Reduced the visible interface to EMS status, live energy flow, daily finances, battery targets, prices, PV forecast and next planned action
+- Updated project documentation with required and optional integrations
+- Updated the bundled logo cache version for automatic HACS delivery
+
+### Removed
+
+- Deye command inspector from the client view
+- Entity diagnostics and technical executor details from the client view
+- EMS learning statistics and raw historical counters from the client view
+- Extended negative-price and PV-reality diagnostic panels from the client view
+
 ## [0.2.53] - 2026-07-28
 
 ### Fixed
