@@ -2,7 +2,7 @@ class HomeOnEnergyCard extends HTMLElement {
   setConfig(config) {
     this.config = config || {};
     this.title = this.config.title || "HomeOn Energy Dashboard";
-    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=100";
+    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=101";
     this.render();
   }
 
@@ -997,6 +997,8 @@ class HomeOnEnergyCard extends HTMLElement {
             --homeon-muted: var(--secondary-text-color);
             --homeon-text: var(--primary-text-color);
             --homeon-surface: color-mix(in srgb, var(--card-background-color, #fff) 94%, var(--primary-color) 6%);
+            --homeon-bg: var(--card-background-color, #fff);
+            --homeon-accent: var(--primary-color, #03a9f4);
           }
           * { box-sizing: border-box; }
           ha-card { overflow: hidden; border-radius: 22px; }
@@ -1026,6 +1028,139 @@ class HomeOnEnergyCard extends HTMLElement {
             background: rgba(34,197,94,.12); color: #16a34a; font-size: 11px; font-weight: 850; white-space: nowrap;
           }
           .live-pill i { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.13); }
+          .hf-card {
+            padding: 17px; border: 1px solid var(--homeon-border); border-radius: 20px;
+            background:
+              radial-gradient(circle at 50% 18%, rgba(250,204,21,.10), transparent 24%),
+              radial-gradient(circle at 18% 62%, rgba(167,139,250,.09), transparent 22%),
+              radial-gradient(circle at 82% 62%, rgba(34,197,94,.09), transparent 22%),
+              var(--homeon-surface);
+          }
+          .hf-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+          .hf-head h3 { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -.02em; }
+          .hf-head p { margin: 4px 0 0; color: var(--homeon-muted); font-size: 12px; line-height: 1.35; }
+          .hf-mode {
+            border: 1px solid var(--homeon-border); border-radius: 999px; padding: 7px 12px;
+            background: var(--homeon-bg); font-size: 11px; font-weight: 850; white-space: nowrap;
+          }
+          .hf-board {
+            border: 1px solid var(--homeon-border); border-radius: 22px; padding: 16px; overflow: hidden;
+            background: radial-gradient(circle at 50% 48%, rgba(56,189,248,.10), transparent 34%), var(--homeon-bg);
+          }
+          .hf-top { display: flex; justify-content: center; }
+          .hf-mid {
+            display: grid; grid-template-columns: 140px minmax(80px,1fr) 158px minmax(80px,1fr) 140px;
+            gap: 10px; align-items: center;
+          }
+          .hf-node {
+            min-width: 0; min-height: 116px; border-radius: 20px; border: 1px solid var(--homeon-border);
+            background: var(--homeon-bg); box-shadow: 0 12px 30px rgba(0,0,0,.07);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; gap: 4px; padding: 10px;
+          }
+          .hf-home-node { min-height: 128px; box-shadow: 0 16px 36px rgba(56,189,248,.13); }
+          .hf-node strong { font-size: 13px; font-weight: 900; }
+          .hf-node b { max-width: 100%; font-size: 17px; font-weight: 900; white-space: nowrap; }
+          .hf-node small { max-width: 100%; color: var(--homeon-muted); font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .hf-orb {
+            width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+            color: #fff; box-shadow: 0 0 24px rgba(0,0,0,.14);
+          }
+          .hf-orb ha-icon { width: 26px; height: 26px; }
+          .hf-solar { background: linear-gradient(135deg,#facc15,#f97316); }
+          .hf-home-orb { background: linear-gradient(135deg,#38bdf8,#2563eb); }
+          .hf-grid-orb { background: linear-gradient(135deg,#a78bfa,#7c3aed); }
+          .hf-batt-orb { background: linear-gradient(135deg,#22c55e,#0f766e); }
+          .hf-vertical { display: flex; justify-content: center; height: 48px; align-items: center; }
+          .hf-lane { position: relative; border-radius: 999px; opacity: .25; }
+          .hf-lane.on, .hf-pv-flow.on .hf-lane { opacity: 1; }
+          .hf-lane-v { width: 8px; height: 44px; background: linear-gradient(180deg,rgba(250,204,21,.18),rgba(250,204,21,.70)); }
+          .hf-lane-h { height: 8px; min-width: 72px; }
+          .hf-grid-flow { background: linear-gradient(90deg,rgba(167,139,250,.72),rgba(167,139,250,.18)); }
+          .hf-battery-flow { background: linear-gradient(90deg,rgba(34,197,94,.18),rgba(34,197,94,.72)); }
+          .hf-lane i { position: absolute; width: 11px; height: 11px; border-radius: 50%; opacity: 0; }
+          .hf-lane:not(.on) i, .hf-pv-flow:not(.on) .hf-lane i { display: none; }
+          .hf-lane-v i { left: -1.5px; background: #facc15; box-shadow: 0 0 16px #facc15; animation: hfDotDown 1.35s linear infinite; }
+          .hf-lane-h i { top: -1.5px; animation: hfDotRight 1.55s linear infinite; }
+          .hf-grid-flow i { background: #a78bfa; box-shadow: 0 0 16px #a78bfa; }
+          .hf-battery-flow i { background: #22c55e; box-shadow: 0 0 16px #22c55e; }
+          .hf-lane-h.reverse i { animation-name: hfDotLeft; }
+          .hf-lane i:nth-of-type(2) { animation-delay: .45s; }
+          .hf-lane i:nth-of-type(3) { animation-delay: .9s; }
+          .hf-lane em {
+            position: absolute; font-style: normal; font-size: 10px; font-weight: 900; color: var(--homeon-muted);
+            background: var(--homeon-bg); border: 1px solid var(--homeon-border); border-radius: 999px;
+            padding: 3px 7px; white-space: nowrap;
+          }
+          .hf-lane-v em { left: 16px; top: 11px; }
+          .hf-lane-h em { left: 50%; top: -29px; transform: translateX(-50%); }
+          @keyframes hfDotDown {
+            0% { top:-10px; opacity:0; } 15% { opacity:1; } 85% { opacity:1; } 100% { top:calc(100% + 5px); opacity:0; }
+          }
+          @keyframes hfDotRight {
+            0% { left:-10px; opacity:0; } 15% { opacity:1; } 85% { opacity:1; } 100% { left:calc(100% + 5px); opacity:0; }
+          }
+          @keyframes hfDotLeft {
+            0% { left:calc(100% + 5px); opacity:0; } 15% { opacity:1; } 85% { opacity:1; } 100% { left:-10px; opacity:0; }
+          }
+          @keyframes hfDotUp {
+            0% { top:calc(100% + 5px); opacity:0; } 15% { opacity:1; } 85% { opacity:1; } 100% { top:-10px; opacity:0; }
+          }
+          .hf-inverter {
+            width: fit-content; margin: 12px auto 0; border: 1px solid var(--homeon-border); border-radius: 999px;
+            padding: 7px 11px; background: var(--homeon-bg); display: flex; align-items: center; gap: 7px;
+            color: var(--homeon-muted); font-size: 11px;
+          }
+          .hf-inverter ha-icon { width: 17px; height: 17px; }
+          .hf-inverter b { color: var(--homeon-text); }
+          .hf-summary { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px; margin-top: 11px; }
+          .hf-summary div {
+            min-width: 0; border: 1px solid var(--homeon-border); border-radius: 14px; padding: 9px;
+            background: var(--homeon-bg); display: flex; gap: 7px; align-items: center;
+          }
+          .hf-summary ha-icon { color: var(--homeon-accent); flex: 0 0 auto; width: 20px; height: 20px; }
+          .hf-summary span { color: var(--homeon-muted); font-size: 10px; flex: 1; min-width: 0; }
+          .hf-summary b { font-size: 12px; font-weight: 900; white-space: nowrap; }
+          .pv-reality-card {
+            padding: 17px; border: 1px solid var(--homeon-border); border-radius: 20px;
+            background: var(--homeon-surface);
+          }
+          .pv-reality-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+          .pv-reality-head h3 { margin: 0; font-size: 18px; font-weight: 900; }
+          .pv-reality-head p { margin: 4px 0 0; color: var(--homeon-muted); font-size: 12px; line-height: 1.35; }
+          .pv-reality-status {
+            min-width: 175px; padding: 9px 11px; border: 1px solid var(--homeon-border); border-radius: 14px;
+            background: var(--homeon-bg); text-align: right;
+          }
+          .pv-reality-status span, .pv-reality-status b { display: block; }
+          .pv-reality-status span { font-size: 12px; font-weight: 900; }
+          .pv-reality-status b { margin-top: 3px; color: var(--homeon-muted); font-size: 10px; }
+          .pv-reality-main { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: center; }
+          .pv-reality-score { display: grid; place-items: center; }
+          .pv-score-ring {
+            width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center;
+            background: conic-gradient(#22c55e calc(var(--pv-score) * 1%),rgba(148,163,184,.22) 0);
+          }
+          .pv-score-ring > div {
+            width: 96px; height: 96px; border-radius: 50%; display: grid; place-content: center;
+            text-align: center; background: var(--homeon-bg);
+          }
+          .pv-score-ring strong { font-size: 27px; font-weight: 950; }
+          .pv-score-ring span { color: var(--homeon-muted); font-size: 10px; }
+          .pv-reality-bad .pv-score-ring { background: conic-gradient(#ef4444 calc(var(--pv-score) * 1%),rgba(148,163,184,.22) 0); }
+          .pv-reality-weak .pv-score-ring { background: conic-gradient(#f97316 calc(var(--pv-score) * 1%),rgba(148,163,184,.22) 0); }
+          .pv-reality-ok .pv-score-ring { background: conic-gradient(#facc15 calc(var(--pv-score) * 1%),rgba(148,163,184,.22) 0); }
+          .pv-reality-data { min-width: 0; }
+          .pv-reality-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+          .pv-reality-progress { margin-top: 10px; }
+          .pv-reality-progress > div { height: 8px; border-radius: 999px; overflow: hidden; background: rgba(148,163,184,.20); }
+          .pv-reality-progress > div span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#facc15,#22c55e); }
+          .pv-reality-progress p { margin: 6px 0 0; color: var(--homeon-muted); font-size: 10px; line-height: 1.35; }
+          .pv-reality-reason {
+            display: flex; gap: 8px; align-items: flex-start; margin-top: 11px; padding: 10px;
+            border-radius: 13px; background: rgba(56,189,248,.09); color: var(--homeon-muted); font-size: 11px; line-height: 1.4;
+          }
+          .pv-reality-reason ha-icon { flex: 0 0 auto; width: 18px; height: 18px; color: var(--homeon-accent); }
           .client-flow { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
           .flow-item {
             min-width: 0; padding: 14px 12px; border: 1px solid var(--homeon-border); border-radius: 17px;
@@ -1067,6 +1202,18 @@ class HomeOnEnergyCard extends HTMLElement {
           @media (max-width: 820px) {
             .client-flow, .compact-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
             .client-split { grid-template-columns: 1fr; }
+            .hf-mid { grid-template-columns: 1fr; }
+            .hf-lane-h {
+              height: 38px; min-width: 8px; width: 8px; justify-self: center;
+              background: linear-gradient(180deg,rgba(56,189,248,.18),rgba(56,189,248,.70));
+            }
+            .hf-lane-h i { left: -1.5px; top: auto; animation-name: hfDotDown; }
+            .hf-lane-h.reverse i { animation-name: hfDotUp; }
+            .hf-lane-h em { left: 16px; top: 7px; transform: none; }
+            .hf-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
+            .pv-reality-head { flex-direction: column; }
+            .pv-reality-status { min-width: 0; width: 100%; text-align: left; }
+            .pv-reality-main { grid-template-columns: 1fr; }
           }
           @media (max-width: 520px) {
             .client-wrap { padding: 10px; gap: 10px; }
@@ -1076,12 +1223,24 @@ class HomeOnEnergyCard extends HTMLElement {
             .client-panel { padding: 14px; }
             .client-flow { grid-template-columns: repeat(2, minmax(0,1fr)); }
             .compact-grid { grid-template-columns: 1fr 1fr; }
+            .hf-card, .pv-reality-card { padding: 12px; }
+            .hf-head { flex-direction: column; }
+            .hf-mode { max-width: 100%; white-space: normal; }
+            .hf-board { padding: 10px; border-radius: 18px; }
+            .hf-node { min-height: 102px; width: 100%; }
+            .hf-orb { width: 42px; height: 42px; }
+            .hf-summary { grid-template-columns: 1fr 1fr; }
+            .hf-summary div { display: grid; grid-template-columns: auto 1fr; }
+            .hf-summary b { grid-column: 2; }
+            .pv-reality-grid { grid-template-columns: 1fr 1fr; }
+            .pv-reality-head p, .hf-head p { font-size: 11px; }
           }
         </style>
 
         <div class="client-wrap">
           ${this.clientHero()}
-          ${this.clientFlowCard()}
+          ${this.powerFlow()}
+          ${this.pvRealityCard()}
           ${this.financeCard()}
           ${this.clientBatteryCard()}
 
@@ -1108,7 +1267,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.0.0 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.0.1 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1120,4 +1279,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.0.0 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.0.1 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
