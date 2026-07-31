@@ -2,6 +2,15 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.0.2] - 2026-07-31
+
+### Changed
+
+- Replaced technical EMS mode codes with readable Polish status messages
+- Kept the grid, home and battery flow in a compact horizontal layout on phones
+- Reduced mobile node, icon and heading sizes without removing live flow animation
+- Improved wrapping of the main HomeOn decision on narrow screens
+
 ## [1.0.1] - 2026-07-31
 
 ### Changed
