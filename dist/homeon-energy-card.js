@@ -2,7 +2,7 @@ class HomeOnEnergyCard extends HTMLElement {
   setConfig(config) {
     this.config = config || {};
     this.title = this.config.title || "HomeOn Energy Dashboard";
-    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=102";
+    this.logo = this.config.logo || "/hacsfiles/homeon-energy-card/homeon_logo.svg?v=103";
     this.render();
   }
 
@@ -23,29 +23,6 @@ class HomeOnEnergyCard extends HTMLElement {
       .replace(/ł/g, "l")
       .replace(/[^a-z0-9]+/g, " ")
       .trim();
-  }
-
-  friendlyMode(value) {
-    const raw = String(value || "").trim();
-    const key = raw.toUpperCase();
-    const labels = {
-      DISABLED: "HomeOn wyłączony",
-      SAFE_MODE: "Tryb bezpieczny",
-      EMERGENCY_RESERVE: "Awaryjne ładowanie magazynu",
-      NEGATIVE_IMPORT: "Ładowanie przy cenie ujemnej",
-      PREPARE_NEGATIVE_PRICE_WINDOW: "Przygotowanie na cenę ujemną",
-      NEGATIVE_PRICE_EXPORT_BLOCK: "Eksport zablokowany",
-      HOME_BATTERY_PRIORITY: "Bateria pracuje dla domu",
-      PV_REALITY_HOLD: "Ochrona magazynu przy słabym PV",
-      WAIT_BETTER_SELL_PRICE: "Czekam na lepszą cenę sprzedaży",
-      SELL_BATTERY_HIGH_PRICE: "Sprzedaję energię po dobrej cenie",
-      CHEAP_CHARGE: "Ładuję magazyn tanią energią",
-      PV_CHARGE: "Ładuję magazyn z PV",
-      EXPENSIVE_SELF_USE: "Bateria zasila dom przy drogiej energii",
-      WEATHER_HOLD_RESERVE: "Zachowuję rezerwę na słabszą pogodę",
-      NORMAL: "Normalna praca"
-    };
-    return labels[key] || raw.replaceAll("_", " ");
   }
 
   defs() {
@@ -563,7 +540,7 @@ class HomeOnEnergyCard extends HTMLElement {
             <h3>Przepływ energii</h3>
             <p>PV → Dom. Sieć po lewej, bateria po prawej. Animacja pokazuje kierunek przepływu.</p>
           </div>
-          <div class="hf-mode">${this.esc(this.friendlyMode(this.value("mode")))}</div>
+          <div class="hf-mode">${this.esc(this.value("mode"))}</div>
         </div>
 
         <div class="hf-board">
@@ -583,7 +560,7 @@ class HomeOnEnergyCard extends HTMLElement {
           </div>
 
           <div class="hf-mid">
-            <div class="hf-node hf-grid-node">
+            <div class="hf-node">
               <div class="hf-orb hf-grid-orb"><ha-icon icon="mdi:transmission-tower"></ha-icon></div>
               <strong>Sieć</strong>
               <b>${this.fmtW(gridFlow)}</b>
@@ -607,7 +584,7 @@ class HomeOnEnergyCard extends HTMLElement {
               <em>${this.fmtW(batteryFlow)}</em>
             </div>
 
-            <div class="hf-node hf-battery-node">
+            <div class="hf-node">
               <div class="hf-orb hf-batt-orb"><ha-icon icon="mdi:battery"></ha-icon></div>
               <strong>Bateria</strong>
               <b>${this.esc(this.value("soc"))}</b>
@@ -903,7 +880,7 @@ class HomeOnEnergyCard extends HTMLElement {
         <img src="${this.esc(this.logo)}" alt="HomeOn">
         <div class="client-hero-copy">
           <div class="client-title">${this.esc(this.title)}</div>
-          <div class="client-mode">${this.esc(this.friendlyMode(this.value("mode")))}</div>
+          <div class="client-mode">${this.esc(this.value("mode"))}</div>
           <div class="client-reason">${this.esc(this.value("reason"))}</div>
         </div>
       </header>
@@ -1225,19 +1202,14 @@ class HomeOnEnergyCard extends HTMLElement {
           @media (max-width: 820px) {
             .client-flow, .compact-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
             .client-split { grid-template-columns: 1fr; }
-            .hf-mid {
-              grid-template-columns: minmax(82px,1fr) minmax(24px,.42fr) minmax(104px,1.18fr) minmax(24px,.42fr) minmax(82px,1fr);
-              gap: 5px;
+            .hf-mid { grid-template-columns: 1fr; }
+            .hf-lane-h {
+              height: 38px; min-width: 8px; width: 8px; justify-self: center;
+              background: linear-gradient(180deg,rgba(56,189,248,.18),rgba(56,189,248,.70));
             }
-            .hf-lane-h { min-width: 24px; }
-            .hf-lane-h i { top: -1.5px; animation-name: hfDotRight; }
-            .hf-lane-h.reverse i { animation-name: hfDotLeft; }
-            .hf-lane-h em { display: none; }
-            .hf-node { min-height: 105px; padding: 7px 4px; }
-            .hf-home-node { min-height: 116px; }
-            .hf-node b { font-size: 15px; }
-            .hf-node strong { font-size: 12px; }
-            .hf-orb { width: 42px; height: 42px; }
+            .hf-lane-h i { left: -1.5px; top: auto; animation-name: hfDotDown; }
+            .hf-lane-h.reverse i { animation-name: hfDotUp; }
+            .hf-lane-h em { left: 16px; top: 7px; transform: none; }
             .hf-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
             .pv-reality-head { flex-direction: column; }
             .pv-reality-status { min-width: 0; width: 100%; text-align: left; }
@@ -1247,7 +1219,7 @@ class HomeOnEnergyCard extends HTMLElement {
             .client-wrap { padding: 10px; gap: 10px; }
             .client-hero { padding: 15px; align-items: flex-start; }
             .client-hero img { width: 64px; height: 64px; }
-            .client-mode { font-size: 19px; line-height: 1.18; }
+            .client-mode { font-size: 22px; }
             .client-panel { padding: 14px; }
             .client-flow { grid-template-columns: repeat(2, minmax(0,1fr)); }
             .compact-grid { grid-template-columns: 1fr 1fr; }
@@ -1255,17 +1227,8 @@ class HomeOnEnergyCard extends HTMLElement {
             .hf-head { flex-direction: column; }
             .hf-mode { max-width: 100%; white-space: normal; }
             .hf-board { padding: 10px; border-radius: 18px; }
-            .hf-mid {
-              grid-template-columns: 70px minmax(18px,.35fr) 88px minmax(18px,.35fr) 70px;
-              gap: 3px;
-            }
-            .hf-node { min-height: 96px; width: auto; padding: 6px 2px; }
-            .hf-home-node { min-height: 106px; }
-            .hf-orb { width: 36px; height: 36px; }
-            .hf-orb ha-icon { width: 21px; height: 21px; }
-            .hf-node b { font-size: 13px; }
-            .hf-node strong { font-size: 11px; }
-            .hf-node small { font-size: 8px; }
+            .hf-node { min-height: 102px; width: 100%; }
+            .hf-orb { width: 42px; height: 42px; }
             .hf-summary { grid-template-columns: 1fr 1fr; }
             .hf-summary div { display: grid; grid-template-columns: auto 1fr; }
             .hf-summary b { grid-column: 2; }
@@ -1304,7 +1267,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.0.2 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.0.3 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1316,4 +1279,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.0.2 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.0.3 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
