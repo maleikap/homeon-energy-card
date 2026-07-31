@@ -2,6 +2,15 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.0.1] - 2026-07-31
+
+### Changed
+
+- Restored the animated PV, home, grid and battery energy-flow graphic
+- Restored PV production quality with actual-versus-expected production data
+- Improved the energy-flow layout, tiles and PV quality panel on mobile screens
+- Preserved the simplified client view and Pstryk daily financial balance
+
 ## [1.0.0] - 2026-07-31
 
 ### Added
