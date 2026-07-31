@@ -2,6 +2,13 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.0.3] - 2026-07-31
+
+### Fixed
+
+- Restored the exact client layout and mobile energy-flow presentation from version 1.0.1
+- Removed the unintended visual and EMS-label changes introduced in version 1.0.2
+
 ## [1.0.2] - 2026-07-31
 
 ### Changed
