@@ -2,6 +2,15 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.1.0] - 2026-08-12
+
+### Added
+
+- Added a clear explanation of what HomeOn is doing right now
+- Distinguished surplus PV export from deliberate battery energy sales
+- Added contextual warnings for SAFE MODE, invalid data, dry-run and disabled inverter control
+- Added a current-versus-best selling price comparison with a clear sell/wait decision
+
 ## [1.0.5] - 2026-08-12
 
 ### Added
