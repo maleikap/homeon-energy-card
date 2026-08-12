@@ -2,6 +2,15 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.0.4] - 2026-08-12
+
+### Changed
+
+- Replaced technical EMS mode identifiers with readable Polish names in every client view
+- Added a matching icon and status color for each known HomeOn Energy Manager mode
+- Kept the original technical identifier available as a tooltip for diagnostics
+- Added a safe fallback that removes underscores from future, unknown mode identifiers
+
 ## [1.0.3] - 2026-07-31
 
 ### Fixed
