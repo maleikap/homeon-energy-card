@@ -45,4 +45,6 @@ jobs:
         uses: hacs/action@main
         with:
           category: plugin
-          ignore: description topics
+          # HomeOn uses an intentionally proprietary license, which GitHub/HACS
+          # does not classify as an open-source SPDX license.
+          ignore: description topics license
