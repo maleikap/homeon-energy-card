@@ -393,8 +393,48 @@ class HomeOnEnergyCard extends HTMLElement {
       .replaceAll('"', "&quot;");
   }
 
+  modeInfo(rawMode = this.plain("mode", "")) {
+    const code = String(rawMode || "").trim().toUpperCase();
+    const modes = {
+      PV_PRICE_EXPORT: { label: "Sprzedaż nadwyżki PV", icon: "mdi:solar-power", cls: "sell" },
+      SELL_BATTERY_HIGH_PRICE: { label: "Sprzedaż energii z magazynu", icon: "mdi:battery-arrow-down", cls: "sell" },
+      WAIT_BETTER_SELL_PRICE: { label: "Oczekiwanie na lepszą cenę", icon: "mdi:cash-clock", cls: "hold" },
+      PV_LOW_PRICE_CHARGE: { label: "Ładowanie PV w taniej godzinie", icon: "mdi:battery-arrow-up", cls: "charge" },
+      NEGATIVE_PRICE_EXPORT_BLOCK: { label: "Blokada eksportu – cena ujemna", icon: "mdi:transmission-tower-off", cls: "danger" },
+      PREPARE_NEGATIVE_PRICE_WINDOW: { label: "Przygotowanie na cenę ujemną", icon: "mdi:battery-sync", cls: "hold" },
+      DISCHARGE_TARGET_HOLD: { label: "Utrzymanie docelowego SOC", icon: "mdi:battery-lock", cls: "hold" },
+      WEATHER_HOLD_RESERVE: { label: "Rezerwa na słabszą pogodę", icon: "mdi:weather-cloudy-alert", cls: "hold" },
+      PV_REALITY_HOLD: { label: "Ochrona rezerwy przy słabym PV", icon: "mdi:weather-cloudy", cls: "hold" },
+      HOME_BATTERY_PRIORITY: { label: "Zasilanie domu z magazynu", icon: "mdi:home-battery", cls: "ok" },
+      EXPENSIVE_SELF_USE: { label: "Zasilanie domu przy drogiej energii", icon: "mdi:home-lightning-bolt", cls: "ok" },
+      EMERGENCY_RESERVE: { label: "Awaryjna rezerwa magazynu", icon: "mdi:battery-alert", cls: "danger" },
+      SAFE_MODE: { label: "Tryb bezpieczny", icon: "mdi:shield-alert", cls: "danger" },
+      NORMAL_SAFE: { label: "Normalna praca – ochrona magazynu", icon: "mdi:shield-check", cls: "ok" },
+      NORMAL: { label: "Normalna praca", icon: "mdi:check-circle", cls: "ok" },
+      PV_CHARGE: { label: "Ładowanie magazynu z PV", icon: "mdi:solar-power-variant", cls: "charge" },
+      CHEAP_CHARGE: { label: "Ładowanie z sieci w taniej godzinie", icon: "mdi:battery-charging", cls: "charge" },
+      NEGATIVE_IMPORT: { label: "Ładowanie przy ujemnej cenie", icon: "mdi:cash-minus", cls: "charge" },
+      DISABLED: { label: "HomeOn wyłączony", icon: "mdi:power-off", cls: "neutral" }
+    };
+
+    if (modes[code]) return { code, ...modes[code] };
+
+    const fallback = code
+      ? code.toLowerCase().replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase())
+      : "—";
+    return { code, label: fallback, icon: "mdi:state-machine", cls: "neutral" };
+  }
+
+  modeBadge(compact = false) {
+    const mode = this.modeInfo();
+    const title = mode.code ? ` title="Tryb techniczny: ${this.esc(mode.code)}"` : "";
+    return `<span class="mode-badge${compact ? " compact" : ""}"${title}><ha-icon icon="${mode.icon}"></ha-icon><span>${this.esc(mode.label)}</span></span>`;
+  }
+
   statusClass() {
-    const mode = this.norm(this.plain("mode", ""));
+    const info = this.modeInfo();
+    if (info.cls !== "neutral") return info.cls;
+    const mode = this.norm(info.code);
     const reason = this.norm(this.plain("reason", ""));
     if (mode.includes("emergency") || mode.includes("awaryj")) return "danger";
     if (mode.includes("sell") || reason.includes("sprzed")) return "sell";
@@ -540,7 +580,7 @@ class HomeOnEnergyCard extends HTMLElement {
             <h3>Przepływ energii</h3>
             <p>PV → Dom. Sieć po lewej, bateria po prawej. Animacja pokazuje kierunek przepływu.</p>
           </div>
-          <div class="hf-mode">${this.esc(this.value("mode"))}</div>
+          <div class="hf-mode">${this.modeBadge(true)}</div>
         </div>
 
         <div class="hf-board">
@@ -836,7 +876,7 @@ class HomeOnEnergyCard extends HTMLElement {
           </div>
 
           <div class="mode-line">
-            <span>${this.value("mode")}</span>
+            ${this.modeBadge()}
           </div>
 
           <div class="reason-line">
@@ -880,7 +920,7 @@ class HomeOnEnergyCard extends HTMLElement {
         <img src="${this.esc(this.logo)}" alt="HomeOn">
         <div class="client-hero-copy">
           <div class="client-title">${this.esc(this.title)}</div>
-          <div class="client-mode">${this.esc(this.value("mode"))}</div>
+          <div class="client-mode">${this.modeBadge()}</div>
           <div class="client-reason">${this.esc(this.value("reason"))}</div>
         </div>
       </header>
@@ -1010,11 +1050,18 @@ class HomeOnEnergyCard extends HTMLElement {
           }
           .client-hero.sell { background: linear-gradient(135deg, rgba(34,197,94,.20), rgba(56,189,248,.10)); }
           .client-hero.charge { background: linear-gradient(135deg, rgba(56,189,248,.20), rgba(34,197,94,.08)); }
+          .client-hero.hold { background: linear-gradient(135deg, rgba(245,158,11,.18), rgba(56,189,248,.08)); }
+          .client-hero.ok { background: linear-gradient(135deg, rgba(34,197,94,.14), rgba(56,189,248,.08)); }
           .client-hero.danger { background: linear-gradient(135deg, rgba(239,68,68,.20), rgba(249,115,22,.10)); }
           .client-hero img { width: 92px; height: 92px; object-fit: contain; flex: 0 0 auto; }
           .client-hero-copy { min-width: 0; }
           .client-title { color: var(--homeon-muted); font-size: 13px; font-weight: 750; margin-bottom: 5px; }
           .client-mode { font-size: clamp(23px, 4vw, 34px); line-height: 1.1; font-weight: 950; letter-spacing: -.035em; overflow-wrap: anywhere; }
+          .mode-badge { display: inline-flex; align-items: center; gap: 9px; max-width: 100%; }
+          .mode-badge ha-icon { width: .95em; height: .95em; flex: 0 0 auto; }
+          .mode-badge span { overflow-wrap: anywhere; }
+          .mode-badge.compact { gap: 6px; }
+          .mode-badge.compact ha-icon { width: 16px; height: 16px; }
           .client-reason { margin-top: 9px; color: var(--homeon-muted); font-size: 13px; line-height: 1.45; }
           .client-panel {
             padding: 17px; border: 1px solid var(--homeon-border); border-radius: 20px;
@@ -1267,7 +1314,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.0.3 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.0.4 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1279,4 +1326,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.0.3 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.0.4 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
