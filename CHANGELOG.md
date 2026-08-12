@@ -2,6 +2,12 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.0.5] - 2026-08-12
+
+### Added
+
+- Added the proprietary HomeOn license required by HACS repository validation
+
 ## [1.0.4] - 2026-08-12
 
 ### Changed

@@ -1314,7 +1314,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.0.4 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.0.5 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1326,4 +1326,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.0.4 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.0.5 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
