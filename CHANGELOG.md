@@ -2,6 +2,12 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.1.1] - 2026-08-12
+
+### Fixed
+
+- Restored animated yellow flow dots between PV and the home whenever PV production is active
+
 ## [1.1.0] - 2026-08-12
 
 ### Added

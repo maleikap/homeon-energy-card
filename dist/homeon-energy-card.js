@@ -1278,7 +1278,7 @@ class HomeOnEnergyCard extends HTMLElement {
           .hf-grid-flow { background: linear-gradient(90deg,rgba(167,139,250,.72),rgba(167,139,250,.18)); }
           .hf-battery-flow { background: linear-gradient(90deg,rgba(34,197,94,.18),rgba(34,197,94,.72)); }
           .hf-lane i { position: absolute; width: 11px; height: 11px; border-radius: 50%; opacity: 0; }
-          .hf-lane:not(.on) i, .hf-pv-flow:not(.on) .hf-lane i { display: none; }
+          .hf-lane-h:not(.on) i, .hf-pv-flow:not(.on) .hf-lane-v i { display: none; }
           .hf-lane-v i { left: -1.5px; background: #facc15; box-shadow: 0 0 16px #facc15; animation: hfDotDown 1.35s linear infinite; }
           .hf-lane-h i { top: -1.5px; animation: hfDotRight 1.55s linear infinite; }
           .hf-grid-flow i { background: #a78bfa; box-shadow: 0 0 16px #a78bfa; }
@@ -1473,7 +1473,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.1.0 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.1.1 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1485,4 +1485,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.1.0 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.1.1 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");

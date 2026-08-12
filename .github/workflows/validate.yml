@@ -30,6 +30,7 @@ jobs:
           cmp -s homeon_logo.svg dist/homeon_logo.svg
           grep -q '<title>HomeOn logo extracted from photo</title>' homeon_logo.svg
           node --check homeon-energy-card.js
+          grep -q '.hf-lane-h:not(.on) i, .hf-pv-flow:not(.on) .hf-lane-v i' homeon-energy-card.js
           test "$(grep -c 'customElements.define' homeon-energy-card.js)" -eq 1
           test ! -e homeon-test-card.js
           test ! -e homeon-operator-fresh.js
