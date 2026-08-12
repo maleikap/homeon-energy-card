@@ -182,6 +182,12 @@ class HomeOnEnergyCard extends HTMLElement {
       learnPeakLoad: { label: "Największe godzinowe zużycie", icon: "mdi:chart-line", find: ["ems najwieksze godzinowe zuzycie"] },
       learnLowHour: { label: "Godzina najniższego zużycia", icon: "mdi:chart-bell-curve-cumulative", find: ["ems godzina najnizszego zuzycia"] },
       learnLowLoad: { label: "Najniższe godzinowe zużycie", icon: "mdi:chart-line-variant", find: ["ems najnizsze godzinowe zuzycie"] }
+      ,dataQualityStatus: { label: "Status danych", icon: "mdi:database-check", find: ["status danych"] }
+      ,dataQualityErrors: { label: "Błędy danych", icon: "mdi:database-alert", find: ["bledy danych"] }
+      ,dataQualityWarnings: { label: "Ostrzeżenia danych", icon: "mdi:database-eye", find: ["ostrzezenia danych"] }
+      ,safeMode: { label: "SAFE MODE", icon: "mdi:shield-alert", find: ["safe mode"] }
+      ,safeModeReason: { label: "Powód SAFE MODE", icon: "mdi:text-box-alert", find: ["powod safe mode"] }
+      ,pvExportOpportunity: { label: "Eksport nadwyżki PV", icon: "mdi:solar-power", find: ["oplacalny eksport pv"] }
     };
   }
 
@@ -383,6 +389,11 @@ class HomeOnEnergyCard extends HTMLElement {
     if (!s) return fallback;
     const n = parseFloat(String(s.state).replace(",", "."));
     return Number.isFinite(n) ? n : fallback;
+  }
+
+  isOn(key) {
+    const value = this.norm(this.plain(key, ""));
+    return ["on", "true", "1", "yes", "tak", "wlaczony", "aktywne"].includes(value);
   }
 
   esc(text) {
@@ -927,6 +938,123 @@ class HomeOnEnergyCard extends HTMLElement {
     `;
   }
 
+  currentActionText() {
+    const mode = this.modeInfo().code;
+    const nextTime = this.plain("planNextActionTime", "—");
+    const bestTime = this.plain("bestSellTime", "—");
+    const actions = {
+      PV_PRICE_EXPORT: "Sprzedaję wyłącznie bieżącą nadwyżkę PV. Magazyn nie jest celowo rozładowywany do sieci.",
+      SELL_BATTERY_HIGH_PRICE: "Sprzedaję energię z magazynu, ponieważ cena osiągnęła opłacalny poziom.",
+      WAIT_BETTER_SELL_PRICE: `Zachowuję energię w magazynie i czekam na lepszą cenę${bestTime !== "—" ? ` około ${bestTime}` : ""}.`,
+      PV_LOW_PRICE_CHARGE: "Ładuję magazyn z PV w jednej z najgorszych godzin sprzedaży.",
+      PV_CHARGE: "Ładuję magazyn z bieżącej produkcji PV.",
+      CHEAP_CHARGE: "Ładuję magazyn z sieci w taniej godzinie.",
+      NEGATIVE_IMPORT: "Ładuję magazyn przy ujemnej cenie energii.",
+      NEGATIVE_PRICE_EXPORT_BLOCK: "Blokuję eksport, ponieważ cena sprzedaży jest zerowa lub ujemna.",
+      PREPARE_NEGATIVE_PRICE_WINDOW: "Przygotowuję wolne miejsce w magazynie przed ujemną ceną.",
+      DISCHARGE_TARGET_HOLD: "Magazyn osiągnął bezpieczny cel SOC — zatrzymuję dalszą sprzedaż.",
+      HOME_BATTERY_PRIORITY: "Magazyn zasila dom. Handel energią z baterii jest wyłączony.",
+      EXPENSIVE_SELF_USE: "Wykorzystuję magazyn do zasilania domu przy drogiej energii.",
+      WEATHER_HOLD_RESERVE: "Zachowuję rezerwę energii ze względu na słabszą prognozę PV.",
+      PV_REALITY_HOLD: "Zachowuję rezerwę, ponieważ rzeczywista produkcja PV jest słabsza od oczekiwanej.",
+      EMERGENCY_RESERVE: "Chronię awaryjną rezerwę magazynu i wstrzymuję handel.",
+      SAFE_MODE: "Wstrzymuję handel z powodu nieprawidłowych lub brakujących danych.",
+      NORMAL: "Instalacja pracuje normalnie bez wymuszonego handlu energią.",
+      NORMAL_SAFE: "Instalacja pracuje normalnie z ochroną bezpiecznej rezerwy.",
+      DISABLED: "HomeOn jest wyłączony i nie wysyła poleceń do falownika."
+    };
+    return actions[mode] || (nextTime !== "—"
+      ? `Najbliższa zaplanowana akcja: ${this.plain("planNextAction", "—")} o ${nextTime}.`
+      : this.plain("reason", "Brak decyzji."));
+  }
+
+  actionSummaryCard() {
+    return `
+      <section class="action-summary ${this.statusClass()}">
+        <ha-icon icon="mdi:lightning-bolt-circle"></ha-icon>
+        <div><span>Co teraz robi HomeOn?</span><strong>${this.esc(this.currentActionText())}</strong></div>
+      </section>
+    `;
+  }
+
+  exportSourceCard() {
+    const mode = this.modeInfo().code;
+    const gridExport = Math.max(0, this.num("gridExport", 0));
+    const batteryDischarge = Math.max(0, this.num("batteryDischarge", 0));
+    let icon = "mdi:transmission-tower-off";
+    let title = "Brak eksportu do sieci";
+    let detail = "Dom i magazyn pracują bez sprzedaży energii do sieci.";
+    let cls = "neutral";
+
+    if (mode === "SELL_BATTERY_HIGH_PRICE" || mode === "PREPARE_NEGATIVE_PRICE_WINDOW") {
+      icon = "mdi:battery-arrow-down";
+      title = "Sprzedaż energii z magazynu";
+      detail = `Bateria jest celowo udostępniona do sprzedaży${gridExport > 25 ? ` · eksport ${this.fmtW(gridExport)}` : ""}.`;
+      cls = "battery-export";
+    } else if (mode === "PV_PRICE_EXPORT" || (gridExport > 25 && batteryDischarge <= 25)) {
+      icon = "mdi:solar-power";
+      title = "Eksport nadwyżki PV";
+      detail = `Do sieci trafia bieżąca nadwyżka produkcji${gridExport > 25 ? ` · ${this.fmtW(gridExport)}` : ""}. Bateria nie jest celowo sprzedawana.`;
+      cls = "pv-export";
+    } else if (gridExport > 25) {
+      icon = "mdi:transmission-tower-export";
+      title = "Eksport energii do sieci";
+      detail = `${this.fmtW(gridExport)} · źródło wynika z aktualnego bilansu instalacji.`;
+      cls = "grid-export";
+    }
+
+    return `
+      <section class="export-source ${cls}">
+        <ha-icon icon="${icon}"></ha-icon>
+        <div><strong>${title}</strong><span>${detail}</span></div>
+      </section>
+    `;
+  }
+
+  warningCards() {
+    const warnings = [];
+    const status = this.norm(this.plain("dataQualityStatus", ""));
+    const errors = this.plain("dataQualityErrors", "Brak");
+    const dataWarnings = this.plain("dataQualityWarnings", "Brak");
+    const safeMode = this.isOn("safeMode") || this.modeInfo().code === "SAFE_MODE";
+
+    if (safeMode) warnings.push({ cls: "error", icon: "mdi:shield-alert", title: "SAFE MODE", text: this.plain("safeModeReason", errors) });
+    else if (status.includes("blad") && this.norm(errors) !== "brak") warnings.push({ cls: "error", icon: "mdi:database-alert", title: "Błąd danych", text: errors });
+    if (status.includes("ostrzezenie") && this.norm(dataWarnings) !== "brak") warnings.push({ cls: "warning", icon: "mdi:alert", title: "Sprawdź konfigurację", text: dataWarnings });
+
+    if (this.stateObj("dryRun") && this.isOn("dryRun")) warnings.push({ cls: "info", icon: "mdi:test-tube", title: "Tryb testowy", text: "Dry-run jest włączony — HomeOn pokazuje decyzje, ale nie zapisuje ich do falownika." });
+    if (this.stateObj("inverterControl") && !this.isOn("inverterControl")) warnings.push({ cls: "info", icon: "mdi:inverter", title: "Sterowanie wyłączone", text: "HomeOn nie wysyła poleceń do falownika." });
+
+    if (!warnings.length) return "";
+    return `<section class="alerts">${warnings.map((warning) => `
+      <div class="alert ${warning.cls}"><ha-icon icon="${warning.icon}"></ha-icon><div><strong>${warning.title}</strong><span>${this.esc(warning.text)}</span></div></div>
+    `).join("")}</section>`;
+  }
+
+  priceDecisionCard() {
+    const current = this.num("sellPrice", NaN);
+    const best = this.num("bestSellPrice", NaN);
+    const bestTime = this.plain("bestSellTime", "—");
+    const nextPrice = this.num("nextBetterSellPrice", NaN);
+    const nextTime = this.plain("nextBetterSellTime", "—");
+    const selling = ["PV_PRICE_EXPORT", "SELL_BATTERY_HIGH_PRICE", "PREPARE_NEGATIVE_PRICE_WINDOW"].includes(this.modeInfo().code);
+    const hasCurrent = Number.isFinite(current);
+    const hasBest = Number.isFinite(best) && best > 0;
+    if (!hasCurrent && !hasBest) return "";
+    const targetPrice = Number.isFinite(nextPrice) && nextPrice > current ? nextPrice : best;
+    const targetTime = Number.isFinite(nextPrice) && nextPrice > current && nextTime !== "—" ? nextTime : bestTime;
+    const decision = selling ? "Sprzedaję teraz" : (hasBest && best > current + 0.001 ? "Czekam na lepszą cenę" : "Obserwuję rynek");
+
+    return `
+      <section class="price-decision">
+        <div><span>Cena teraz</span><strong>${hasCurrent ? `${current.toFixed(3)} zł/kWh` : "—"}</strong></div>
+        <ha-icon icon="mdi:arrow-right"></ha-icon>
+        <div><span>Lepsza / najlepsza</span><strong>${Number.isFinite(targetPrice) ? `${targetPrice.toFixed(3)} zł/kWh` : "—"}</strong><small>${targetTime !== "—" ? `o ${this.esc(targetTime)}` : ""}</small></div>
+        <div class="price-verdict ${selling ? "sell" : "wait"}"><span>Decyzja</span><strong>${decision}</strong></div>
+      </section>
+    `;
+  }
+
   clientFlowCard() {
     const pv = Math.max(0, this.num("pvPower", 0));
     const load = Math.max(0, this.num("loadPower", 0));
@@ -1063,6 +1191,30 @@ class HomeOnEnergyCard extends HTMLElement {
           .mode-badge.compact { gap: 6px; }
           .mode-badge.compact ha-icon { width: 16px; height: 16px; }
           .client-reason { margin-top: 9px; color: var(--homeon-muted); font-size: 13px; line-height: 1.45; }
+          .action-summary, .export-source { display: flex; align-items: center; gap: 13px; padding: 15px 17px; border: 1px solid var(--homeon-border); border-radius: 18px; background: var(--homeon-surface); }
+          .action-summary > ha-icon, .export-source > ha-icon { width: 30px; height: 30px; color: var(--homeon-accent); flex: 0 0 auto; }
+          .action-summary div, .export-source div { display: grid; gap: 3px; min-width: 0; }
+          .action-summary span, .export-source span { color: var(--homeon-muted); font-size: 12px; line-height: 1.35; }
+          .action-summary strong, .export-source strong { font-size: 15px; line-height: 1.35; }
+          .export-source.pv-export > ha-icon { color: #f59e0b; }
+          .export-source.battery-export > ha-icon { color: #38bdf8; }
+          .alerts { display: grid; gap: 8px; }
+          .alert { display: flex; gap: 11px; align-items: flex-start; padding: 12px 14px; border-radius: 15px; border: 1px solid var(--homeon-border); }
+          .alert ha-icon { flex: 0 0 auto; width: 22px; height: 22px; }
+          .alert div { display: grid; gap: 2px; }
+          .alert strong { font-size: 13px; }
+          .alert span { color: var(--homeon-muted); font-size: 12px; line-height: 1.4; }
+          .alert.error { background: rgba(239,68,68,.12); color: #ef4444; }
+          .alert.warning { background: rgba(245,158,11,.12); color: #d97706; }
+          .alert.info { background: rgba(56,189,248,.10); color: #0284c7; }
+          .alert span { color: var(--homeon-text); }
+          .price-decision { display: grid; grid-template-columns: 1fr auto 1fr 1.15fr; gap: 12px; align-items: center; padding: 16px; border: 1px solid var(--homeon-border); border-radius: 18px; background: var(--homeon-surface); }
+          .price-decision > div { display: grid; gap: 3px; }
+          .price-decision span, .price-decision small { color: var(--homeon-muted); font-size: 11px; }
+          .price-decision strong { font-size: 15px; }
+          .price-verdict { padding: 10px 12px; border-radius: 13px; }
+          .price-verdict.sell { background: rgba(34,197,94,.13); }
+          .price-verdict.wait { background: rgba(245,158,11,.13); }
           .client-panel {
             padding: 17px; border: 1px solid var(--homeon-border); border-radius: 20px;
             background: var(--homeon-surface);
@@ -1268,6 +1420,9 @@ class HomeOnEnergyCard extends HTMLElement {
             .client-hero img { width: 64px; height: 64px; }
             .client-mode { font-size: 22px; }
             .client-panel { padding: 14px; }
+            .price-decision { grid-template-columns: 1fr 1fr; }
+            .price-decision > ha-icon { display: none; }
+            .price-verdict { grid-column: 1 / -1; }
             .client-flow { grid-template-columns: repeat(2, minmax(0,1fr)); }
             .compact-grid { grid-template-columns: 1fr 1fr; }
             .hf-card, .pv-reality-card { padding: 12px; }
@@ -1286,10 +1441,14 @@ class HomeOnEnergyCard extends HTMLElement {
 
         <div class="client-wrap">
           ${this.clientHero()}
+          ${this.warningCards()}
+          ${this.actionSummaryCard()}
+          ${this.exportSourceCard()}
           ${this.powerFlow()}
           ${this.pvRealityCard()}
           ${this.financeCard()}
           ${this.clientBatteryCard()}
+          ${this.priceDecisionCard()}
 
           <div class="client-split">
             <section class="client-panel">
@@ -1314,7 +1473,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.0.5 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.1.0 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1326,4 +1485,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.0.5 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.1.0 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
