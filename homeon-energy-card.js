@@ -58,6 +58,7 @@ class HomeOnEnergyCard extends HTMLElement {
       batteryDischarge: { label: "Rozładowanie baterii", icon: "mdi:battery-arrow-down", find: ["rozladowanie baterii"] },
 
       pvPower: { label: "Moc PV", icon: "mdi:solar-power", find: ["moc pv"] },
+      pvEnergyTotal: { label: "Łączna produkcja PV", icon: "mdi:solar-power-variant", domain: "sensor", find: ["laczna produkcja pv", "calkowita produkcja pv", "total pv production", "pv total energy"] },
       loadPower: { label: "Moc domu", icon: "mdi:home-lightning-bolt", find: ["moc domu"] },
       gridPower: { label: "Moc sieci", icon: "mdi:transmission-tower", find: ["moc sieci"] },
       gridStatus: { label: "Status sieci", icon: "mdi:transmission-tower-export", find: ["status sieci"] },
@@ -214,6 +215,13 @@ class HomeOnEnergyCard extends HTMLElement {
         "sensor.homeon_energy_manager_moc_pv",
         "sensor.homeon_energy_manager_homeon_moc_pv"
       ],
+      pvEnergyTotal: [
+        "sensor.inverter_total_pv_production",
+        "sensor.inverter_total_pv_energy",
+        "sensor.inverter_total_pv_power_generation",
+        "sensor.inverter_total_energy_production",
+        "sensor.deye_total_pv_production"
+      ],
       loadPower: [
         "sensor.homeon_moc_domu",
         "sensor.homeon_energy_manager_moc_domu",
@@ -309,7 +317,8 @@ class HomeOnEnergyCard extends HTMLElement {
     const configured = this.config.entities && this.config.entities[key];
     if (configured && hass.states[configured]) return configured;
 
-    const direct = this.config[key];
+    const configAliases = { pvEnergyTotal: "pv_energy_total_entity" };
+    const direct = this.config[key] || this.config[configAliases[key]];
     if (direct && hass.states[direct]) return direct;
 
     const exactCandidates = (this.entityCandidates()[key] || []).concat(def.candidates || []);
@@ -374,6 +383,21 @@ class HomeOnEnergyCard extends HTMLElement {
 
     const unit = s.attributes && s.attributes.unit_of_measurement;
     return unit ? `${raw} ${unit}` : String(raw);
+  }
+
+  energyKwh(key, fallback = "—") {
+    const state = this.stateObj(key);
+    if (!state) return fallback;
+
+    const raw = Number.parseFloat(String(state.state ?? "").replace(",", "."));
+    if (!Number.isFinite(raw)) return fallback;
+
+    const unit = this.norm(state.attributes && state.attributes.unit_of_measurement);
+    let value = raw;
+    if (unit === "wh") value = raw / 1000;
+    else if (unit === "mwh") value = raw * 1000;
+
+    return `${value.toLocaleString("pl-PL", { maximumFractionDigits: 1 })} kWh`;
   }
 
   plain(key, fallback = "—") {
@@ -652,6 +676,7 @@ class HomeOnEnergyCard extends HTMLElement {
 
         <div class="hf-summary">
           <div><ha-icon icon="mdi:solar-power"></ha-icon><span>PV</span><b>${this.fmtW(pv)}</b></div>
+          ${this.hasUsefulValue("pvEnergyTotal") ? `<div><ha-icon icon="mdi:solar-power-variant"></ha-icon><span>Produkcja łącznie</span><b>${this.esc(this.energyKwh("pvEnergyTotal"))}</b></div>` : ""}
           <div><ha-icon icon="mdi:home-lightning-bolt"></ha-icon><span>Dom</span><b>${this.fmtW(load)}</b></div>
           <div><ha-icon icon="mdi:battery-plus"></ha-icon><span>Cel ładowania</span><b>${this.esc(this.value("chargeTarget"))}</b></div>
           <div><ha-icon icon="mdi:cash-check"></ha-icon><span>Do sprzedaży</span><b>${this.esc(this.value("availableSell"))}</b></div>
@@ -1473,7 +1498,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.1.1 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.1.2 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1485,4 +1510,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.1.1 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.1.2 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
