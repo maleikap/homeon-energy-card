@@ -2,6 +2,13 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.1.4] - 2026-09-17
+
+### Added
+
+- Added daily PV production to the energy-flow summary
+- Added automatic detection of `sensor.inverter_today_production`
+
 ## [1.1.3] - 2026-09-17
 
 ### Fixed
