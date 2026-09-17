@@ -116,6 +116,15 @@ sale_value_entity: sensor.twoja_wartosc_sprzedazy_dzisiaj
 purchase_cost_entity: sensor.twoj_koszt_zakupu_dzisiaj
 ```
 
+Łączną produkcję instalacji PV można dodać przez encję energii całkowitej falownika:
+
+```yaml
+type: custom:homeon-energy-card
+pv_energy_total_entity: sensor.inverter_total_pv_production
+```
+
+Karta przelicza wartości Wh i MWh oraz wyświetla wynik w kWh. Dla typowych nazw encji Deye próbuje znaleźć sensor automatycznie.
+
 Oryginalne logo jest dostarczane razem z wydaniem HACS i używane automatycznie.
 
 ## Brakujące dane
