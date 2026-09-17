@@ -2,6 +2,14 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.1.2] - 2026-09-17
+
+### Added
+
+- Added total PV production to the energy-flow summary
+- Added optional `pv_energy_total_entity` configuration with automatic Deye entity detection
+- Normalized Wh and MWh values to kWh
+
 ## [1.1.1] - 2026-08-12
 
 ### Fixed
