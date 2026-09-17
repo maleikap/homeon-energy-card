@@ -216,6 +216,7 @@ class HomeOnEnergyCard extends HTMLElement {
         "sensor.homeon_energy_manager_homeon_moc_pv"
       ],
       pvEnergyTotal: [
+        "sensor.inverter_total_production",
         "sensor.inverter_total_pv_production",
         "sensor.inverter_total_pv_energy",
         "sensor.inverter_total_pv_power_generation",
@@ -1498,7 +1499,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.1.2 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.1.3 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1510,4 +1511,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.1.2 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.1.3 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");

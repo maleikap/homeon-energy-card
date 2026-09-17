@@ -2,6 +2,13 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.1.3] - 2026-09-17
+
+### Fixed
+
+- Added automatic detection of `sensor.inverter_total_production` used by Deye
+- Total PV production now appears without manual card configuration
+
 ## [1.1.2] - 2026-09-17
 
 ### Added
