@@ -58,6 +58,7 @@ class HomeOnEnergyCard extends HTMLElement {
       batteryDischarge: { label: "Rozładowanie baterii", icon: "mdi:battery-arrow-down", find: ["rozladowanie baterii"] },
 
       pvPower: { label: "Moc PV", icon: "mdi:solar-power", find: ["moc pv"] },
+      pvEnergyToday: { label: "Produkcja PV dzisiaj", icon: "mdi:white-balance-sunny", domain: "sensor", find: ["produkcja pv dzisiaj", "dzisiejsza produkcja pv", "today production"] },
       pvEnergyTotal: { label: "Łączna produkcja PV", icon: "mdi:solar-power-variant", domain: "sensor", find: ["laczna produkcja pv", "calkowita produkcja pv", "total pv production", "pv total energy"] },
       loadPower: { label: "Moc domu", icon: "mdi:home-lightning-bolt", find: ["moc domu"] },
       gridPower: { label: "Moc sieci", icon: "mdi:transmission-tower", find: ["moc sieci"] },
@@ -214,6 +215,11 @@ class HomeOnEnergyCard extends HTMLElement {
         "sensor.homeon_moc_pv",
         "sensor.homeon_energy_manager_moc_pv",
         "sensor.homeon_energy_manager_homeon_moc_pv"
+      ],
+      pvEnergyToday: [
+        "sensor.inverter_today_production",
+        "sensor.inverter_today_pv_production",
+        "sensor.deye_today_production"
       ],
       pvEnergyTotal: [
         "sensor.inverter_total_production",
@@ -677,6 +683,7 @@ class HomeOnEnergyCard extends HTMLElement {
 
         <div class="hf-summary">
           <div><ha-icon icon="mdi:solar-power"></ha-icon><span>PV</span><b>${this.fmtW(pv)}</b></div>
+          ${this.hasUsefulValue("pvEnergyToday") ? `<div><ha-icon icon="mdi:white-balance-sunny"></ha-icon><span>Produkcja dzisiaj</span><b>${this.esc(this.energyKwh("pvEnergyToday"))}</b></div>` : ""}
           ${this.hasUsefulValue("pvEnergyTotal") ? `<div><ha-icon icon="mdi:solar-power-variant"></ha-icon><span>Produkcja łącznie</span><b>${this.esc(this.energyKwh("pvEnergyTotal"))}</b></div>` : ""}
           <div><ha-icon icon="mdi:home-lightning-bolt"></ha-icon><span>Dom</span><b>${this.fmtW(load)}</b></div>
           <div><ha-icon icon="mdi:battery-plus"></ha-icon><span>Cel ładowania</span><b>${this.esc(this.value("chargeTarget"))}</b></div>
@@ -1499,7 +1506,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.1.3 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.1.4 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1511,4 +1518,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.1.3 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.1.4 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
