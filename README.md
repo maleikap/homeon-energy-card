@@ -127,6 +127,48 @@ Karta przelicza wartości Wh i MWh oraz wyświetla wynik w kWh. Dla typowych naz
 
 Oryginalne logo jest dostarczane razem z wydaniem HACS i używane automatycznie.
 
+## Karta na pełnym ekranie
+
+Najwygodniej umieścić HomeOn Energy Card w osobnym widoku typu **Panel (jedna karta)**. Karta zajmie wtedy całą dostępną szerokość dashboardu.
+
+### Konfiguracja w edytorze graficznym
+
+1. Otwórz dashboard i wybierz **Edytuj panel**.
+2. Dodaj nowy widok.
+3. Ustaw typ widoku **Panel (jedna karta)**.
+4. Dodaj kartę **Ręcznie**.
+5. W edytorze pojedynczej karty wklej:
+
+```yaml
+type: custom:homeon-energy-card
+title: HomeOn Energy Dashboard
+```
+
+### Pełna konfiguracja widoku YAML
+
+Jeżeli edytujesz konfigurację całego dashboardu, użyj:
+
+```yaml
+views:
+  - title: Energia
+    path: energia
+    icon: mdi:solar-power
+    panel: true
+    cards:
+      - type: custom:homeon-energy-card
+        title: HomeOn Energy Dashboard
+```
+
+Najważniejsze ustawienie to:
+
+```yaml
+panel: true
+```
+
+Znajduje się ono na poziomie widoku, a nie wewnątrz konfiguracji karty.
+
+> Jeżeli Home Assistant pokazuje błąd `Expected an array value` albo `Expected an object`, sprawdź miejsce wklejenia kodu. Do edytora pojedynczej karty należy wkleić tylko fragment zaczynający się od `type: custom:homeon-energy-card`. Pełny kod z `views:` jest przeznaczony do konfiguracji całego dashboardu.
+
 ## Brakujące dane
 
 Sekcja finansowa jest ukrywana, jeżeli obie skonfigurowane encje finansowe nie istnieją. Pozostałe pola są wyszukiwane automatycznie wśród encji HomeOn Energy Manager. Brak integracji opcjonalnej nie powinien zatrzymać całej karty.
