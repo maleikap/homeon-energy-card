@@ -978,7 +978,7 @@ class HomeOnEnergyCard extends HTMLElement {
     const actions = {
       PV_PRICE_EXPORT: "Sprzedaję wyłącznie bieżącą nadwyżkę PV. Magazyn nie jest celowo rozładowywany do sieci.",
       SELL_BATTERY_HIGH_PRICE: "Sprzedaję energię z magazynu, ponieważ cena osiągnęła opłacalny poziom.",
-      WAIT_BETTER_SELL_PRICE: `Zachowuję energię w magazynie i czekam na lepszą cenę${bestTime !== "—" ? ` około ${bestTime}` : ""}.`,
+      WAIT_BETTER_SELL_PRICE: this.value("reason"),
       PV_LOW_PRICE_CHARGE: "Ładuję magazyn z PV w jednej z najgorszych godzin sprzedaży.",
       PV_CHARGE: "Ładuję magazyn z bieżącej produkcji PV.",
       CHEAP_CHARGE: "Ładuję magazyn z sieci w taniej godzinie.",
