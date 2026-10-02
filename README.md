@@ -16,7 +16,7 @@
 
 ## Przeznaczenie
 
-HomeOn Energy Card 1.0.0 jest uproszczonym widokiem przeznaczonym do codziennego użytkowania przez właściciela instalacji. Karta pokazuje wyłącznie najważniejsze informacje:
+HomeOn Energy Card 1.1.5 jest uproszczonym widokiem przeznaczonym do codziennego użytkowania przez właściciela instalacji. Karta pokazuje wyłącznie najważniejsze informacje:
 
 - aktualną decyzję HomeOn Energy Manager,
 - produkcję PV, zużycie domu, pracę magazynu i wymianę z siecią,
@@ -42,7 +42,9 @@ Techniczna diagnostyka Deye, lista encji, komendy wykonawcze i szczegóły model
 
 ### Pstryk AIO
 
-Pstryk AIO dostarcza ceny dynamiczne oraz dzienny bilans finansowy. Wykres finansowy wykorzystuje domyślnie:
+HomeOn Energy Manager 1.2.32 lub nowszy liczy na bieżąco dzienny import, eksport, koszt zakupu oraz wartość sprzedaży z mocy CT i godzinowych cen Pstryk AIO. Karta wykrywa te sensory automatycznie.
+
+Starsze wersje Managera korzystają awaryjnie bezpośrednio z encji Pstryk AIO:
 
 ```text
 sensor.pstryk_aio_dzienna_wartosc_produkcji_energii

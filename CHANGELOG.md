@@ -2,6 +2,14 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.1.5] - 2026-10-02
+
+### Fixed
+
+- Financial statistics now prefer live daily values calculated by HomeOn Energy Manager
+- Added daily imported and exported energy in kWh next to purchase and sale values
+- Pstryk AIO daily financial entities remain available as an automatic fallback
+
 ## [1.1.4] - 2026-09-17
 
 ### Added
