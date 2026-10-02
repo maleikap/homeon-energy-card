@@ -163,6 +163,10 @@ class HomeOnEnergyCard extends HTMLElement {
       learnAvgNightLoad: { label: "Średnie zużycie noc", icon: "mdi:weather-night", find: ["ems srednie zuzycie noc"] },
       learnDailyKwh: { label: "Szacowane zużycie dobowe", icon: "mdi:calendar-today", find: ["ems szacowane zuzycie dobowe"] },
       learnNightKwh: { label: "Szacowane zużycie nocne", icon: "mdi:weather-night", find: ["ems szacowane zuzycie nocne"] },
+      dailyImportEnergy: { label: "Import z sieci dzisiaj", icon: "mdi:transmission-tower-import", find: ["ems import z sieci dzisiaj"] },
+      dailyExportEnergy: { label: "Eksport do sieci dzisiaj", icon: "mdi:transmission-tower-export", find: ["ems eksport do sieci dzisiaj"] },
+      dailyPurchaseCost: { label: "Koszt zakupu dzisiaj", icon: "mdi:cash-minus", find: ["ems koszt zakupu dzisiaj"] },
+      dailySaleValue: { label: "Wartość sprzedaży dzisiaj", icon: "mdi:cash-plus", find: ["ems wartosc sprzedazy dzisiaj"] },
       learnAvgPv: { label: "Średnia produkcja PV", icon: "mdi:solar-power", find: ["ems srednia produkcja pv"] },
       learnAvgImport: { label: "Średni import", icon: "mdi:transmission-tower-import", find: ["ems sredni import"] },
       learnAvgExport: { label: "Średni eksport", icon: "mdi:transmission-tower-export", find: ["ems sredni eksport"] },
@@ -1127,19 +1131,27 @@ class HomeOnEnergyCard extends HTMLElement {
   }
 
   financeCard() {
-    const saleEntity = this.config.sale_value_entity || "sensor.pstryk_aio_dzienna_wartosc_produkcji_energii";
-    const costEntity = this.config.purchase_cost_entity || "sensor.pstryk_aio_dzienne_koszty_zuzycia_energii";
+    const saleEntity = this.config.sale_value_entity
+      || this.findEntity("dailySaleValue")
+      || "sensor.pstryk_aio_dzienna_wartosc_produkcji_energii";
+    const costEntity = this.config.purchase_cost_entity
+      || this.findEntity("dailyPurchaseCost")
+      || "sensor.pstryk_aio_dzienne_koszty_zuzycia_energii";
+    const importEnergyEntity = this.findEntity("dailyImportEnergy");
+    const exportEnergyEntity = this.findEntity("dailyExportEnergy");
     const saleState = this.directState(saleEntity);
     const costState = this.directState(costEntity);
 
     if (!saleState && !costState) return "";
 
-    const sale = Math.max(0, this.directNumber(saleEntity, 0));
-    const cost = Math.max(0, this.directNumber(costEntity, 0));
+    const sale = this.directNumber(saleEntity, 0);
+    const cost = this.directNumber(costEntity, 0);
+    const importEnergy = importEnergyEntity ? Math.max(0, this.directNumber(importEnergyEntity, 0)) : null;
+    const exportEnergy = exportEnergyEntity ? Math.max(0, this.directNumber(exportEnergyEntity, 0)) : null;
     const balance = sale - cost;
-    const scale = Math.max(sale, cost, 0.01);
-    const saleWidth = Math.max(2, Math.min(100, sale / scale * 100));
-    const costWidth = Math.max(2, Math.min(100, cost / scale * 100));
+    const scale = Math.max(Math.abs(sale), Math.abs(cost), 0.01);
+    const saleWidth = Math.max(2, Math.min(100, Math.abs(sale) / scale * 100));
+    const costWidth = Math.max(2, Math.min(100, Math.abs(cost) / scale * 100));
     const unit = saleState?.attributes?.unit_of_measurement
       || costState?.attributes?.unit_of_measurement
       || "zł";
@@ -1154,11 +1166,11 @@ class HomeOnEnergyCard extends HTMLElement {
         </div>
         <div class="money-chart">
           <div class="money-row sale">
-            <div class="money-label"><span>Sprzedaż energii</span><strong>${this.money(sale, unit)}</strong></div>
+            <div class="money-label"><span>Sprzedaż energii${exportEnergy !== null ? ` · ${exportEnergy.toFixed(2)} kWh` : ""}</span><strong>${this.money(sale, unit)}</strong></div>
             <div class="money-track"><i style="width:${saleWidth}%"></i></div>
           </div>
           <div class="money-row cost">
-            <div class="money-label"><span>Zakup energii</span><strong>${this.money(cost, unit)}</strong></div>
+            <div class="money-label"><span>Zakup energii${importEnergy !== null ? ` · ${importEnergy.toFixed(2)} kWh` : ""}</span><strong>${this.money(cost, unit)}</strong></div>
             <div class="money-track"><i style="width:${costWidth}%"></i></div>
           </div>
         </div>
@@ -1506,7 +1518,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.1.4 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.1.5 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1518,4 +1530,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.1.4 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.1.5 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
