@@ -36,6 +36,7 @@ jobs:
           cmp -s homeon_logo.svg dist/homeon_logo.svg
           grep -q '<title>HomeOn logo extracted from photo</title>' dist/homeon_logo.svg
           node --check dist/homeon-energy-card.js
+          node tests/finance-card.test.js
           test ! -e homeon-test-card.js
           test ! -e homeon-operator-fresh.js
           test ! -e homeon-operator-pretty.js
