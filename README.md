@@ -16,9 +16,10 @@
 
 ## Przeznaczenie
 
-HomeOn Energy Card 1.1.5 jest uproszczonym widokiem przeznaczonym do codziennego użytkowania przez właściciela instalacji. Karta pokazuje wyłącznie najważniejsze informacje:
+HomeOn Energy Card 1.1.6 jest uproszczonym widokiem przeznaczonym do codziennego użytkowania przez właściciela instalacji. Karta pokazuje wyłącznie najważniejsze informacje:
 
 - aktualną decyzję HomeOn Energy Manager,
+- natychmiastowe, czerwone ostrzeżenie OFF-GRID przy zaniku sieci,
 - produkcję PV, zużycie domu, pracę magazynu i wymianę z siecią,
 - poziom oraz cele magazynu energii,
 - ceny zakupu i sprzedaży energii,
