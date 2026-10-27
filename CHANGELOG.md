@@ -2,6 +2,18 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.1.6] - 2026-10-27
+
+### Added
+
+- Prominent OFF-GRID banner shown as the first element of the customer view
+- OFF-GRID state and disconnected-grid icon in both energy-flow views
+- Automatic discovery of the new HomeOn grid connection and OFF-GRID sensors
+
+### Changed
+
+- The action summary explains that PV supplies the home and charges the battery during island operation
+
 ## [1.1.5] - 2026-10-02
 
 ### Fixed

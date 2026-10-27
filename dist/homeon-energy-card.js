@@ -63,6 +63,8 @@ class HomeOnEnergyCard extends HTMLElement {
       loadPower: { label: "Moc domu", icon: "mdi:home-lightning-bolt", find: ["moc domu"] },
       gridPower: { label: "Moc sieci", icon: "mdi:transmission-tower", find: ["moc sieci"] },
       gridStatus: { label: "Status sieci", icon: "mdi:transmission-tower-export", find: ["status sieci"] },
+      gridConnectionStatus: { label: "Stan połączenia z siecią", icon: "mdi:transmission-tower", find: ["stan polaczenia z siecia"] },
+      offGrid: { label: "OFF-GRID", icon: "mdi:transmission-tower-off", find: ["off grid"] },
       gridImport: { label: "Import z sieci", icon: "mdi:transmission-tower-import", find: ["import z sieci"] },
       gridExport: { label: "Eksport do sieci", icon: "mdi:transmission-tower-export", find: ["eksport do sieci"] },
       inverterSelf: { label: "Pobór własny falownika", icon: "mdi:inverter", find: ["pobor wlasny falownika"] },
@@ -247,6 +249,16 @@ class HomeOnEnergyCard extends HTMLElement {
         "sensor.homeon_status_sieci",
         "sensor.homeon_energy_manager_status_sieci",
         "sensor.homeon_energy_manager_homeon_status_sieci"
+      ],
+      gridConnectionStatus: [
+        "sensor.homeon_stan_polaczenia_z_siecia",
+        "sensor.homeon_energy_manager_stan_polaczenia_z_siecia",
+        "sensor.homeon_energy_manager_homeon_stan_polaczenia_z_siecia"
+      ],
+      offGrid: [
+        "sensor.homeon_off_grid",
+        "sensor.homeon_energy_manager_off_grid",
+        "sensor.homeon_energy_manager_homeon_off_grid"
       ],
       gridImport: [
         "sensor.homeon_import_z_sieci",
@@ -442,6 +454,7 @@ class HomeOnEnergyCard extends HTMLElement {
   modeInfo(rawMode = this.plain("mode", "")) {
     const code = String(rawMode || "").trim().toUpperCase();
     const modes = {
+      OFF_GRID: { label: "Praca wyspowa OFF-GRID", icon: "mdi:transmission-tower-off", cls: "danger" },
       PV_PRICE_EXPORT: { label: "Sprzedaż nadwyżki PV", icon: "mdi:solar-power", cls: "sell" },
       SELL_BATTERY_HIGH_PRICE: { label: "Sprzedaż energii z magazynu", icon: "mdi:battery-arrow-down", cls: "sell" },
       WAIT_BETTER_SELL_PRICE: { label: "Oczekiwanie na lepszą cenę", icon: "mdi:cash-clock", cls: "hold" },
@@ -609,11 +622,12 @@ class HomeOnEnergyCard extends HTMLElement {
     const gridFlow = Math.max(gridImport, gridExport);
     const batteryFlow = Math.max(batteryCharge, batteryDischarge);
 
-    const gridMode = gridImport > gridExport ? "IMPORT" : gridExport > 25 ? "EKSPORT" : "ZERO";
+    const offGrid = this.offGridActive();
+    const gridMode = offGrid ? "OFF-GRID" : gridImport > gridExport ? "IMPORT" : gridExport > 25 ? "EKSPORT" : "ZERO";
     const batteryMode = batteryDischarge > batteryCharge ? "ROZŁADOWANIE" : batteryCharge > 25 ? "ŁADOWANIE" : "POSTÓJ";
 
     const pvOn = pv > 25 ? " on" : "";
-    const gridOn = gridFlow > 25 ? " on" : "";
+    const gridOn = !offGrid && gridFlow > 25 ? " on" : "";
     const batteryOn = batteryFlow > 25 ? " on" : "";
 
     const gridReverse = gridExport > gridImport ? " reverse" : "";
@@ -646,8 +660,8 @@ class HomeOnEnergyCard extends HTMLElement {
           </div>
 
           <div class="hf-mid">
-            <div class="hf-node">
-              <div class="hf-orb hf-grid-orb"><ha-icon icon="mdi:transmission-tower"></ha-icon></div>
+            <div class="hf-node${offGrid ? " hf-off-grid-node" : ""}">
+              <div class="hf-orb hf-grid-orb"><ha-icon icon="mdi:${offGrid ? "transmission-tower-off" : "transmission-tower"}"></ha-icon></div>
               <strong>Sieć</strong>
               <b>${this.fmtW(gridFlow)}</b>
               <small>${this.esc(gridMode)}</small>
@@ -975,6 +989,28 @@ class HomeOnEnergyCard extends HTMLElement {
     `;
   }
 
+  offGridActive() {
+    const connection = this.norm(this.plain("gridConnectionStatus", ""));
+    const flowStatus = this.norm(this.plain("gridStatus", ""));
+    return this.isOn("offGrid")
+      || this.modeInfo().code === "OFF_GRID"
+      || connection === "off grid"
+      || flowStatus === "off grid";
+  }
+
+  offGridBanner() {
+    if (!this.offGridActive()) return "";
+    return `
+      <section class="off-grid-banner" role="alert">
+        <ha-icon icon="mdi:transmission-tower-off"></ha-icon>
+        <div>
+          <strong>OFF-GRID · BRAK ZASILANIA Z SIECI</strong>
+          <span>PV zasila dom, a dostępna nadwyżka ładuje magazyn. Eksport i ładowanie z sieci są wyłączone.</span>
+        </div>
+      </section>
+    `;
+  }
+
   currentActionText() {
     const mode = this.modeInfo().code;
     const nextTime = this.plain("planNextActionTime", "—");
@@ -995,6 +1031,7 @@ class HomeOnEnergyCard extends HTMLElement {
       WEATHER_HOLD_RESERVE: "Zachowuję rezerwę energii ze względu na słabszą prognozę PV.",
       PV_REALITY_HOLD: "Zachowuję rezerwę, ponieważ rzeczywista produkcja PV jest słabsza od oczekiwanej.",
       EMERGENCY_RESERVE: "Chronię awaryjną rezerwę magazynu i wstrzymuję handel.",
+      OFF_GRID: "Pracuję wyspowo: PV zasila dom, a nadwyżka ładuje magazyn bez udziału sieci.",
       SAFE_MODE: "Wstrzymuję handel z powodu nieprawidłowych lub brakujących danych.",
       NORMAL: "Instalacja pracuje normalnie bez wymuszonego handlu energią.",
       NORMAL_SAFE: "Instalacja pracuje normalnie z ochroną bezpiecznej rezerwy.",
@@ -1023,7 +1060,12 @@ class HomeOnEnergyCard extends HTMLElement {
     let detail = "Dom i magazyn pracują bez sprzedaży energii do sieci.";
     let cls = "neutral";
 
-    if (mode === "SELL_BATTERY_HIGH_PRICE" || mode === "PREPARE_NEGATIVE_PRICE_WINDOW") {
+    if (mode === "OFF_GRID") {
+      icon = "mdi:transmission-tower-off";
+      title = "Sieć niedostępna — OFF-GRID";
+      detail = "Instalacja pracuje wyspowo. Energia pozostaje w domu i magazynie.";
+      cls = "off-grid";
+    } else if (mode === "SELL_BATTERY_HIGH_PRICE" || mode === "PREPARE_NEGATIVE_PRICE_WINDOW") {
       icon = "mdi:battery-arrow-down";
       title = "Sprzedaż energii z magazynu";
       detail = `Bateria jest celowo udostępniona do sprzedaży${gridExport > 25 ? ` · eksport ${this.fmtW(gridExport)}` : ""}.`;
@@ -1103,7 +1145,8 @@ class HomeOnEnergyCard extends HTMLElement {
     const grid = Math.max(gridImport, gridExport);
 
     const batteryText = discharge > charge ? "rozładowanie" : charge > 25 ? "ładowanie" : "postój";
-    const gridText = gridImport > gridExport ? "pobór" : gridExport > 25 ? "sprzedaż" : "bez wymiany";
+    const offGrid = this.offGridActive();
+    const gridText = offGrid ? "OFF-GRID" : gridImport > gridExport ? "pobór" : gridExport > 25 ? "sprzedaż" : "bez wymiany";
 
     const node = (icon, label, value, subtitle, color, active) => `
       <div class="flow-item ${active ? "active" : ""}" style="--node-color:${color}">
@@ -1124,7 +1167,7 @@ class HomeOnEnergyCard extends HTMLElement {
           ${node("mdi:solar-power", "Produkcja PV", this.fmtW(pv), "panele", "#f59e0b", pv > 25)}
           ${node("mdi:home-lightning-bolt", "Zużycie domu", this.fmtW(load), "aktualnie", "#22c55e", load > 25)}
           ${node("mdi:battery", "Magazyn", this.esc(this.value("soc")), batteryText + " · " + this.fmtW(battery), "#38bdf8", battery > 25)}
-          ${node("mdi:transmission-tower", "Sieć", this.fmtW(grid), gridText, "#a78bfa", grid > 25)}
+          ${node(offGrid ? "mdi:transmission-tower-off" : "mdi:transmission-tower", "Sieć", this.fmtW(grid), gridText, offGrid ? "#ef4444" : "#a78bfa", offGrid || grid > 25)}
         </div>
       </section>
     `;
@@ -1216,6 +1259,16 @@ class HomeOnEnergyCard extends HTMLElement {
           * { box-sizing: border-box; }
           ha-card { overflow: hidden; border-radius: 22px; }
           .client-wrap { display: grid; gap: 14px; padding: 16px; color: var(--homeon-text); }
+          .off-grid-banner {
+            display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+            border: 2px solid #ef4444; border-radius: 18px;
+            background: linear-gradient(135deg,rgba(239,68,68,.24),rgba(249,115,22,.14));
+            color: var(--homeon-text); box-shadow: 0 0 0 3px rgba(239,68,68,.08);
+          }
+          .off-grid-banner > ha-icon { width: 34px; height: 34px; color: #ef4444; flex: 0 0 auto; }
+          .off-grid-banner div { display: grid; gap: 4px; }
+          .off-grid-banner strong { color: #ef4444; font-size: 17px; font-weight: 950; letter-spacing: .02em; }
+          .off-grid-banner span { font-size: 12px; line-height: 1.4; }
           .client-hero {
             display: flex; align-items: center; gap: 18px; padding: 20px;
             border: 1px solid var(--homeon-border); border-radius: 22px;
@@ -1314,6 +1367,8 @@ class HomeOnEnergyCard extends HTMLElement {
           .hf-solar { background: linear-gradient(135deg,#facc15,#f97316); }
           .hf-home-orb { background: linear-gradient(135deg,#38bdf8,#2563eb); }
           .hf-grid-orb { background: linear-gradient(135deg,#a78bfa,#7c3aed); }
+          .hf-off-grid-node { border-color: rgba(239,68,68,.75); background: rgba(239,68,68,.08); }
+          .hf-off-grid-node .hf-grid-orb { background: linear-gradient(135deg,#ef4444,#b91c1c); }
           .hf-batt-orb { background: linear-gradient(135deg,#22c55e,#0f766e); }
           .hf-vertical { display: flex; justify-content: center; height: 48px; align-items: center; }
           .hf-lane { position: relative; border-radius: 999px; opacity: .25; }
@@ -1485,6 +1540,7 @@ class HomeOnEnergyCard extends HTMLElement {
         </style>
 
         <div class="client-wrap">
+          ${this.offGridBanner()}
           ${this.clientHero()}
           ${this.warningCards()}
           ${this.actionSummaryCard()}
@@ -1518,7 +1574,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.1.5 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.1.6 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1530,4 +1586,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.1.5 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.1.6 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
