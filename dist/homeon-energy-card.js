@@ -71,6 +71,8 @@ class HomeOnEnergyCard extends HTMLElement {
 
       buyPrice: { label: "Cena zakupu", icon: "mdi:cash-plus", find: ["cena zakupu"] },
       sellPrice: { label: "Cena sprzedaży", icon: "mdi:cash-minus", find: ["cena sprzedazy"] },
+      buyPriceSourceEntity: { label: "Źródło ceny zakupu", icon: "mdi:database-arrow-down", find: ["zrodlo ceny zakupu"] },
+      sellPriceSourceEntity: { label: "Źródło ceny sprzedaży", icon: "mdi:database-arrow-up", find: ["zrodlo ceny sprzedazy"] },
       bestSellPrice: { label: "Najlepsza cena sprzedaży 24h", icon: "mdi:cash-check", find: ["najlepsza cena sprzedazy 24h"] },
       bestSellTime: { label: "Godzina najlepszej sprzedaży", icon: "mdi:clock-star-four-points", find: ["godzina najlepszej sprzedazy"] },
       nextBetterSellPrice: { label: "Następna lepsza cena", icon: "mdi:cash-clock", find: ["nastepna lepsza cena sprzedazy"] },
@@ -967,6 +969,60 @@ class HomeOnEnergyCard extends HTMLElement {
     return Number.isFinite(value) ? value : fallback;
   }
 
+  directEnergyKwh(entityId, fallback = null) {
+    const state = this.directState(entityId);
+    if (!state || ["", "unknown", "unavailable"].includes(String(state.state ?? ""))) return fallback;
+    const value = Number.parseFloat(String(state.state).replace(",", "."));
+    if (!Number.isFinite(value)) return fallback;
+    const unit = this.norm(state.attributes && state.attributes.unit_of_measurement);
+    if (unit === "wh") return value / 1000;
+    if (unit === "mwh") return value * 1000;
+    return value;
+  }
+
+  usableDirectState(entityId) {
+    const state = this.directState(entityId);
+    return state && !["", "unknown", "unavailable"].includes(String(state.state ?? ""));
+  }
+
+  pstrykInstanceSuffix() {
+    const configured = String(this.config.pstryk_instance_suffix || "").trim();
+    if (/^_?\d+$/.test(configured)) return `_${configured.replace(/^_/, "")}`;
+
+    for (const key of ["buyPriceSourceEntity", "sellPriceSourceEntity"]) {
+      const source = this.stateObj(key);
+      if (!source) continue;
+      const sourceEntityId = String(source.state || "");
+      if (!sourceEntityId.startsWith("sensor.pstryk_")) return null;
+      const match = sourceEntityId.match(/_(\d+)$/);
+      if (match) return `_${match[1]}`;
+      return "";
+    }
+
+    for (const key of ["sale_value_entity", "purchase_cost_entity", "export_energy_entity", "import_energy_entity"]) {
+      const match = String(this.config[key] || "").match(/_(\d+)$/);
+      if (match) return `_${match[1]}`;
+    }
+
+    return "";
+  }
+
+  pstrykDailyEntity(baseEntityId, suffix) {
+    if (suffix === null) return null;
+    const exact = `${baseEntityId}${suffix}`;
+    if (this.usableDirectState(exact)) return exact;
+
+    // With a known suffix, never fall back to an unsuffixed entity belonging
+    // to another installation.
+    if (suffix) return null;
+
+    const matching = Object.keys(this._hass?.states || {}).filter((entityId) =>
+      (entityId === baseEntityId || new RegExp(`^${baseEntityId}_\\d+$`).test(entityId))
+      && this.usableDirectState(entityId)
+    );
+    return matching.length === 1 ? matching[0] : null;
+  }
+
   money(value, unit = "zł") {
     const number = Number.isFinite(value) ? value : 0;
     return `${number.toLocaleString("pl-PL", {
@@ -1174,14 +1230,37 @@ class HomeOnEnergyCard extends HTMLElement {
   }
 
   financeCard() {
+    const pstrykSuffix = this.pstrykInstanceSuffix();
+    const pstrykSaleEntity = this.pstrykDailyEntity(
+      "sensor.pstryk_aio_dzienna_wartosc_produkcji_energii",
+      pstrykSuffix
+    );
+    const pstrykCostEntity = this.pstrykDailyEntity(
+      "sensor.pstryk_aio_dzienne_koszty_zuzycia_energii",
+      pstrykSuffix
+    );
+    const pstrykImportEntity = this.pstrykDailyEntity(
+      "sensor.pstryk_aio_dzienne_zuzycie_energii_kwh",
+      pstrykSuffix
+    );
+    const pstrykExportEntity = this.pstrykDailyEntity(
+      "sensor.pstryk_aio_dzienna_produkcja_energii_kwh",
+      pstrykSuffix
+    );
     const saleEntity = this.config.sale_value_entity
+      || pstrykSaleEntity
       || this.findEntity("dailySaleValue")
-      || "sensor.pstryk_aio_dzienna_wartosc_produkcji_energii";
+      || null;
     const costEntity = this.config.purchase_cost_entity
+      || pstrykCostEntity
       || this.findEntity("dailyPurchaseCost")
-      || "sensor.pstryk_aio_dzienne_koszty_zuzycia_energii";
-    const importEnergyEntity = this.findEntity("dailyImportEnergy");
-    const exportEnergyEntity = this.findEntity("dailyExportEnergy");
+      || null;
+    const importEnergyEntity = this.config.import_energy_entity
+      || pstrykImportEntity
+      || this.findEntity("dailyImportEnergy");
+    const exportEnergyEntity = this.config.export_energy_entity
+      || pstrykExportEntity
+      || this.findEntity("dailyExportEnergy");
     const saleState = this.directState(saleEntity);
     const costState = this.directState(costEntity);
 
@@ -1189,8 +1268,10 @@ class HomeOnEnergyCard extends HTMLElement {
 
     const sale = this.directNumber(saleEntity, 0);
     const cost = this.directNumber(costEntity, 0);
-    const importEnergy = importEnergyEntity ? Math.max(0, this.directNumber(importEnergyEntity, 0)) : null;
-    const exportEnergy = exportEnergyEntity ? Math.max(0, this.directNumber(exportEnergyEntity, 0)) : null;
+    const importEnergyRaw = this.directEnergyKwh(importEnergyEntity, null);
+    const exportEnergyRaw = this.directEnergyKwh(exportEnergyEntity, null);
+    const importEnergy = importEnergyRaw === null ? null : Math.max(0, importEnergyRaw);
+    const exportEnergy = exportEnergyRaw === null ? null : Math.max(0, exportEnergyRaw);
     const balance = sale - cost;
     const scale = Math.max(Math.abs(sale), Math.abs(cost), 0.01);
     const saleWidth = Math.max(2, Math.min(100, Math.abs(sale) / scale * 100));
@@ -1198,11 +1279,16 @@ class HomeOnEnergyCard extends HTMLElement {
     const unit = saleState?.attributes?.unit_of_measurement
       || costState?.attributes?.unit_of_measurement
       || "zł";
+    const usesPstryk = [saleEntity, costEntity, importEnergyEntity, exportEnergyEntity]
+      .some((entityId) => String(entityId || "").startsWith("sensor.pstryk_aio_"));
+    const sourceLabel = usesPstryk
+      ? `Pstryk AIO${pstrykSuffix ? ` (${pstrykSuffix.slice(1)}. instalacja)` : ""}`
+      : "liczników HomeOn";
 
     return `
       <section class="client-panel finance-panel">
         <div class="client-head">
-          <div><h3>Bilans finansowy dzisiaj</h3><p>Wartość sprzedanej energii i koszt energii kupionej.</p></div>
+          <div><h3>Bilans finansowy dzisiaj</h3><p>Dane dzienne bezpośrednio z ${this.esc(sourceLabel)}.</p></div>
           <div class="balance ${balance >= 0 ? "positive" : "negative"}">
             <span>Bilans</span><strong>${balance >= 0 ? "+" : ""}${this.money(balance, unit)}</strong>
           </div>
@@ -1574,7 +1660,7 @@ class HomeOnEnergyCard extends HTMLElement {
             </section>
           </div>
 
-          <div class="client-footer">HomeOn Energy Card 1.1.6 · widok klienta</div>
+          <div class="client-footer">HomeOn Energy Card 1.1.7 · widok klienta</div>
         </div>
       </ha-card>
     `;
@@ -1586,4 +1672,4 @@ if (!customElements.get("homeon-energy-card")) {
   customElements.define("homeon-energy-card", HomeOnEnergyCard);
 }
 
-console.info("%c HomeOn Energy Card 1.1.6 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");
+console.info("%c HomeOn Energy Card 1.1.7 loaded ", "background:#0b8f5a;color:white;border-radius:4px;padding:2px 6px;");

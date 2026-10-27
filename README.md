@@ -16,7 +16,7 @@
 
 ## Przeznaczenie
 
-HomeOn Energy Card 1.1.6 jest uproszczonym widokiem przeznaczonym do codziennego użytkowania przez właściciela instalacji. Karta pokazuje wyłącznie najważniejsze informacje:
+HomeOn Energy Card 1.1.7 jest uproszczonym widokiem przeznaczonym do codziennego użytkowania przez właściciela instalacji. Karta pokazuje wyłącznie najważniejsze informacje:
 
 - aktualną decyzję HomeOn Energy Manager,
 - natychmiastowe, czerwone ostrzeżenie OFF-GRID przy zaniku sieci,
@@ -43,16 +43,16 @@ Techniczna diagnostyka Deye, lista encji, komendy wykonawcze i szczegóły model
 
 ### Pstryk AIO
 
-HomeOn Energy Manager 1.2.32 lub nowszy liczy na bieżąco dzienny import, eksport, koszt zakupu oraz wartość sprzedaży z mocy CT i godzinowych cen Pstryk AIO. Karta wykrywa te sensory automatycznie.
-
-Starsze wersje Managera korzystają awaryjnie bezpośrednio z encji Pstryk AIO:
+Karta korzysta bezpośrednio z dziennych liczników rozliczeniowych Pstryk AIO:
 
 ```text
 sensor.pstryk_aio_dzienna_wartosc_produkcji_energii
 sensor.pstryk_aio_dzienne_koszty_zuzycia_energii
+sensor.pstryk_aio_dzienna_produkcja_energii_kwh
+sensor.pstryk_aio_dzienne_zuzycie_energii_kwh
 ```
 
-Pierwsza encja oznacza dzienną wartość sprzedanej energii, a druga dzienny koszt energii kupionej. Są to wartości pieniężne, a nie energia w kWh.
+Dwie pierwsze encje zawierają wartości pieniężne, a dwie kolejne energię oddaną i pobraną w kWh. HomeOn Energy Manager 1.2.58 przekazuje karcie wybraną instancję Pstryk, dlatego przy encjach z końcówkami `_2`, `_3` itd. dane różnych instalacji nie są mieszane. Gdy liczniki Pstryk są niedostępne, karta awaryjnie używa liczników Managera obliczanych z mocy CT.
 
 ### Prognoza produkcji PV
 
@@ -117,6 +117,15 @@ Jeżeli encje finansowe Pstryk mają inne identyfikatory:
 type: custom:homeon-energy-card
 sale_value_entity: sensor.twoja_wartosc_sprzedazy_dzisiaj
 purchase_cost_entity: sensor.twoj_koszt_zakupu_dzisiaj
+export_energy_entity: sensor.twoja_energia_oddana_dzisiaj
+import_energy_entity: sensor.twoja_energia_pobrana_dzisiaj
+```
+
+Przy kilku konfiguracjach Pstryk można również wymusić właściwy numer bez wpisywania czterech encji:
+
+```yaml
+type: custom:homeon-energy-card
+pstryk_instance_suffix: 2
 ```
 
 Łączną produkcję instalacji PV można dodać przez encję energii całkowitej falownika:

@@ -2,6 +2,14 @@
 
 All notable changes to HomeOn Energy Card are documented in this file.
 
+## [1.1.7] - 2026-10-27
+
+### Fixed
+
+- Daily sale value, purchase cost, exported energy and imported energy now prefer the authoritative Pstryk AIO entities instead of mixing Pstryk PLN values with HomeOn counters collected since restart
+- Multiple Pstryk entries use the same `_2`, `_3` etc. suffix as the price source selected in HomeOn Energy Manager
+- Added optional `export_energy_entity`, `import_energy_entity` and `pstryk_instance_suffix` overrides
+
 ## [1.1.6] - 2026-10-27
 
 ### Added
